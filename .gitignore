@@ -8,7 +8,7 @@
 *.o
 *.obj
 *.gitignore
-add_p4Ignore.bat
+/add_p4Ignore.bat
 
 
 # Precompiled Headers
