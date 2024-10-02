@@ -7,6 +7,9 @@
 *.lo
 *.o
 *.obj
+*.gitignore
+add_p4Ignore.bat
+
 
 # Precompiled Headers
 *.gch
@@ -45,6 +48,7 @@
 # Precompiled Assets
 SourceArt/**/*.png
 SourceArt/**/*.tga
+
 
 # Binary Files
 Binaries/*
