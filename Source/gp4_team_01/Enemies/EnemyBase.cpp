@@ -1,6 +1,7 @@
 ﻿#include "EnemyBase.h"
 #include "SightComponent.h"
 #include "PerceptionSignal.h"
+
 #include "Kismet/GameplayStatics.h"
 
 
