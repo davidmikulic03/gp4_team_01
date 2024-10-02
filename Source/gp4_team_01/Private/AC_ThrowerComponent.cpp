@@ -10,9 +10,7 @@ UAC_ThrowerComponent::UAC_ThrowerComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	MuzzleOffset = FVector(100.f, 0.f, 10.f);
-
-
+	MuzzleOffset = FVector(300.f, 0.f, 10.f);
 }
 
 

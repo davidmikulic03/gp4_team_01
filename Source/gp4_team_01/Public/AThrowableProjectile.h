@@ -4,33 +4,48 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/SphereComponent.h"
 #include "AThrowableProjectile.generated.h"
 
+class USphereComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
 class GP4_TEAM_01_API AAThrowableProjectile : public AActor
 {
 	GENERATED_BODY()
+
+	/** Sphere collision component */
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	USphereComponent* CollisionComp;
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UProjectileMovementComponent* ProjectileMovement;
+
 	//methods
-public:	
+public:
 	AAThrowableProjectile();
+	/** called when projectile hits something */
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	/** Returns CollisionComp subobject **/
+	USphereComponent* GetCollisionComp() const { return CollisionComp; }
+	/** Returns ProjectileMovement subobject **/
+	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
+
 	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
-private:	
+private:
 
 
 
 	//variables and components
 private:
 
-protected: 
+protected:
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UProjectileMovementComponent* ProjectileMovementComponent;
 };
+
