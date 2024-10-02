@@ -1,6 +1,6 @@
 ﻿#include "EnemyBase.h"
 #include "SightComponent.h"
-#include "ActorSignalPair.h"
+#include "PerceptionSignal.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -56,17 +56,17 @@ bool AEnemyBase::IsPlayerInView(float& SignalStrength) {
 	return IsActorInView(Player, SignalStrength);
 }
 
-TArray<FActorSignalPair> AEnemyBase::GetActorsOfClassInView(TSubclassOf<AActor> Class) {
-	TArray<FActorSignalPair> Result;
+TArray<FPerceptionSignal> AEnemyBase::GetActorsOfClassInView(TSubclassOf<AActor> Class) {
+	TArray<FPerceptionSignal> Result;
 	for(auto Actor : GetVisibleActorCandidatesOfClass(Class)) {
 		float DetectionRate;
 		if(IsActorInView(Actor, DetectionRate))
-			Result.Add(FActorSignalPair(Actor, DetectionRate));
+			Result.Add(FPerceptionSignal(DetectionRate, Actor));
 	}
 	return Result;
 }
 
-TArray<FActorSignalPair> AEnemyBase::GetActorsInView() {
+TArray<FPerceptionSignal> AEnemyBase::GetActorsInView() {
 	return GetActorsOfClassInView(AActor::StaticClass());
 }
 

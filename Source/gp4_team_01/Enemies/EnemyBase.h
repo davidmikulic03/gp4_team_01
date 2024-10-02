@@ -23,14 +23,14 @@ public:
 			SightComponents.Add(Component);
 	}
 
-	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Vision")
+	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Perception")
 		bool IsActorInView(AActor* Actor, float& DetectionRate);
-	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Vision") 
+	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Perception") 
 		bool IsPlayerInView(float& SignalStrength);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Vision") 
-		TArray<struct FActorSignalPair> GetActorsOfClassInView(TSubclassOf<AActor> Class);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Vision") 
-		TArray<struct FActorSignalPair> GetActorsInView();
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Perception") 
+		TArray<struct FPerceptionSignal> GetActorsOfClassInView(TSubclassOf<AActor> Class);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Perception") 
+		TArray<struct FPerceptionSignal> GetActorsInView();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
