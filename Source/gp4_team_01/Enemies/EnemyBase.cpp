@@ -24,12 +24,11 @@ void AEnemyBase::Unpetrify(APawn* Player) {
 			FString::Printf(TEXT("Enemy unpetrified by %s"), *Player->GetName()));
 }
 
-bool AEnemyBase::IsActorVisible(AActor* Actor, float& DetectionRate) {
+bool AEnemyBase::IsActorInView(AActor* Actor, float& DetectionRate) {
 	DetectionRate = 0.f;
 	for(auto SightComponent : SightComponents) {
 		float currentComponentDetectionRate;
 		if(SightComponent->IsActorVisible(Actor, currentComponentDetectionRate)) {
-			GEngine->AddOnScreenDebugMessage(static_cast<uint64>(Actor->GetUniqueID()), 0.1f, FColor::Purple, Actor->GetName());
 			if(currentComponentDetectionRate > DetectionRate)
 				DetectionRate = currentComponentDetectionRate;
 		}
@@ -52,23 +51,23 @@ TArray<AActor*> AEnemyBase::GetVisibleActorCandidatesOfClass(TSubclassOf<AActor>
 	return Candidates;
 }
 
-bool AEnemyBase::IsPlayerVisible(float& SignalStrength) {
+bool AEnemyBase::IsPlayerInView(float& SignalStrength) {
 	AActor* Player = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
-	return IsActorVisible(Player, SignalStrength);
+	return IsActorInView(Player, SignalStrength);
 }
 
-TArray<FActorSignalPair> AEnemyBase::GetVisibleActorsOfClass(TSubclassOf<AActor> Class) {
+TArray<FActorSignalPair> AEnemyBase::GetActorsOfClassInView(TSubclassOf<AActor> Class) {
 	TArray<FActorSignalPair> Result;
 	for(auto Actor : GetVisibleActorCandidatesOfClass(Class)) {
 		float DetectionRate;
-		if(IsActorVisible(Actor, DetectionRate))
+		if(IsActorInView(Actor, DetectionRate))
 			Result.Add(FActorSignalPair(Actor, DetectionRate));
 	}
 	return Result;
 }
 
-TArray<FActorSignalPair> AEnemyBase::GetVisibleActors() {
-	return GetVisibleActorsOfClass(AActor::StaticClass());
+TArray<FActorSignalPair> AEnemyBase::GetActorsInView() {
+	return GetActorsOfClassInView(AActor::StaticClass());
 }
 
 void AEnemyBase::BeginPlay() {
@@ -78,7 +77,7 @@ void AEnemyBase::BeginPlay() {
 void AEnemyBase::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	TArray<FActorSignalPair> a = GetVisibleActors();
+	//TArray<FActorSignalPair> a = GetVisibleActors();
 	//GEngine->AddOnScreenDebugMessage(18095, 0.1f, FColor::Black,
 	//	FString::Printf(TEXT("Player Detection Delta: %f"), dr));
 }
