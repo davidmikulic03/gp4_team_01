@@ -2,6 +2,7 @@
 
 
 #include "AThrowableProjectile.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AAThrowableProjectile::AAThrowableProjectile()
@@ -36,11 +37,17 @@ AAThrowableProjectile::AAThrowableProjectile()
 
 void AAThrowableProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())
+
+	if ((OtherActor != nullptr) && (OtherActor != this))
 	{
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 		//Destroy();
+		if(NoiseDataAsset != nullptr)
+		{
+			NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetActorLocation());
+		}
+		
 	}
 }
 
@@ -48,6 +55,7 @@ void AAThrowableProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 void AAThrowableProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 // Called every frame

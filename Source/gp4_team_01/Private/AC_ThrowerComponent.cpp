@@ -46,7 +46,7 @@ void UAC_ThrowerComponent::Launch()
 		{
 			AAPlayerCharacterController* Controller = Cast<AAPlayerCharacterController>(GetWorld()->GetFirstPlayerController());
 
-			const FRotator SpawnRotation = Controller->PlayerCameraManager->GetCameraRotation() + ThrowAngle;
+			const FRotator SpawnRotation = Controller->PlayerCameraManager->GetCameraRotation() + FRotator(0.f, 0.f, ThrowAngle);
 			const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
 
 			FActorSpawnParameters SpawnParams;

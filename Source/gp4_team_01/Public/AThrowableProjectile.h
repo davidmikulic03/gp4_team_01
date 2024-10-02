@@ -6,10 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "gp4_team_01/DataAssets/NoiseDataAsset.h"
+#include "gp4_team_01/Systems/NoiseSystem.h"
+#include "gp4_team_01/Systems/MainGameMode.h"
 #include "AThrowableProjectile.generated.h"
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class ANoiseSystem;
+class AMainGameMode;
 
 UCLASS()
 class GP4_TEAM_01_API AAThrowableProjectile : public AActor
@@ -33,15 +38,14 @@ public:
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
-
+	UPROPERTY(EditDefaultsOnly)
+	UNoiseDataAsset* NoiseDataAsset;
 	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 private:
-
-
-
 	//variables and components
+	class ANoiseSystem* NoiseSystem;
 private:
 
 protected:
