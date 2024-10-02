@@ -1,0 +1,12 @@
+#Extensions
+*.csproj
+*.vsconfig
+*.sln
+*.vs
+*.idea
+
+#Directories
+Binaries/*
+DerivedDataCache/*
+Intermediate/*
+Saved/*
