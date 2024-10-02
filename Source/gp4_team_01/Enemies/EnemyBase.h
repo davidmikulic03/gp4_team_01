@@ -24,13 +24,13 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Vision")
-		bool IsActorVisible(AActor* Actor, float& DetectionRate);
+		bool IsActorInView(AActor* Actor, float& DetectionRate);
 	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Vision") 
-		bool IsPlayerVisible(float& SignalStrength);
+		bool IsPlayerInView(float& SignalStrength);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Vision") 
-		TArray<struct FActorSignalPair> GetVisibleActorsOfClass(TSubclassOf<AActor> Class);
+		TArray<struct FActorSignalPair> GetActorsOfClassInView(TSubclassOf<AActor> Class);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Vision") 
-		TArray<struct FActorSignalPair> GetVisibleActors();
+		TArray<struct FActorSignalPair> GetActorsInView();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
