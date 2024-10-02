@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "MainGameMode.generated.h"
 
+class ANoiseSystem;
+
 enum class GameState : uint8
 {
 	NONE = 0,
@@ -17,6 +19,9 @@ UCLASS(Abstract)
 class GP4_TEAM_01_API AMainGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+	
+public:
+	virtual void InitGameState() override;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -35,11 +40,18 @@ public:
 
 public:
 	enum GameState GetCurrentGameState() const { return CurrentGameState; };
+	
+	UFUNCTION(BlueprintCallable)
+	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; }; 
 
 private:
 	void LoadFromLastCheckpoint();
 	void ResetGameStateOnDeath();
 	
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Systems", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ANoiseSystem> NoiseSystemClass = nullptr;
+	
 	enum GameState CurrentGameState;
+	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
 };
