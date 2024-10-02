@@ -3,7 +3,20 @@
 
 #include "MainGameMode.h"
 
+#include "NoiseSystem.h"
 #include "Kismet/GameplayStatics.h"
+
+void AMainGameMode::InitGameState() {
+	Super::InitGameState();
+	
+	if(NoiseSystemClass)
+		NoiseSystemRef = GetWorld()->SpawnActor<ANoiseSystem>(NoiseSystemClass);
+	else
+		UE_LOG(LogTemp, Error, TEXT("ERROR: Missing NoiseSystemClass, plug it in the editor!"));
+
+	if(!NoiseSystemRef)
+		UE_LOG(LogTemp, Error, TEXT("ERROR: Failed to create NoiseSystem"));
+}
 
 void AMainGameMode::StartGame()
 {
