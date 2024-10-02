@@ -13,20 +13,17 @@ class GP4_TEAM_01_API USightComponent : public UStaticMeshComponent {
 public:
 	USightComponent();
 
-	bool IsActorVisible(AActor* Actor, float& ModifiedDetectionRate);
-	TArray<AActor*> GetAllVisibleActors();
-
-	FORCEINLINE TArray<AActor*> GetActorsInVisionCone() { return ActorsInVisionCone; }
+	bool IsPlayerVisible();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Perception)
 		float DetectionRate = 1.0;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Perception)
-		float DetectionFalloffPower = 0.0;
+		float DistancePower = 0.0;
 
 protected:
 	virtual void BeginPlay() override;
+
 	virtual void UpdateVisionMeshScale();
-	void SetDefaultCollisionResponse();
 	
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, 
@@ -51,5 +48,5 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Perception)
 		TEnumAsByte<ECollisionChannel> TraceChannel = ECC_GameTraceChannel1;
 
-	TArray<AActor*> ActorsInVisionCone;
+	AActor* Player = nullptr;
 };
