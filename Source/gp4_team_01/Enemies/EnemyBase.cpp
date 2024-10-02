@@ -24,9 +24,9 @@ void AEnemyBase::Unpetrify(APawn* Player) {
 			FString::Printf(TEXT("Enemy unpetrified by %s"), *Player->GetName()));
 }
 
-bool AEnemyBase::IsActorInView(AActor* Actor, float& DetectionRate) {
+bool AEnemyBase::IsActorInView(AEnemyBase* Target, AActor* Actor, float& DetectionRate) {
 	DetectionRate = 0.f;
-	for(auto SightComponent : SightComponents) {
+	for(auto SightComponent : Target->SightComponents) {
 		float currentComponentDetectionRate;
 		if(SightComponent->IsActorVisible(Actor, currentComponentDetectionRate)) {
 			if(currentComponentDetectionRate > DetectionRate)
@@ -36,11 +36,11 @@ bool AEnemyBase::IsActorInView(AActor* Actor, float& DetectionRate) {
 	return DetectionRate > 0;
 }
 
-TArray<AActor*> AEnemyBase::GetVisibleActorCandidates() {
+TArray<AActor*> AEnemyBase::GetVisibleActorCandidates() const {
 	return GetVisibleActorCandidatesOfClass(AActor::StaticClass());
 }
 
-TArray<AActor*> AEnemyBase::GetVisibleActorCandidatesOfClass(TSubclassOf<AActor> Class) {
+TArray<AActor*> AEnemyBase::GetVisibleActorCandidatesOfClass(TSubclassOf<AActor> Class) const {
 	TArray<AActor*> Candidates;
 	for (auto SightComponent : SightComponents) {
 		for (auto Candidate : SightComponent->GetActorsInVisionCone()) {
@@ -51,23 +51,26 @@ TArray<AActor*> AEnemyBase::GetVisibleActorCandidatesOfClass(TSubclassOf<AActor>
 	return Candidates;
 }
 
-bool AEnemyBase::IsPlayerInView(float& SignalStrength) {
-	AActor* Player = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
-	return IsActorInView(Player, SignalStrength);
+FPerceptionSignal AEnemyBase::GetVisionSignalToPlayer(AEnemyBase* Target) {
+	AActor* Player = UGameplayStatics::GetPlayerController(Target->GetWorld(), 0)->GetPawn();
+	float SignalStrength;
+	if(IsActorInView(Target, Player, SignalStrength))
+		return FPerceptionSignal(SignalStrength, Player);
+	else return FPerceptionSignal();
 }
 
-TArray<FPerceptionSignal> AEnemyBase::GetActorsOfClassInView(TSubclassOf<AActor> Class) {
+TArray<FPerceptionSignal> AEnemyBase::GetVisionSignalsOfClass(AEnemyBase* Target, TSubclassOf<AActor> Class) {
 	TArray<FPerceptionSignal> Result;
-	for(auto Actor : GetVisibleActorCandidatesOfClass(Class)) {
+	for(auto Actor : Target->GetVisibleActorCandidatesOfClass(Class)) {
 		float DetectionRate;
-		if(IsActorInView(Actor, DetectionRate))
+		if(IsActorInView(Target, Actor, DetectionRate))
 			Result.Add(FPerceptionSignal(DetectionRate, Actor));
 	}
 	return Result;
 }
 
-TArray<FPerceptionSignal> AEnemyBase::GetActorsInView() {
-	return GetActorsOfClassInView(AActor::StaticClass());
+TArray<FPerceptionSignal> AEnemyBase::GetVisionSignals(AEnemyBase* Target) {
+	return GetVisionSignalsOfClass(Target, AActor::StaticClass());
 }
 
 void AEnemyBase::BeginPlay() {
