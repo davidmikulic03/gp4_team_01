@@ -25,16 +25,28 @@ void AEnemyBase::Unpetrify(APawn* Player) {
 			FString::Printf(TEXT("Enemy unpetrified by %s"), *Player->GetName()));
 }
 
-bool AEnemyBase::IsActorInView(AEnemyBase* Target, AActor* Actor, float& DetectionRate) {
-	DetectionRate = 0.f;
+bool AEnemyBase::IsActorInView(AEnemyBase* Target, AActor* Actor, float& SignalStrength) {
+	SignalStrength = 0.f;
 	for(auto SightComponent : Target->SightComponents) {
 		float currentComponentDetectionRate;
 		if(SightComponent->IsActorVisible(Actor, currentComponentDetectionRate)) {
-			if(currentComponentDetectionRate > DetectionRate)
-				DetectionRate = currentComponentDetectionRate;
+			if(currentComponentDetectionRate > SignalStrength)
+				SignalStrength = currentComponentDetectionRate;
 		}
 	}
-	return DetectionRate > 0;
+	return SignalStrength > 0;
+}
+
+bool AEnemyBase::IsLocationInView(AEnemyBase* Target, FVector Location, float Tolerance, float& SignalStrength) {
+	SignalStrength = 0.f;
+	for(auto SightComponent : Target->SightComponents) {
+		float currentComponentDetectionRate;
+		if(SightComponent->IsLocationVisible(Location, Tolerance, currentComponentDetectionRate)) {
+			if(currentComponentDetectionRate > SignalStrength)
+				SignalStrength = currentComponentDetectionRate;
+		}
+	}
+	return SignalStrength > 0;
 }
 
 TArray<AActor*> AEnemyBase::GetVisibleActorCandidates() const {
