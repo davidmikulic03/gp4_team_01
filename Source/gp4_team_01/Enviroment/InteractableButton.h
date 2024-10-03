@@ -17,8 +17,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+public:
+	UFUNCTION(BlueprintCallable)
 	virtual void Interact(AActor* Caller) override;
 
+	UFUNCTION(BlueprintCallable)
 	virtual void Break() override;
 	
 private:
