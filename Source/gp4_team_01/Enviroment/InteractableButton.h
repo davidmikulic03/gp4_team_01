@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "InteractableButton.generated.h"
 
+class AInteractableTargetBase;
+
 UCLASS(Abstract)
 class GP4_TEAM_01_API AInteractableButton : public AActor, public IInteractable {
 	GENERATED_BODY()
@@ -26,13 +28,13 @@ public:
 	
 private:
 	//TERRIBLE NAMES!!!
-	void ActivateTarget();
-	void DeactivateTarget();
+	void ActivateTarget() const;
+	void DeactivateTarget() const;
 	
 private:
 	//TODO: maybe this guy should also be its own interface? IInteractionTarget?
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
-	AActor* InteractionTarget = nullptr;
+	AInteractableTargetBase* InteractionTarget = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	bool bDoesResetAfterCooldown = true;

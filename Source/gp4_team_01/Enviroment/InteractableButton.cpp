@@ -1,5 +1,7 @@
 #include "InteractableButton.h"
 
+#include "InteractableTargetBase.h"
+
 
 AInteractableButton::AInteractableButton() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -39,11 +41,11 @@ void AInteractableButton::Break() {
 	//TODO: change mesh/shader to show it's broken
 }
 
-void AInteractableButton::ActivateTarget() {
-	//TODO: do stuff to act on the InteractionTarget
+void AInteractableButton::ActivateTarget() const {
+	InteractionTarget->OnInteract();
 }
 
-void AInteractableButton::DeactivateTarget() {
-	//TODO: undo stuff to act on the InteractionTarget
+void AInteractableButton::DeactivateTarget() const {
+	InteractionTarget->OnUnInteract();
 }
 
