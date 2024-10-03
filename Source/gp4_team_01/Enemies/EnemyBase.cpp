@@ -1,4 +1,6 @@
 ﻿#include "EnemyBase.h"
+
+#include "HearingComponent.h"
 #include "SightComponent.h"
 #include "PerceptionSignal.h"
 
@@ -72,6 +74,14 @@ TArray<FPerceptionSignal> AEnemyBase::GetVisionSignalsOfClass(AEnemyBase* Target
 
 TArray<FPerceptionSignal> AEnemyBase::GetVisionSignals(AEnemyBase* Target) {
 	return GetVisionSignalsOfClass(Target, AActor::StaticClass());
+}
+
+FPerceptionSignal AEnemyBase::GetLastHearingSignal(AEnemyBase* Target) {
+	return  Target->GetHearingComponent()->GetLastNoiseSignal();
+}
+
+bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
+	return Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
 void AEnemyBase::BeginPlay() {

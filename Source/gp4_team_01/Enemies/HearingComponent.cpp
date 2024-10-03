@@ -1,7 +1,6 @@
-﻿
+﻿#include "HearingComponent.h"
 
-#include "HearingComponent.h"
-
+#include "EnemyBase.h"
 #include "gp4_team_01/DataAssets/NoiseDataAsset.h"
 #include "gp4_team_01/Systems/MainGameMode.h"
 #include "gp4_team_01/Systems/NoiseSystem.h"
@@ -18,6 +17,9 @@ void UHearingComponent::BeginPlay() {
 
 	ANoiseSystem* NoiseSystemRef = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	NoiseSystemRef->RegisterListener(this);
+
+	if (AEnemyBase* const OwningAI = Cast<AEnemyBase>(GetOwner()))
+		OwningAI->RegisterHearing(this);
 }
 
 void UHearingComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -32,11 +34,17 @@ void UHearingComponent::OnNoiseHeard(const UNoiseDataAsset* NoiseDataAsset, cons
 		DrawDebugSphere(GetWorld(), Location, NoiseDataAsset->Radius, 20, FColor::Purple, false, 1);
 		if((GetOwner()->GetActorLocation() - Location).Length() < NoiseDataAsset->Radius) {
 			UE_LOG(LogTemp, Warning, TEXT("Heard noise with intesity %f at location %s"), NoiseDataAsset->Intensity, *Location.ToString());
-			CurrentDetection += NoiseDataAsset->Intensity;
-			if(CurrentDetection >= DetectionThreshold) {
-				//TODO: detection logic that can be read by the BT.
-			}
+			LastNoiseSignalIntesity = NoiseDataAsset->Intensity;
+			LastNoiseSignalLocation = Location;
+			LastNoiseSignal.OverrideOrigin = LastNoiseSignalLocation;
+			LastNoiseSignal.SignalStrength = LastNoiseSignalIntesity;
+			bHasLastNoiseSignalBeenConsumed = false;
 		}
 	}
+}
+
+FPerceptionSignal UHearingComponent::GetLastNoiseSignal() {
+	bHasLastNoiseSignalBeenConsumed = true;
+	return LastNoiseSignal;
 }
 

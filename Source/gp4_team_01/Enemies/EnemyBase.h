@@ -1,10 +1,10 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "EnemyBase.generated.h"
 
+class UHearingComponent;
 class USightComponent;
 
 UCLASS(Abstract)
@@ -23,6 +23,11 @@ public:
 			SightComponents.Add(Component);
 	}
 
+	FORCEINLINE void RegisterHearing(UHearingComponent* Component) {
+		if(!HearingComponent)
+			HearingComponent = Component;
+	}
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception")
 		static bool IsActorInView(AEnemyBase* Target, AActor* Actor, float& DetectionRate);
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target),  Category = "AI|Perception") 
@@ -32,8 +37,16 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
 		static TArray<struct FPerceptionSignal> GetVisionSignals(AEnemyBase* Target);
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
+		static FPerceptionSignal GetLastHearingSignal(AEnemyBase* Target);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
+		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
+
+
+	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
 	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -59,6 +72,9 @@ protected:
 
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
+
+	UPROPERTY()
+		UHearingComponent* HearingComponent;
 	
 	UPROPERTY(BlueprintReadOnly)
 		float Suspicion = 0.0;
