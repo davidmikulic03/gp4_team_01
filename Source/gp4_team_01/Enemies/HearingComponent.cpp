@@ -36,7 +36,7 @@ void UHearingComponent::OnNoiseHeard(const UNoiseDataAsset* NoiseDataAsset, cons
 			UE_LOG(LogTemp, Warning, TEXT("Heard noise with intesity %f at location %s"), NoiseDataAsset->Intensity, *Location.ToString());
 			LastNoiseSignalIntesity = NoiseDataAsset->Intensity;
 			LastNoiseSignalLocation = Location;
-			LastNoiseSignal.OverrideOrigin = LastNoiseSignalLocation;
+			LastNoiseSignal.SignalOrigin = LastNoiseSignalLocation;
 			LastNoiseSignal.SignalStrength = LastNoiseSignalIntesity;
 			bHasLastNoiseSignalBeenConsumed = false;
 		}

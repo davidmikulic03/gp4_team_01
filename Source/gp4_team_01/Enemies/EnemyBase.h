@@ -18,10 +18,7 @@ public:
 	virtual void Petrify(APawn* Player);
 	virtual void Unpetrify(APawn* Player);
 
-	FORCEINLINE void RegisterSight(USightComponent* Component) {
-		if(!SightComponents.Contains(Component))
-			SightComponents.Add(Component);
-	}
+	FORCEINLINE void RegisterSight(USightComponent* Component) { SightComponents.AddUnique(Component); }
 
 	FORCEINLINE void RegisterHearing(UHearingComponent* Component) {
 		if(!HearingComponent)
@@ -29,7 +26,10 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception")
-		static bool IsActorInView(AEnemyBase* Target, AActor* Actor, float& DetectionRate);
+		static bool IsActorInView(AEnemyBase* Target, AActor* Actor, float& SignalStrength);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception")
+		static bool IsLocationInView(AEnemyBase* Target, FVector Location, float Tolerance, float& SignalStrength);
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target),  Category = "AI|Perception") 
 		static struct FPerceptionSignal GetVisionSignalToPlayer(AEnemyBase* Target);
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
@@ -41,6 +41,7 @@ public:
 		static FPerceptionSignal GetLastHearingSignal(AEnemyBase* Target);
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
 		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
+	
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
