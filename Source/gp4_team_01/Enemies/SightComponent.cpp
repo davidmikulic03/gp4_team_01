@@ -1,6 +1,6 @@
 ﻿#include "SightComponent.h"
 #include "EnemyBase.h"
-#include "SceneRenderTargetParameters.h"
+#include "gp4_team_01/AI/DetectionModifier.h"
 #include "kismet/KismetSystemLibrary.h"
 
 USightComponent::USightComponent()
@@ -35,6 +35,9 @@ bool USightComponent::IsActorVisible(AActor* Actor, float& ModifiedDetectionRate
 		FColor DebugDrawColor = FColor::Red;
 		if (Hit.GetActor() == Actor) {
 			ModifiedDetectionRate = DetectionRate;
+			if(const auto DetectionModifier = Actor->GetComponentByClass(UDetectionModifier::StaticClass()))
+				ModifiedDetectionRate *= Cast<UDetectionModifier>(DetectionModifier)->SignalModifier;
+			
 			if(DetectionFalloffPower != 0)
 				ModifiedDetectionRate /= FMath::Pow(Hit.Distance / 100, DetectionFalloffPower);
 			DebugDrawColor = FColor::Green;

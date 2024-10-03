@@ -13,7 +13,6 @@ struct FPerceptionSignal {
 	FPerceptionSignal(float SignalStrength, FVector Origin)
 		:  SignalStrength(SignalStrength), OverrideOrigin(Origin) { }
 
-	
 	float SignalStrength;
 	AActor* Actor = nullptr;
 	FVector OverrideOrigin;
