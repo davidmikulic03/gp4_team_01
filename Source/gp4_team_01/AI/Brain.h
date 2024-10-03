@@ -11,7 +11,7 @@ class GP4_TEAM_01_API UBrain : public UObject {
 
 public:
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void CalculateTimeInvariantSignalWeight(AActor* Target, uint32 AtId, float DistanceExponent,
+	FORCEINLINE void CalculateTimeInvariantSignalWeight(AActor* Target, int AtId, float DistanceExponent,
 		float RecencyExponent);
 
 	TArray<FWeightedSignal> Memory;

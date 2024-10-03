@@ -2,7 +2,7 @@
 #include "Brain.h"
 #include "gp4_team_01/Enemies/EnemyBase.h"
 
-void UBrain::CalculateTimeInvariantSignalWeight(AActor* Target, uint32 AtId, float DistanceExponent,
+void UBrain::CalculateTimeInvariantSignalWeight(AActor* Target, int AtId, float DistanceExponent,
 	float RecencyExponent) {
 	if(AtId < 0 || AtId >= Memory.Num())
 		return;
