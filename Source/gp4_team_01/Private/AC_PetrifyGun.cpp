@@ -56,8 +56,13 @@ void UAC_PetrifyGun::TryFirePetrifyGun()
 
 		if(bTraceHit)
 		{
-			//petrify
+
 			UE_LOG(LogTemp, Warning, TEXT("Hit Something"));
+			if(Cast<AEnemyBase>(HitResult.GetActor()->GetClass()))
+			{
+				//petrify
+				UE_LOG(LogTemp, Warning, TEXT("Hit EnemyBase"));
+			}
 		}
 		else
 		{

@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "gp4_team_01/Enemies/EnemyBase.h"
 #include "Engine/World.h"
 #include "AC_PetrifyGun.generated.h"
 
 class UWorld;
+class AEnemyBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GP4_TEAM_01_API UAC_PetrifyGun : public UActorComponent
