@@ -10,9 +10,7 @@ UAC_ThrowerComponent::UAC_ThrowerComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	MuzzleOffset = FVector(100.f, 0.f, 10.f);
-
-
+	MuzzleOffset = FVector(300.f, 0.f, 10.f);
 }
 
 
@@ -48,7 +46,7 @@ void UAC_ThrowerComponent::Launch()
 		{
 			AAPlayerCharacterController* Controller = Cast<AAPlayerCharacterController>(GetWorld()->GetFirstPlayerController());
 
-			const FRotator SpawnRotation = Controller->PlayerCameraManager->GetCameraRotation();
+			const FRotator SpawnRotation = Controller->PlayerCameraManager->GetCameraRotation() + FRotator(0.f, 0.f, ThrowAngle);
 			const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
 
 			FActorSpawnParameters SpawnParams;

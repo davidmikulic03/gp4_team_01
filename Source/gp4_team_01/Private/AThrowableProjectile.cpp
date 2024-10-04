@@ -2,6 +2,7 @@
 
 
 #include "AThrowableProjectile.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AAThrowableProjectile::AAThrowableProjectile()
@@ -30,14 +31,31 @@ AAThrowableProjectile::AAThrowableProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
-	// Die after 3 seconds by default - comment out if we want persistent throwables
+	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+}
+
+void AAThrowableProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+
+	if ((OtherActor != nullptr) && (OtherActor != this))
+	{
+		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+
+		//Destroy();
+		if(NoiseDataAsset != nullptr)
+		{
+			NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetActorLocation());
+		}
+		
+	}
 }
 
 // Called when the game starts or when spawned
 void AAThrowableProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 // Called every frame
@@ -45,17 +63,6 @@ void AAThrowableProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void AAThrowableProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())
-	{
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		//Destroy();
-	}
 }
 
 
