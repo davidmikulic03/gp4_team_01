@@ -127,6 +127,15 @@ void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 	PetrifyGun->TryFirePetrifyGun();
 }
 
+void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
+{
+
+}
+
+void ACPlayerCharacter::Jump(const FInputActionValue& Value)
+{
+}
+
 void ACPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
 	if(HalfHeightAdjust == 0.f)

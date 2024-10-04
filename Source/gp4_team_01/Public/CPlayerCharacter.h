@@ -59,11 +59,13 @@ private:
 	void Crouch(const FInputActionValue& Value);
 	void Throw(const FInputActionValue& Value);
 	void FirePetrifyGun(const FInputActionValue& Value);
+	void IncrementMovement(const FInputActionValue& Value);
+	void Jump(const FInputActionValue& Value);
 	//variables and methods
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeedWalk = 300.f;
-	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Movement")
 	float MoveSpeedCrouch = 150.f;
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	bool bIsCrouching = false;
@@ -94,5 +96,13 @@ public:
 	UAC_PetrifyGun* PetrifyGun;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
+
+	//experimental
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int MaxMoveIncrements = 6;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int MinMoveIncriments = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float MoveIncrementSpeed = 60.f;
 protected:
 };
