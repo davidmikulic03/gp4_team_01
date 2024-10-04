@@ -16,6 +16,10 @@ struct FPerceptionSignal {
 	float SignalStrength;
 	AActor* Actor = nullptr;
 	FVector SignalOrigin;
+
+	FORCEINLINE bool operator==(FPerceptionSignal Other) {
+		return SignalOrigin == Other.SignalOrigin || ((Actor || Other.Actor) && Actor == Other.Actor);
+	} 
 };
 
 UCLASS()

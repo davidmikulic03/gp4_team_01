@@ -93,7 +93,7 @@ FPerceptionSignal AEnemyBase::GetLastHearingSignal(AEnemyBase* Target) {
 }
 
 bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
-	return Target->GetHearingComponent()->HasNewSignalBeenHeard();
+	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
 void AEnemyBase::BeginPlay() {
