@@ -14,6 +14,9 @@
 #include "Engine/LocalPlayer.h"
 #include "AC_ThrowerComponent.h"
 #include "AC_PetrifyGun.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
+#include "Perception/AISense_Hearing.h"
 #include "CPlayerCharacter.generated.h"
 
 class UInputComponent;
@@ -27,6 +30,7 @@ class UInputMappingContext;
 class UCharacterMovementComponent;
 class UAC_ThrowerComponent;
 class UAC_PetrifyGun;
+class UAIPerceptionStimuliSourceComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -88,5 +92,7 @@ public:
 	UAC_ThrowerComponent* ThrowerComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UAC_PetrifyGun* PetrifyGun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
 protected:
 };

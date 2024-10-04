@@ -10,7 +10,8 @@ UAC_PetrifyGun::UAC_PetrifyGun()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	MuzzleOffset = FVector(100.f, 0.f, 15.f);
+	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComp");
+	
 }
 
 
@@ -20,7 +21,7 @@ void UAC_PetrifyGun::BeginPlay()
 	Super::BeginPlay();
 	TimeSinceLastShot = 1000.f;
 	// ...
-	
+	Controller = Cast<AAPlayerCharacterController>(GetWorld()->GetFirstPlayerController());
 }
 
 
@@ -30,13 +31,13 @@ void UAC_PetrifyGun::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	TimeSinceLastShot += DeltaTime;
+
 }
 
 void UAC_PetrifyGun::TryFirePetrifyGun()
 {
 	if(TimeSinceLastShot < ShotCooldown)
 	{
-		
 		UE_LOG(LogTemp, Warning, TEXT("Cannot fire gun. Cooldown in progress"))
 	}
 	else if(TimeSinceLastShot >= ShotCooldown)
@@ -44,24 +45,35 @@ void UAC_PetrifyGun::TryFirePetrifyGun()
 		//fire
 		//linetrace
 		//TODO: fine tune it.
+		FVector StartLocation;
+		FRotator StartRotation;
+
+		Controller->GetPlayerViewPoint(StartLocation, StartRotation);
+		
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(GetWorld()->GetFirstPlayerController()->GetPawn());
+		CollisionParams.AddIgnoredActor(Controller->GetPawn());
+		FVector EndLocation = StartLocation + MuzzleOffset + (StartRotation.Vector() * TraceLength);
+		
 
-		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(HitResult,
-			MuzzleOffset,
-			GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorForwardVector(),
-			ECC_Visibility, 
+		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			StartLocation + MuzzleOffset, 
+			EndLocation,
+			ECC_WorldDynamic, 
 			CollisionParams);
-
-		if(bTraceHit)
+		DrawDebugLine(GetWorld(), StartLocation + MuzzleOffset, EndLocation, FColor::Red, false, 3.f, 0, 5.f);
+		if (bTraceHit)
 		{
-
-			UE_LOG(LogTemp, Warning, TEXT("Hit Something"));
-			if(Cast<AEnemyBase>(HitResult.GetActor()->GetClass()))
+			AActor* HitActor = HitResult.GetActor(); 
+			if (HitActor->IsA(AEnemyBase::StaticClass()) || HitActor->GetClass()->IsChildOf<AEnemyBase>())
 			{
 				//petrify
-				UE_LOG(LogTemp, Warning, TEXT("Hit EnemyBase"));
+				UE_LOG(LogTemp, Warning, TEXT("Hit something - %s"), *HitActor->GetName());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit Something - %s"), *HitActor->GetName());
 			}
 		}
 		else
