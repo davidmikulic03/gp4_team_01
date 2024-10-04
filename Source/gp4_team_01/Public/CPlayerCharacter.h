@@ -63,9 +63,9 @@ private:
 	void Jump(const FInputActionValue& Value);
 	//variables and methods
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(EditAnywhere,  Category = "Movement")
 	float MoveSpeedWalk = 300.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Movement")
+	UPROPERTY(EditAnywhere,Category = "Movement")
 	float MoveSpeedCrouch = 150.f;
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	bool bIsCrouching = false;
@@ -85,6 +85,11 @@ public:
 	UInputAction* ThrowAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PetrifyGunAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* IncrementAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* JumpAction;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float AlphaValue;
@@ -99,10 +104,18 @@ public:
 
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	int MaxMoveIncrements = 6;
+	int MaxMoveIncrement = 6;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	int MinMoveIncriments = 1;
+	int MinMoveIncrement = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveIncrementSpeed = 60.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float CrouchIncrementSpeed = 30.f;
+	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	int CurrentMoveIncrement = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWRite, Category = "Movement")
+	bool bJumpEnabled = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWRite, Category = "Movement")
+	bool bIncrementMovementEnabled = true;
 protected:
 };
