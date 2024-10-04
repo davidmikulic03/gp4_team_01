@@ -61,7 +61,7 @@ private:
 	void FirePetrifyGun(const FInputActionValue& Value);
 	//variables and methods
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MoveSpeedWalk = 300.f;
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	float MoveSpeedCrouch = 150.f;
