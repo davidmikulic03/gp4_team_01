@@ -26,6 +26,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	AlphaValue = 12.f;
 	ThrowerComponent = CreateDefaultSubobject<UAC_ThrowerComponent>(TEXT("Thrower"));
 	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
+	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 }
 
 // Called when the game starts or when spawned
