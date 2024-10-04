@@ -53,7 +53,7 @@ void UAC_PetrifyGun::TryFirePetrifyGun()
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
-		FVector EndLocation = StartLocation + MuzzleOffset + (StartRotation.Vector() * TraceLength);
+		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
 		
 
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
@@ -62,7 +62,6 @@ void UAC_PetrifyGun::TryFirePetrifyGun()
 			EndLocation,
 			ECC_WorldDynamic, 
 			CollisionParams);
-		DrawDebugLine(GetWorld(), StartLocation + MuzzleOffset, EndLocation, FColor::Red, false, 3.f, 0, 5.f);
 		if (bTraceHit)
 		{
 			AActor* HitActor = HitResult.GetActor(); 
