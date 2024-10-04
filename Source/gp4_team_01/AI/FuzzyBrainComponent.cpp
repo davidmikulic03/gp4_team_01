@@ -73,7 +73,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	See(DeltaTime);
 	Hear(DeltaTime);
 
-	for (int i = 0; i < Memory.Num(); i++) {
+	for (uint64 i = 0; i < Memory.Num(); i++) {
 		GEngine->AddOnScreenDebugMessage(i+200, 1.f, FColor::Emerald,
 			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
 	}
@@ -102,7 +102,7 @@ void UFuzzyBrainComponent::UpdateCompoundingWeight(FWeightedSignal& WeightedSign
 }
 
 void UFuzzyBrainComponent::UpdateDecayingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float DecayExponent) {
-	WeightedSignal.DecayingWeight *= WeightedSignal.AnalyticWeight *= FMath::Exp(-DeltaTime * DecayExponent);
+	WeightedSignal.DecayingWeight *= FMath::Exp(-DeltaTime * DecayExponent);
 }
 
 bool UFuzzyBrainComponent::HasMemory(FPerceptionSignal Signal) {
