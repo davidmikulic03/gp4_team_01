@@ -1,8 +1,7 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "PerceptionSignal.h"
 #include "Components/ActorComponent.h"
 #include "HearingComponent.generated.h"
 
@@ -21,15 +20,29 @@ protected:
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+							   FActorComponentTickFunction* ThisTickFunction) override;
 
 	void OnNoiseHeard(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location);
 
+	FPerceptionSignal GetLastNoiseSignal();
+	
+	bool HasNewSignalBeenHeard() const { return bHasLastNoiseSignalBeenConsumed; };
+
 private:
-	//TODO: detection falloff? GetDetectedNoisePoint something something
-	UPROPERTY(EditDefaultsOnly, Category = "Noise", meta = (AllowPrivateAccess = true))
-	float DetectionThreshold = 100.f;
+	//currently there's no hearing detection threshold
+	////TODO: detection falloff? GetDetectedNoisePoint something something
+	//UPROPERTY(EditDefaultsOnly, Category = "Noise", meta = (AllowPrivateAccess = true))
+	//float DetectionThreshold = 100.f;
+
+	//debug variables
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+	float LastNoiseSignalIntesity = 0.f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
-	float CurrentDetection = 0.f;
+	FVector LastNoiseSignalLocation;
+
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+	bool bHasLastNoiseSignalBeenConsumed = false;
+
+	FPerceptionSignal LastNoiseSignal;
 };

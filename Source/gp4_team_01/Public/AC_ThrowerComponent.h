@@ -40,4 +40,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Thrower")
 	FVector MuzzleOffset;
 	AGameModeBase* GameMode;
+	UPROPERTY(EditAnywhere, Category = "Thrower")
+	float ThrowAngle = 30.f;
 };
