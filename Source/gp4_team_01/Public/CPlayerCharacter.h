@@ -13,6 +13,10 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "AC_ThrowerComponent.h"
+#include "AC_PetrifyGun.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
+#include "Perception/AISense_Hearing.h"
 #include "CPlayerCharacter.generated.h"
 
 class UInputComponent;
@@ -25,6 +29,8 @@ class UInputAction;
 class UInputMappingContext;
 class UCharacterMovementComponent;
 class UAC_ThrowerComponent;
+class UAC_PetrifyGun;
+class UAIPerceptionStimuliSourceComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -52,7 +58,7 @@ private:
 	void Look(const FInputActionValue& Value);
 	void Crouch(const FInputActionValue& Value);
 	void Throw(const FInputActionValue& Value);
-
+	void FirePetrifyGun(const FInputActionValue& Value);
 	//variables and methods
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
@@ -62,7 +68,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	bool bIsCrouching = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> Camera;
+	UCameraComponent* Camera;
 public:
 	//actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -75,6 +81,8 @@ public:
 	UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PetrifyGunAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float AlphaValue;
@@ -82,5 +90,9 @@ public:
 	FVector EyeOffset;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UAC_ThrowerComponent* ThrowerComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UAC_PetrifyGun* PetrifyGun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
 protected:
 };
