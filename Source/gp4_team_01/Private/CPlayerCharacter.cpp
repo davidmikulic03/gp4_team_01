@@ -25,6 +25,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	EyeOffset = FVector(0.f);
 	AlphaValue = 12.f;
 	ThrowerComponent = CreateDefaultSubobject<UAC_ThrowerComponent>(TEXT("Thrower"));
+	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +61,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		//crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Crouch);
 		EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Throw);
+		EnhancedInputComponent->BindAction(PetrifyGunAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::FirePetrifyGun);
 
 	}
 
@@ -117,6 +119,11 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
 {
 	ThrowerComponent->Launch();
+}
+
+void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
+{
+	PetrifyGun->TryFirePetrifyGun();
 }
 
 void ACPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
