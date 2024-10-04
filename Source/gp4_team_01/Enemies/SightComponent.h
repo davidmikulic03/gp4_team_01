@@ -13,11 +13,13 @@ class GP4_TEAM_01_API USightComponent : public UStaticMeshComponent {
 public:
 	USightComponent();
 
-	bool IsActorVisible(AActor* Actor, float& ModifiedDetectionRate);
-	TArray<AActor*> GetAllVisibleActors();
+	bool IsActorVisible(AActor* Actor, float& SignalStrength) const;
+	bool IsLocationVisible(FVector Location, float Tolerance, float& SignalStrength) const;
+	TArray<AActor*> GetAllVisibleActors() const;
 
-	FORCEINLINE TArray<AActor*> GetActorsInVisionCone() { return ActorsInVisionCone; }
-
+	FORCEINLINE TArray<AActor*> GetActorsInVisionCone() const noexcept { return ActorsInVisionCone; }
+	bool IsLocationInVisionCone(FVector Location) const noexcept;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Perception)
 		float DetectionRate = 1.0;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Perception)
@@ -25,8 +27,15 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
 	virtual void UpdateVisionMeshScale();
 	void SetDefaultCollisionResponse();
+	
+	float EvaluateSignalStrength(float Distance) const;
+	float EvaluateSignalStrength(FVector Location) const;
+	float EvaluateSignalStrength(AActor* Actor) const;
+
+	FHitResult TraceTo(FVector Location) const;
 	
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, 

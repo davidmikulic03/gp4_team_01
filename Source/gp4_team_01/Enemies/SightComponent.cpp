@@ -1,6 +1,6 @@
 ﻿#include "SightComponent.h"
 #include "EnemyBase.h"
-#include "SceneRenderTargetParameters.h"
+#include "gp4_team_01/AI/DetectionModifier.h"
 #include "kismet/KismetSystemLibrary.h"
 
 USightComponent::USightComponent()
@@ -13,30 +13,18 @@ USightComponent::USightComponent()
 	UpdateVisionMeshScale();
 }
 
-bool USightComponent::IsActorVisible(AActor* Actor, float& ModifiedDetectionRate) {
-	ModifiedDetectionRate = 0.f;
+bool USightComponent::IsActorVisible(AActor* Actor, float& SignalStrength) const {
+	SignalStrength = 0.f;
 	if (!Actor || !ActorsInVisionCone.Contains(Actor))
 		return false;
-	//FVector ToActor = Actor->GetActorLocation();
-	//auto cosAngle = GetForwardVector().Dot(ToActor.GetSafeNormal());
-	//if(cosAngle < FMath::Cos(ViewAngle))
-	//	return false;
+	if(!IsLocationInVisionCone(Actor->GetActorLocation()))
+		return false;
 
-	FHitResult Hit;
-	TArray<AActor*> ignores;
-	ignores.Init(GetOwner(), 1);
-
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetComponentLocation(), Actor->GetActorLocation(),
-	                                      UEngineTypes::ConvertToTraceType(TraceChannel), false, ignores,
-	                                      EDrawDebugTrace::None, Hit, true);
-	//GetWorld()->LineTraceSingleByChannel(Hit, GetComponentLocation(), Actor->GetActorLocation(), TraceChannel);
-
+	FHitResult Hit = TraceTo(Actor->GetActorLocation());
 	if(Hit.GetActor()) {
 		FColor DebugDrawColor = FColor::Red;
 		if (Hit.GetActor() == Actor) {
-			ModifiedDetectionRate = DetectionRate;
-			if(DetectionFalloffPower != 0)
-				ModifiedDetectionRate /= FMath::Pow(Hit.Distance / 100, DetectionFalloffPower);
+			SignalStrength = EvaluateSignalStrength(Actor);
 			DebugDrawColor = FColor::Green;
 		}
 		DrawDebugLine(GetWorld(), GetComponentLocation(), Hit.Location, DebugDrawColor);
@@ -46,7 +34,20 @@ bool USightComponent::IsActorVisible(AActor* Actor, float& ModifiedDetectionRate
 	else return false;
 }
 
-TArray<AActor*> USightComponent::GetAllVisibleActors() {
+bool USightComponent::IsLocationVisible(FVector Location, float Tolerance, float& SignalStrength) const {
+	SignalStrength = 0.f;
+	if(!IsLocationInVisionCone(Location))
+		return false;
+
+	FHitResult Hit = TraceTo(Location);
+	if(!Hit.GetActor() || FVector::Distance(Location, Hit.Location) <= Tolerance) {
+		SignalStrength = EvaluateSignalStrength(Location);
+		return true;
+	} else 
+		return false;
+}
+
+TArray<AActor*> USightComponent::GetAllVisibleActors() const {
 	TArray<AActor*> Result;
 	Result.Reserve(ActorsInVisionCone.Num());
 	for (auto a : ActorsInVisionCone) {
@@ -55,6 +56,15 @@ TArray<AActor*> USightComponent::GetAllVisibleActors() {
 			Result.Add(a);
 	}
 	return Result;
+}
+
+bool USightComponent::IsLocationInVisionCone(FVector Location) const noexcept {
+	FVector ToActor = Location;
+	auto cosAngle = GetForwardVector().Dot(ToActor.GetSafeNormal());
+	if(cosAngle < FMath::Cos(ViewAngle) || ToActor.Length() > ViewDistance)
+		return false;
+	else
+		return true;
 }
 
 void USightComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -96,6 +106,33 @@ void USightComponent::SetDefaultCollisionResponse()
 	SetCollisionObjectType(ECC_WorldDynamic);
 
 	CanCharacterStepUpOn = ECB_No;
+}
+
+float USightComponent::EvaluateSignalStrength(float Distance) const {
+	float Result = DetectionRate;
+	if(DetectionFalloffPower != 0)
+		Result /= FMath::Pow(Distance / 100, DetectionFalloffPower);
+	return Result;
+}
+float USightComponent::EvaluateSignalStrength(FVector Location) const {
+	return EvaluateSignalStrength(FVector::Distance(GetComponentLocation(), Location));
+}
+
+float USightComponent::EvaluateSignalStrength(AActor* Actor) const {
+	float Result = EvaluateSignalStrength(Actor->GetActorLocation());
+	if(const auto DetectionModifier = Actor->GetComponentByClass(UDetectionModifier::StaticClass()))
+		Result *= Cast<UDetectionModifier>(DetectionModifier)->SignalModifier;
+	return Result;
+}
+
+FHitResult USightComponent::TraceTo(FVector Location) const {
+	TArray<AActor*> ignores;
+	ignores.Init(GetOwner(), 1);
+	FHitResult Hit;
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetComponentLocation(), Location,
+										  UEngineTypes::ConvertToTraceType(TraceChannel), false, ignores,
+										  EDrawDebugTrace::None, Hit, true);
+	return Hit;
 }
 
 #if WITH_EDITOR

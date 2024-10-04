@@ -1,10 +1,10 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "EnemyBase.generated.h"
 
+class UHearingComponent;
 class USightComponent;
 
 UCLASS(Abstract)
@@ -18,22 +18,36 @@ public:
 	virtual void Petrify(APawn* Player);
 	virtual void Unpetrify(APawn* Player);
 
-	FORCEINLINE void RegisterSight(USightComponent* Component) {
-		if(!SightComponents.Contains(Component))
-			SightComponents.Add(Component);
+	FORCEINLINE void RegisterSight(USightComponent* Component) { SightComponents.AddUnique(Component); }
+
+	FORCEINLINE void RegisterHearing(UHearingComponent* Component) {
+		if(!HearingComponent)
+			HearingComponent = Component;
 	}
 
-	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Vision")
-		bool IsActorVisible(AActor* Actor, float& DetectionRate);
-	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "AI|Vision") 
-		bool IsPlayerVisible(float& SignalStrength);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Vision") 
-		TArray<struct FActorSignalPair> GetVisibleActorsOfClass(TSubclassOf<AActor> Class);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|Vision") 
-		TArray<struct FActorSignalPair> GetVisibleActors();
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception")
+		static bool IsActorInView(AEnemyBase* Target, AActor* Actor, float& SignalStrength);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception")
+		static bool IsLocationInView(AEnemyBase* Target, FVector Location, float Tolerance, float& SignalStrength);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target),  Category = "AI|Perception") 
+		static struct FPerceptionSignal GetVisionSignalToPlayer(AEnemyBase* Target);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
+		static TArray<struct FPerceptionSignal> GetVisionSignalsOfClass(AEnemyBase* Target, TSubclassOf<AActor> Class);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
+		static TArray<struct FPerceptionSignal> GetVisionSignals(AEnemyBase* Target);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
+		static FPerceptionSignal GetLastHearingSignal(AEnemyBase* Target);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
+		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
+	
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
+
+
+	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
 	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -41,8 +55,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnUnpetrify(APawn* Player);
 	
-	TArray<AActor*> GetVisibleActorCandidatesOfClass(TSubclassOf<AActor> Class);
-	TArray<AActor*> GetVisibleActorCandidates();
+	TArray<AActor*> GetVisibleActorCandidatesOfClass(TSubclassOf<AActor> Class) const;
+	TArray<AActor*> GetVisibleActorCandidates() const;
 	
 	virtual void BeginPlay() override;
 
@@ -59,6 +73,9 @@ protected:
 
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
+
+	UPROPERTY()
+		UHearingComponent* HearingComponent;
 	
 	UPROPERTY(BlueprintReadOnly)
 		float Suspicion = 0.0;
