@@ -26,7 +26,7 @@ public:
 
 	FPerceptionSignal GetLastNoiseSignal();
 	
-	bool HasNewSignalBeenHeard() const { return bHasLastNoiseSignalBeenConsumed; };
+	bool HasNewSignalBeenHeard() const { return !bHasLastNoiseSignalBeenConsumed; };
 
 private:
 	//currently there's no hearing detection threshold
