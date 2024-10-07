@@ -61,6 +61,7 @@ private:
 	void FirePetrifyGun(const FInputActionValue& Value);
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
+	void Interact(const FInputActionValue& Value);
 	//variables and methods
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -84,7 +85,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* PetrifyGunAction;
+	UInputAction* PetrifyGunAction;	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* IncrementSpeedAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float AlphaValue;
@@ -99,10 +106,17 @@ public:
 
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	int MaxMoveIncrements = 6;
+	int MaxMoveIncrement = 6;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	int MinMoveIncriments = 1;
+	int MinMoveIncriment = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int CurrentMoveIncrement;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveIncrementSpeed = 60.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float CrouchIncrementSpeed = 30.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIncrementedMovement = false;
+	
 protected:
 };

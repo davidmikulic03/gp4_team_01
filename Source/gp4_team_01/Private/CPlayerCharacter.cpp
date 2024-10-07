@@ -27,6 +27,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	ThrowerComponent = CreateDefaultSubobject<UAC_ThrowerComponent>(TEXT("Thrower"));
 	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
 	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
+	CurrentMoveIncrement = MinMoveIncriment;
 }
 
 // Called when the game starts or when spawned
@@ -63,7 +64,9 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Crouch);
 		EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Throw);
 		EnhancedInputComponent->BindAction(PetrifyGunAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::FirePetrifyGun);
-
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Jump);
+		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::IncrementMovement);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Interact);
 	}
 
 }
@@ -71,18 +74,98 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
+	//redo increment movement
 	if(Controller != nullptr)
 	{
-		AddMovementInput(GetActorForwardVector(), InputVector.X);
+		if(bIncrementedMovement)
+		{
+			switch(CurrentMoveIncrement)
+			{
+			case 1:
+				CurrentMoveIncrement = MinMoveIncriment;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				break;
+			case 2:
+				CurrentMoveIncrement = 2;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				break;
+			case 3:
+				CurrentMoveIncrement = 3;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				break;
+			case 4:
+				CurrentMoveIncrement = 4;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				break;
+			case 5:
+				CurrentMoveIncrement = 5;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				break;
+			case 6:
+				CurrentMoveIncrement = MaxMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				break;
+			}
+			AddMovementInput(GetActorForwardVector(), InputVector.X);
+
+		}
+		else if(!bIncrementedMovement)
+		{
+			AddMovementInput(GetActorForwardVector(), InputVector.X);
+		}
 	}
 }
 
 void ACPlayerCharacter::MoveRight(const FInputActionValue& Value)
 {
+	//redo increment movement
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
 	{
-		AddMovementInput(GetActorRightVector(), InputVector.X);
+		if (bIncrementedMovement)
+		{
+			switch (CurrentMoveIncrement)
+			{
+			case 1:
+				CurrentMoveIncrement = MinMoveIncriment;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch * CurrentMoveIncrement;
+				break;
+			case 2:
+				CurrentMoveIncrement = 2;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch * CurrentMoveIncrement;
+				break;
+			case 3:
+				CurrentMoveIncrement = 3;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch * CurrentMoveIncrement;
+				break;
+			case 4:
+				CurrentMoveIncrement = 4;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch * CurrentMoveIncrement;
+				break;
+			case 5:
+				CurrentMoveIncrement = 5;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch * CurrentMoveIncrement;
+				break;
+			case 6:
+				CurrentMoveIncrement = MaxMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch * CurrentMoveIncrement;
+				break;
+			}
+			AddMovementInput(GetActorRightVector(), InputVector.X);
+
+		}
+		else if (!bIncrementedMovement)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
+			GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
+			AddMovementInput(GetActorRightVector(), InputVector.X);
+		}
 	}
 }
 
@@ -114,7 +197,6 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 		GetCharacterMovement()->UnCrouch();
 		UE_LOG(LogTemp, Warning, TEXT("Stood up"));
 	}
-	//this is the way I would do it in Unity - however it's only in the update method and it triggers multiple times. I need to find out why.
 }
 
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
@@ -129,11 +211,54 @@ void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 
 void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 {
+	FVector2D InputVector = Value.Get<FVector2D>();
 
+	if(InputVector.X < 0)
+	{
+		CurrentMoveIncrement--;
+		if (CurrentMoveIncrement <= MinMoveIncriment)
+		{
+			CurrentMoveIncrement = MinMoveIncriment;
+		}
+	}
+	else if(InputVector.X > 0)
+	{
+		CurrentMoveIncrement++;
+		if(CurrentMoveIncrement >= MaxMoveIncrement)
+		{
+			CurrentMoveIncrement = MaxMoveIncrement;
+		}
+	}
 }
 
 void ACPlayerCharacter::Jump(const FInputActionValue& Value)
 {
+	Super::Jump();
+}
+
+void ACPlayerCharacter::Interact(const FInputActionValue& Value)
+{
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel
+	(
+		HitResult,
+		Camera->GetComponentLocation(),
+		Camera->GetComponentLocation().ForwardVector * 500.f,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	if(bHit)
+	{
+		IInterface* ActorHasInterface = Cast<IInterface>(HitResult.GetActor());
+		if(ActorHasInterface)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit actor with interface"));
+		}
+	}
 }
 
 void ACPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
