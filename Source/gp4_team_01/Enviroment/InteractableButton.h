@@ -8,7 +8,7 @@
 class AInteractableTargetBase;
 
 UCLASS(Abstract)
-class GP4_TEAM_01_API AInteractableButton : public AActor, public IInteractable {
+class GP4_TEAM_01_API AInteractableButton : public AInteractable {
 	GENERATED_BODY()
 
 public:

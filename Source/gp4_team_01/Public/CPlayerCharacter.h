@@ -62,7 +62,7 @@ private:
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	//variables and methods
-private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeedWalk = 300.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Movement")

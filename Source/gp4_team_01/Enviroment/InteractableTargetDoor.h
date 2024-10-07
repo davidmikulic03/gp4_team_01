@@ -4,7 +4,7 @@
 #include "InteractableTargetBase.h"
 #include "InteractableTargetDoor.generated.h"
 
-UCLASS(Abstract)
+UCLASS()
 class GP4_TEAM_01_API AInteractableTargetDoor : public AInteractableTargetBase {
 	GENERATED_BODY()
 
