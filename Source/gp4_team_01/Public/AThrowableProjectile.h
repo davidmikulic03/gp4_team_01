@@ -7,6 +7,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "gp4_team_01/DataAssets/NoiseDataAsset.h"
+#include "gp4_team_01/Enviroment/NoiseMaker.h"
 #include "gp4_team_01/Systems/NoiseSystem.h"
 #include "gp4_team_01/Systems/MainGameMode.h"
 #include "AThrowableProjectile.generated.h"
@@ -17,7 +18,7 @@ class ANoiseSystem;
 class AMainGameMode;
 
 UCLASS()
-class GP4_TEAM_01_API AAThrowableProjectile : public AActor
+class GP4_TEAM_01_API AAThrowableProjectile : public AActor, public INoiseMaker
 {
 	GENERATED_BODY()
 
@@ -41,6 +42,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UNoiseDataAsset* NoiseDataAsset;
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location) override;	
 protected:
 	virtual void BeginPlay() override;
 private:
