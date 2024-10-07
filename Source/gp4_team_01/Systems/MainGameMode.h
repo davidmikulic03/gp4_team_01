@@ -57,11 +57,16 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> WinScreenClass;
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> LoseScreenClass;
 
 private:
 	void LoadFromLastCheckpoint();
 	void ResetGameStateOnDeath();
 	void ShowWinScreen();
+	void ShowLoseScreen();
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Systems", meta = (AllowPrivateAccess = true))
@@ -72,5 +77,7 @@ private:
 
 private:
 	UUserWidget* WinScreenInstance;
+	UUserWidget* LoseScreenInstance;
+
 };
 
