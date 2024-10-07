@@ -71,7 +71,6 @@ private:
 	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
 
 private:
-	enum GameState CurrentGameState;
 	UUserWidget* WinScreenInstance;
 };
 
