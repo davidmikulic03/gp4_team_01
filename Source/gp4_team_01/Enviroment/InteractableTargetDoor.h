@@ -23,13 +23,13 @@ public:
 
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction Target")
+	UPROPERTY(EditAnywhere, Category = "Interaction Target")
 	float ZTargetOffest = .0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction Target")
+	UPROPERTY(EditAnywhere, Category = "Interaction Target")
 	float XTargetOffest = .0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction Target")
+	UPROPERTY(EditAnywhere, Category = "Interaction Target")
 	float YTargetOffest = .0f;
 
 	FVector StartingPosition;
