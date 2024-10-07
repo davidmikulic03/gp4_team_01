@@ -68,7 +68,7 @@ void AMainGameMode::WinGame()
 void AMainGameMode::LoseGame()
 {
 	CurrentGameState = GameState::LOSE;
-
+	ShowLoseScreen();
 }
 
 void AMainGameMode::ShowWinScreen()
@@ -79,6 +79,18 @@ void AMainGameMode::ShowWinScreen()
 		if (WinScreenInstance)
 		{
 			WinScreenInstance->AddToViewport();
+		}
+	}
+}
+
+void AMainGameMode::ShowLoseScreen()
+{
+	if (LoseScreenClass && !LoseScreenInstance)
+	{
+		LoseScreenInstance = CreateWidget<UUserWidget>(GetWorld(), LoseScreenClass);
+		if (LoseScreenInstance)
+		{
+			LoseScreenInstance->AddToViewport();
 		}
 	}
 }
