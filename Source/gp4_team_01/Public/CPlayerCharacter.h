@@ -119,6 +119,8 @@ public:
 	float CrouchIncrementSpeed = 30.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bIncrementedMovement = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector CameraOffset; //this is the value for camera offset. It should be the same as the camera Offset.
 	
 protected:
 };
