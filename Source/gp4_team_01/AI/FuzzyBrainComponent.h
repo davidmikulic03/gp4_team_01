@@ -36,7 +36,7 @@ public:
 			UpdateDecayingWeight(WeightedSignal, DeltaTime, Params.DecayExponent);
 		}
 	}
-	FORCEINLINE void ForgetUnimportant();
+	FORCEINLINE void ForgetUnimportant(double DeltaTime);
 	FWeightedSignal GetSignalOfHighestWeight();
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -50,7 +50,8 @@ public:
 
 protected:
 	void UpdateAnalyticWeight(FWeightedSignal& WeightedSignal, float DistanceExponent);
-	void UpdateCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay);
+	void IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime);
+	void DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay);
 	void UpdateDecayingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float DecayExponent);
 	bool HasMemory(FPerceptionSignal Signal);
 

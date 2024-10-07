@@ -13,7 +13,7 @@ void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionS
 	for(int i = 0; i < Memory.Num(); i++) {
 		if(Signal.Actor && Memory[i].Signal.Actor == Signal.Actor) {
 			Memory[i].ResetDecay();
-			UpdateCompoundingWeight(Memory[i], DeltaTime, Params.PrejudiceDecay);
+			IncrementCompoundingWeight(Memory[i], DeltaTime);
 			return;
 		}
 	}
@@ -41,9 +41,12 @@ void UFuzzyBrainComponent::Hear(double DeltaTime) {
 	}
 }
 
-void UFuzzyBrainComponent::ForgetUnimportant() {
+void UFuzzyBrainComponent::ForgetUnimportant(double DeltaTime) {
 	Memory.RemoveAll([this](FWeightedSignal Signal)
 				{ return Signal.GetWeight() < ForgetThreshold; });
+	for (auto& WeightedSignal : Memory) {
+		DecrementCompoundingWeight(WeightedSignal, DeltaTime, Params.PrejudiceDecay);
+	}
 }
 
 FWeightedSignal UFuzzyBrainComponent::GetSignalOfHighestWeight() {
@@ -68,7 +71,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 	
 	UpdateWeights(DeltaTime);
-	//ForgetUnimportant();
+	ForgetUnimportant(DeltaTime);
 
 	See(DeltaTime);
 	Hear(DeltaTime);
@@ -85,20 +88,21 @@ void UFuzzyBrainComponent::UpdateAnalyticWeight(FWeightedSignal& WeightedSignal,
 	WeightedSignal.AnalyticWeight *= FMath::Exp(-Distance * DistanceExponent);
 }
 
-void UFuzzyBrainComponent::UpdateCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay) {
+void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime) {
 	auto Actor = WeightedSignal.Signal.Actor;
-	float ActorPrejudice = 0.f;
-	for (auto WeightedClass : ClassPrejudice) {
-		if(WeightedClass.Class == Actor->GetClass()) {
-			ActorPrejudice = WeightedClass.Weight;
-			break;
+	if(Actor && !ClassPrejudice.IsEmpty()) {
+		auto ActorPrejudice = ClassPrejudice.FindByPredicate([this, Actor](FWeightedClass WeightedClass)
+		{ return Actor->IsA(WeightedClass.Class); });
+		if(ActorPrejudice && ActorPrejudice->Weight != 0) {
+			WeightedSignal.CompoundingWeight += ActorPrejudice->Weight * DeltaTime;
 		}
 	}
-	if(Actor && ActorPrejudice != 0) {
-		WeightedSignal.CompoundingWeight += ActorPrejudice * DeltaTime;
-	}
-	else
-		WeightedSignal.CompoundingWeight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
+}
+
+void UFuzzyBrainComponent::DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime,
+	float PrejudiceDecay)
+{
+	WeightedSignal.CompoundingWeight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
 }
 
 void UFuzzyBrainComponent::UpdateDecayingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float DecayExponent) {
