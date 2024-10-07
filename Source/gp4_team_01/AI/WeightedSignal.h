@@ -24,14 +24,15 @@ struct FWeightedSignal {
 	
 	FORCEINLINE void ResetDecay() noexcept { DecayingWeight = 1.f; }
 	FORCEINLINE float GetWeight() const noexcept {
-		return (AnalyticWeight + CompoundingWeight) * DecayingWeight;
+		return (AnalyticWeight * (CompoundingWeight + 1)) * DecayingWeight;
 	}
 
 	FORCEINLINE bool operator ==(FWeightedSignal Other) const noexcept {
-		return GetWeight() == Other.GetWeight();
-	}
-	FORCEINLINE bool operator !=(FWeightedSignal Other) const noexcept {
-		return GetWeight() != Other.GetWeight();
+		if(Signal.Actor)
+			return Signal.Actor == Other.Signal.Actor;
+		else {
+			return Signal.SignalOrigin == Other.Signal.SignalOrigin;
+		}
 	}
 	
 	FORCEINLINE bool IsValid() const {

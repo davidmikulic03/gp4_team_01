@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE float GetWeight(FWeightedSignal WeightedSignal) const noexcept { return WeightedSignal.GetWeight(); }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetRelativeWeight(AActor* Actor) const;
+
 	void See(double DeltaTime);
 	void Hear(double DeltaTime);
 	FORCEINLINE void UpdateWeights(double DeltaTime) {
@@ -47,6 +50,8 @@ public:
 		FSignalWeightParameters Params;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Brain)
 		float ForgetThreshold = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Brain, meta = (UIMin = 0))
+		float MaxCompoundInterest = 10.f;
 
 protected:
 	void UpdateAnalyticWeight(FWeightedSignal& WeightedSignal, float DistanceExponent);

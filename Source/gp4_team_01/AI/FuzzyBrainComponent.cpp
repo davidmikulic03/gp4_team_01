@@ -20,6 +20,15 @@ void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionS
 	Memory.Add(Signal);
 }
 
+float UFuzzyBrainComponent::GetRelativeWeight(AActor* Actor) const {
+	if(auto inMemory = Memory.FindByPredicate([this, Actor](FWeightedSignal WeightedSignal) {
+			return WeightedSignal.Signal.Actor == Actor;
+	})) {
+		return inMemory->GetWeight() / MaxCompoundInterest;
+	}
+	return 0;
+}
+
 void UFuzzyBrainComponent::See(double DeltaTime) {
 	auto Controller = Cast<AEnemyAIController>(GetOwner());
 	if(!Controller)
@@ -64,7 +73,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FWeightedSignal Highest = GetSignalOfHighestWeight();
-	if(Highest.IsValid() && Highest != PreviousHighestWeight) {
+	if(Highest.IsValid() && Highest.Signal != PreviousHighestWeight.Signal) {
 		PreviousHighestWeight = Highest;
 		if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
 			Owner->OnInterestChanged(Highest);
@@ -93,15 +102,16 @@ void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedS
 	if(Actor && !ClassPrejudice.IsEmpty()) {
 		auto ActorPrejudice = ClassPrejudice.FindByPredicate([this, Actor](FWeightedClass WeightedClass)
 		{ return Actor->IsA(WeightedClass.Class); });
-		if(ActorPrejudice && ActorPrejudice->Weight != 0) {
+		if(ActorPrejudice && ActorPrejudice->Weight != 0 && WeightedSignal.CompoundingWeight < MaxCompoundInterest) {
 			WeightedSignal.CompoundingWeight += ActorPrejudice->Weight * DeltaTime;
+			if(WeightedSignal.CompoundingWeight > MaxCompoundInterest)
+				WeightedSignal.CompoundingWeight = MaxCompoundInterest;
 		}
 	}
 }
 
 void UFuzzyBrainComponent::DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime,
-	float PrejudiceDecay)
-{
+	float PrejudiceDecay) {
 	WeightedSignal.CompoundingWeight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
 }
 
