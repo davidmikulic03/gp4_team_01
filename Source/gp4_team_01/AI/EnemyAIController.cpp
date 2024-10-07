@@ -1,7 +1,8 @@
 ﻿#include "EnemyAIController.h"
-
+#include "FuzzyBrainComponent.h"
 
 AEnemyAIController::AEnemyAIController() {
+	Brain = CreateDefaultSubobject<UFuzzyBrainComponent>("Brain");
 	PrimaryActorTick.bCanEverTick = true;
 }
 
