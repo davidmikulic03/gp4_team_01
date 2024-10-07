@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "Blueprint/UserWidget.h"
-
 #include "MainGameMode.generated.h"
 
 class ANoiseSystem;
@@ -14,9 +12,7 @@ enum class GameState : uint8
 {
 	NONE = 0,
 	PLAYING,
-	PAUSED,
-	WIN,
-	LOSE
+	PAUSED
 };
 
 UCLASS(Abstract)
@@ -40,28 +36,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void QuitGame() const;
 
-	UFUNCTION(BlueprintCallable)
-	void WinGame();
-
-	UFUNCTION(BlueprintCallable)
-	void LoseGame();
-
 	void RestartGameOnDeath();
 
 public:
 	enum GameState GetCurrentGameState() const { return CurrentGameState; };
 	
 	UFUNCTION(BlueprintCallable)
-	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; };
-
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UUserWidget> WinScreenClass;
+	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; }; 
 
 private:
 	void LoadFromLastCheckpoint();
 	void ResetGameStateOnDeath();
-	void ShowWinScreen();
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Systems", meta = (AllowPrivateAccess = true))
@@ -69,9 +54,4 @@ private:
 	
 	enum GameState CurrentGameState;
 	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
-
-private:
-	enum GameState CurrentGameState;
-	UUserWidget* WinScreenInstance;
 };
-
