@@ -20,6 +20,7 @@ void AInteractableButton::Tick(float DeltaTime) {
 		TimeSpentPressed += DeltaTime;
 		if(TimeSpentPressed >= ResetCooldown) {
 			bIsPressed = false;
+			TimeSpentPressed = 0.f;
 			DeactivateTarget();
 		}
 	}
@@ -37,7 +38,7 @@ void AInteractableButton::Interact(AActor* Caller) {
 }
 
 void AInteractableButton::Break() {
-	IInteractable::Break();
+	Super::Break();
 	//TODO: change mesh/shader to show it's broken
 }
 

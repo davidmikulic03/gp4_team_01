@@ -270,7 +270,7 @@ void ACPlayerCharacter::Interact(const FInputActionValue& Value)
 		if(HitActor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Hit actor with interface"));
-			HitActor->Interact(this);
+			
 		}
 		else
 		{
