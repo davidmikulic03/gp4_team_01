@@ -17,6 +17,7 @@
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
+#include "gp4_team_01/Enviroment/Interactable.h"
 #include "CPlayerCharacter.generated.h"
 
 class UInputComponent;
@@ -31,6 +32,7 @@ class UCharacterMovementComponent;
 class UAC_ThrowerComponent;
 class UAC_PetrifyGun;
 class UAIPerceptionStimuliSourceComponent;
+class AInteractable;
 struct FInputActionValue;
 
 UCLASS()
@@ -61,11 +63,12 @@ private:
 	void FirePetrifyGun(const FInputActionValue& Value);
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
+	void Interact(const FInputActionValue& Value);
 	//variables and methods
-private:
-	UPROPERTY(EditAnywhere,  Category = "Movement")
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeedWalk = 300.f;
-	UPROPERTY(EditAnywhere,Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Movement")
 	float MoveSpeedCrouch = 150.f;
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	bool bIsCrouching = false;
@@ -84,12 +87,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* PetrifyGunAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* IncrementAction;
+	UInputAction* PetrifyGunAction;	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* IncrementSpeedAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float AlphaValue;
@@ -106,16 +110,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	int MaxMoveIncrement = 6;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	int MinMoveIncrement = 1;
+	int MinMoveIncriment = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int CurrentMoveIncrement;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveIncrementSpeed = 60.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float CrouchIncrementSpeed = 30.f;
-	UPROPERTY(VisibleAnywhere, Category = "Movement")
-	int CurrentMoveIncrement = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadWRite, Category = "Movement")
-	bool bJumpEnabled = true;
-	UPROPERTY(EditAnywhere, BlueprintReadWRite, Category = "Movement")
-	bool bIncrementMovementEnabled = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIncrementedMovement = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector CameraOffset; //this is the value for camera offset. It should be the same as the camera Offset.
+	
 protected:
 };
