@@ -68,7 +68,8 @@ void UAC_PetrifyGun::TryFirePetrifyGun()
 			if (HitActor->IsA(AEnemyBase::StaticClass()) || HitActor->GetClass()->IsChildOf<AEnemyBase>())
 			{
 				//petrify
-				UE_LOG(LogTemp, Warning, TEXT("Hit something - %s"), *HitActor->GetName());
+				Cast<AEnemyBase>(HitActor)->Petrify(GetWorld()->GetFirstPlayerController()->GetPawn());
+				UE_LOG(LogTemp, Warning, TEXT("Hit Enemy - %s"), *HitActor->GetName());
 			}
 			else
 			{
