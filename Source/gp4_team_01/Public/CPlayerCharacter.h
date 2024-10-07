@@ -17,6 +17,7 @@
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
+#include "gp4_team_01/Enviroment/Interactable.h"
 #include "CPlayerCharacter.generated.h"
 
 class UInputComponent;
@@ -31,6 +32,7 @@ class UCharacterMovementComponent;
 class UAC_ThrowerComponent;
 class UAC_PetrifyGun;
 class UAIPerceptionStimuliSourceComponent;
+class AInteractable;
 struct FInputActionValue;
 
 UCLASS()

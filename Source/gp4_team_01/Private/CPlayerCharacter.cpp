@@ -259,7 +259,7 @@ void ACPlayerCharacter::Interact(const FInputActionValue& Value)
 
 	if(bHit)
 	{
-		IInterface* ActorHasInterface = Cast<IInterface>(HitResult.GetActor());
+		AInteractable* ActorHasInterface = Cast<AInteractable>(HitResult.GetActor());
 		if(ActorHasInterface)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Hit actor with interface"));
