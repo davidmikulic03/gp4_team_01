@@ -25,14 +25,25 @@ ACPlayerCharacter::ACPlayerCharacter()
 	EyeOffset = FVector(0.f);
 	AlphaValue = 12.f;
 	ThrowerComponent = CreateDefaultSubobject<UAC_ThrowerComponent>(TEXT("Thrower"));
+	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
+	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 }
 
 // Called when the game starts or when spawned
 void ACPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
+	if(bIncrementMovementEnabled)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed;
+		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed;
+	}
+	else 
+	{
+			GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
+	}
+
 }
 
 
@@ -60,6 +71,9 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		//crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Crouch);
 		EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Throw);
+		EnhancedInputComponent->BindAction(PetrifyGunAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::FirePetrifyGun);
+		EnhancedInputComponent->BindAction(IncrementAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::IncrementMovement);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Jump);
 
 	}
 
@@ -68,7 +82,46 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
-	if(Controller != nullptr)
+	if (Controller != nullptr)
+	{
+		if (bIncrementMovementEnabled)
+			switch (CurrentMoveIncrement) 
+			{
+			case 0:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+
+				break;
+			case 1:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			case 2:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+
+			case 3:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			case 4:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+
+			case 5:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			case 6:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			}
+		AddMovementInput(GetActorForwardVector(), InputVector.X);
+	}
+	else
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.X);
 	}
@@ -78,6 +131,47 @@ void ACPlayerCharacter::MoveRight(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
+	{
+		if (bIncrementMovementEnabled)
+			switch (CurrentMoveIncrement)
+			{
+			case 0:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+
+				break;
+			case 1:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			case 2:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+
+			case 3:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			case 4:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+
+			case 5:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			case 6:
+				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+				break;
+			}
+		AddMovementInput(GetActorRightVector(), InputVector.X);
+
+
+	}
+	else
 	{
 		AddMovementInput(GetActorRightVector(), InputVector.X);
 	}
@@ -117,6 +211,38 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
 {
 	ThrowerComponent->Launch();
+}
+
+void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
+{
+	PetrifyGun->TryFirePetrifyGun();
+}
+
+void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
+{
+	FVector2D InputValue = Value.Get<FVector2D>();
+	if(InputValue.X < 0)
+	{
+		CurrentMoveIncrement++;
+		if (CurrentMoveIncrement >= MaxMoveIncrement) 
+		{
+			CurrentMoveIncrement = MaxMoveIncrement;
+		}
+	}
+	else if(InputValue.X > 0)
+	{
+		CurrentMoveIncrement--;
+		if (CurrentMoveIncrement <= MinMoveIncrement)
+		{
+			CurrentMoveIncrement = MinMoveIncrement;
+		}
+	}
+}
+
+void ACPlayerCharacter::Jump(const FInputActionValue& Value)
+{
+	if(bJumpEnabled)
+	Super::Jump();
 }
 
 void ACPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
