@@ -52,5 +52,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Systems", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ANoiseSystem> NoiseSystemClass = nullptr;
 	
+	enum GameState CurrentGameState;
 	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
 };
