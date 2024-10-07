@@ -17,8 +17,8 @@ bool USightComponent::IsActorVisible(AActor* Actor, float& SignalStrength) const
 	SignalStrength = 0.f;
 	if (!Actor || !ActorsInVisionCone.Contains(Actor))
 		return false;
-	if(!IsLocationInVisionCone(Actor->GetActorLocation()))
-		return false;
+	//if(!IsLocationInVisionCone(Actor->GetActorLocation()))
+	//	return false;
 
 	FHitResult Hit = TraceTo(Actor->GetActorLocation());
 	if(Hit.GetActor()) {
