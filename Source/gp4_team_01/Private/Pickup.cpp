@@ -26,16 +26,22 @@ void APickup::Tick(float DeltaTime)
 
 void APickup::Interact(AActor* Caller)
 {
-	if(Caller->IsA(ACPlayerCharacter::StaticClass()))
+	auto CallerActor = Cast<ACPlayerCharacter>(Caller);
+	if(CallerActor)
 	{
-		//HACK
-		if(Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->GetCurrentCount() <
-			Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->MaxNumberOfThrowables)
+		if(bIsThrowable)
 		{
-			Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->AddAmountToInventory(AmountToAdd);
-			Destroy();
+			//HACK I don't know how expensive this is
+			if(CallerActor->GetThrowableInventory()->GetCurrentCount() <
+				CallerActor->GetThrowableInventory()->MaxNumberOfThrowables)
+			{
+				CallerActor->GetThrowableInventory()->AddAmountToInventory(AmountToAdd);
+				Destroy();
+			}
+			else return;
 		}
-		else return;
+		//other cases go here
+
 	}
 }
 

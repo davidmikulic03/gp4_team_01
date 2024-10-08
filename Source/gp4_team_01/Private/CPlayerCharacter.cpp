@@ -91,39 +91,6 @@ void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 	{
 		if(bIncrementedMovement)
 		{
-			switch(CurrentMoveIncrement)
-			{
-			case 1:
-				CurrentMoveIncrement = MinMoveIncriment;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 2:
-				CurrentMoveIncrement = 2;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 3:
-				CurrentMoveIncrement = 3;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 4:
-				CurrentMoveIncrement = 4;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 5:
-				CurrentMoveIncrement = 5;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 6:
-				CurrentMoveIncrement = MaxMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			}
 			AddMovementInput(GetActorForwardVector(), InputVector.X);
 
 		}
@@ -144,46 +111,10 @@ void ACPlayerCharacter::MoveRight(const FInputActionValue& Value)
 	{
 		if (bIncrementedMovement)
 		{
-			switch (CurrentMoveIncrement)
-			{
-			case 1:
-				CurrentMoveIncrement = MinMoveIncriment;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 2:
-				CurrentMoveIncrement = 2;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 3:
-				CurrentMoveIncrement = 3;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 4:
-				CurrentMoveIncrement = 4;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 5:
-				CurrentMoveIncrement = 5;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			case 6:
-				CurrentMoveIncrement = MaxMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-				break;
-			}
 			AddMovementInput(GetActorRightVector(), InputVector.X);
-
 		}
 		else if (!bIncrementedMovement)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
-			GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
 			AddMovementInput(GetActorRightVector(), InputVector.X);
 		}
 	}
@@ -206,7 +137,6 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 		return;
 	UE_LOG(LogTemp, Warning, TEXT("Trying to Crouch"));
 	bIsCrouching = !bIsCrouching;
-
 	if(bIsCrouching)
 	{
 		GetCharacterMovement()->bWantsToCrouch = true;
@@ -254,6 +184,8 @@ void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 		{
 			CurrentMoveIncrement = MinMoveIncriment;
 		}
+		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
 	}
 	else if(InputVector.X > 0)
 	{
@@ -262,6 +194,8 @@ void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 		{
 			CurrentMoveIncrement = MaxMoveIncrement;
 		}
+		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
 	}
 }
 
