@@ -24,13 +24,7 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Interaction Target")
-	float ZTargetOffest = .0f;
-
-	UPROPERTY(EditAnywhere, Category = "Interaction Target")
-	float XTargetOffest = .0f;
-
-	UPROPERTY(EditAnywhere, Category = "Interaction Target")
-	float YTargetOffest = .0f;
+	FVector TargetOffset = FVector(0.f, 0.f, 0.f);
 
 	FVector StartingPosition;
 };
