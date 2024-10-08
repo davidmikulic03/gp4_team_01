@@ -20,6 +20,15 @@ void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionS
 	Memory.Add(Signal);
 }
 
+bool UFuzzyBrainComponent::ResolveMemory(FPerceptionSignal Signal) {
+	auto InArray = Memory.FindByPredicate([Signal](FWeightedSignal s)
+		{ return s.Signal == Signal; });
+	if (!InArray)
+		return false;
+	Memory.Remove(*InArray);
+	return true;
+}
+
 float UFuzzyBrainComponent::GetRelativeWeight(AActor* Actor) const {
 	if(auto inMemory = Memory.FindByPredicate([this, Actor](FWeightedSignal WeightedSignal) {
 			return WeightedSignal.Signal.Actor == Actor;

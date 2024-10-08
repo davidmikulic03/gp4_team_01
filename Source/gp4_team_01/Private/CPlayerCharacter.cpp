@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "gp4_team_01/Player/MagnetComponent.h"
 
 // Sets default values
 ACPlayerCharacter::ACPlayerCharacter()
@@ -28,6 +29,10 @@ ACPlayerCharacter::ACPlayerCharacter()
 	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
 	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 	CurrentMoveIncrement = MinMoveIncriment;
+	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
+	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
+	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
+	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -71,8 +76,15 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+UThrowableInventory* ACPlayerCharacter::GetThrowableInventory()
+{
+	return ThrowableInventory;
+}
+
 void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	FVector2D InputVector = Value.Get<FVector2D>();
 	//redo increment movement
 	if(Controller != nullptr)
@@ -124,6 +136,8 @@ void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 
 void ACPlayerCharacter::MoveRight(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	//redo increment movement
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
@@ -188,6 +202,8 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	UE_LOG(LogTemp, Warning, TEXT("Trying to Crouch"));
 	bIsCrouching = !bIsCrouching;
 
@@ -207,7 +223,20 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	ThrowerComponent->Launch();
+	if(ThrowableInventory->GetCurrentCount() > 0 && !ThrowerComponent->IsOnCooldown())
+	{
+		ThrowerComponent->Launch();
+		ThrowableInventory->DecrementNumberOfThrowables();
+		ThrowerComponent->ResetCooldown();
+	}
+	else if(ThrowerComponent->IsOnCooldown())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
+	}
+	else if(ThrowableInventory->GetCurrentCount() <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
+	}
 }
 
 void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
@@ -218,7 +247,6 @@ void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
-
 	if(InputVector.X < 0)
 	{
 		CurrentMoveIncrement--;
@@ -239,16 +267,19 @@ void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Jump(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	Super::Jump();
 }
 
 void ACPlayerCharacter::Interact(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing() || Magnet->Use())
+		return;
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-
-
+	
 	FRotator StartRotation;
 	FVector StartLocation;
 
