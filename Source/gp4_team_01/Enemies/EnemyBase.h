@@ -47,6 +47,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
+
+	UFUNCTION(BlueprintCallable)
+		void OnDeath(const AActor* Killer);
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
 	
