@@ -18,6 +18,7 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "gp4_team_01/Enviroment/Interactable.h"
+#include "gp4_team_01/Public/ThrowableInventory.h"
 #include "CPlayerCharacter.generated.h"
 
 class UInputComponent;
@@ -33,6 +34,7 @@ class UAC_ThrowerComponent;
 class UAC_PetrifyGun;
 class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
+class UThrowableInventory;
 struct FInputActionValue;
 
 UCLASS()
@@ -74,6 +76,8 @@ protected:
 	bool bIsCrouching = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	UThrowableInventory* ThrowableInventory;
 public:
 	//actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -95,6 +99,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float AlphaValue;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -105,7 +110,7 @@ public:
 	UAC_PetrifyGun* PetrifyGun;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
-
+	
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	int MaxMoveIncrement = 6;

@@ -28,6 +28,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
 	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 	CurrentMoveIncrement = MinMoveIncriment;
+	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
 }
 
 // Called when the game starts or when spawned
@@ -207,7 +208,20 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	ThrowerComponent->Launch();
+	if(ThrowableInventory->GetCurrentCount() > 0 && !ThrowerComponent->IsOnCooldown())
+	{
+		ThrowerComponent->Launch();
+		ThrowableInventory->DecrementNumberOfThrowables();
+		ThrowerComponent->ResetCooldown();
+	}
+	else if(ThrowerComponent->IsOnCooldown())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
+	}
+	else if(ThrowableInventory->GetCurrentCount() <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
+	}
 }
 
 void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
@@ -218,7 +232,6 @@ void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
-
 	if(InputVector.X < 0)
 	{
 		CurrentMoveIncrement--;
@@ -247,8 +260,7 @@ void ACPlayerCharacter::Interact(const FInputActionValue& Value)
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-
-
+	
 	FRotator StartRotation;
 	FVector StartLocation;
 
