@@ -5,6 +5,7 @@
 
 #include "NoiseSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 void AMainGameMode::InitGameState() {
 	Super::InitGameState();
@@ -56,4 +57,40 @@ void AMainGameMode::LoadFromLastCheckpoint()
 void AMainGameMode::ResetGameStateOnDeath()
 {
 	//restore AI state after death, might be done by having a reference to "BlackboardStateAfterDeath" data asset
+}
+
+void AMainGameMode::WinGame()
+{
+	CurrentGameState = GameState::WIN;
+	ShowWinScreen();
+}
+
+void AMainGameMode::LoseGame()
+{
+	CurrentGameState = GameState::LOSE;
+	ShowLoseScreen();
+}
+
+void AMainGameMode::ShowWinScreen()
+{
+	if (WinScreenClass && !WinScreenInstance)
+	{
+		WinScreenInstance = CreateWidget<UUserWidget>(GetWorld(), WinScreenClass);
+		if (WinScreenInstance)
+		{
+			WinScreenInstance->AddToViewport();
+		}
+	}
+}
+
+void AMainGameMode::ShowLoseScreen()
+{
+	if (LoseScreenClass && !LoseScreenInstance)
+	{
+		LoseScreenInstance = CreateWidget<UUserWidget>(GetWorld(), LoseScreenClass);
+		if (LoseScreenInstance)
+		{
+			LoseScreenInstance->AddToViewport();
+		}
+	}
 }

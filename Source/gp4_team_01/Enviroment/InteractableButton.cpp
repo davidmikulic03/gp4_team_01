@@ -20,6 +20,7 @@ void AInteractableButton::Tick(float DeltaTime) {
 		TimeSpentPressed += DeltaTime;
 		if(TimeSpentPressed >= ResetCooldown) {
 			bIsPressed = false;
+			TimeSpentPressed = 0.f;
 			DeactivateTarget();
 		}
 	}

@@ -15,7 +15,9 @@ class GP4_TEAM_01_API AEnemyBase : public ACharacter
 public:
 	AEnemyBase();
 	// TODO: Change APawn* to Player Class.
+	UFUNCTION(BlueprintCallable)
 	virtual void Petrify(APawn* Player);
+	UFUNCTION(BlueprintCallable)
 	virtual void Unpetrify(APawn* Player);
 
 	FORCEINLINE void RegisterSight(USightComponent* Component) { SightComponents.AddUnique(Component); }
@@ -45,8 +47,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
-
-
+	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
 	
 protected:
@@ -76,9 +77,6 @@ protected:
 
 	UPROPERTY()
 		UHearingComponent* HearingComponent;
-	
-	UPROPERTY(BlueprintReadOnly)
-		float Suspicion = 0.0;
 
 	UPROPERTY(EditInstanceOnly)
 		AActor* DebugActor;
