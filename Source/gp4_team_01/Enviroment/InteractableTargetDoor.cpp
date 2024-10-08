@@ -19,7 +19,7 @@ void AInteractableTargetDoor::Tick(float DeltaTime) {
 
 void AInteractableTargetDoor::OnInteract() {
 	//TODO: make this happen gradually, this is just a tp for now
-	SetActorLocation(StartingPosition + FVector(XTargetOffest, YTargetOffest, ZTargetOffest));
+	SetActorLocation(StartingPosition + TargetOffset);
 }
 
 void AInteractableTargetDoor::OnUnInteract() {
