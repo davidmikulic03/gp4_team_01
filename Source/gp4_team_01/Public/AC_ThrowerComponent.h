@@ -7,12 +7,14 @@
 #include "AThrowableProjectile.h"
 #include "APlayerCharacterController.h"
 #include "GameFramework/GameModeBase.h"
+#include  "gp4_team_01/Public/ThrowableInventory.h"
 #include "AC_ThrowerComponent.generated.h"
 
 class AAThrowableProjectile;
 class UObject;
 class ACPlayerCharacter;
 class AAPlayerCharacterController;
+class UThrowableInventory;
 class UWorld;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -25,6 +27,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UFUNCTION()
 	void Launch();
+	UFUNCTION()
+	void ResetCooldown();
+	UFUNCTION()
+	bool IsOnCooldown();
 protected:
 	virtual void BeginPlay() override;
 private:	
@@ -32,6 +38,10 @@ private:
 
 	//variables
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Thrower")
+	float TimeSinceLastThrown = 1000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thrower")
+	float ThrowCooldown = 3.f; //magic number - hardcoded for testing purposes
 protected:
 private:
 	TObjectPtr<ACPlayerCharacter> PlayerCharacter;
