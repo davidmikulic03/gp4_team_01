@@ -28,8 +28,14 @@ void APickup::Interact(AActor* Caller)
 {
 	if(Caller->IsA(ACPlayerCharacter::StaticClass()))
 	{
-		Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->AddAmountToInventory(AmountToAdd);
-		Destroy();
+		//HACK
+		if(Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->GetCurrentCount() <
+			Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->MaxNumberOfThrowables)
+		{
+			Cast<ACPlayerCharacter>(Caller)->GetThrowableInventory()->AddAmountToInventory(AmountToAdd);
+			Destroy();
+		}
+		else return;
 	}
 }
 
