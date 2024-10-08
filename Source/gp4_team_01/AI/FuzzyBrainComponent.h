@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE float GetWeight(FWeightedSignal WeightedSignal) const noexcept { return WeightedSignal.GetWeight(); }
 
+	UFUNCTION(BlueprintCallable)
+		bool ResolveMemory(FPerceptionSignal Signal);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetRelativeWeight(AActor* Actor) const;
 
