@@ -30,9 +30,9 @@ public:
 private:
 	virtual void OnBreak();
 
-protected:
+private:
 	UPROPERTY(EditAnywhere, Category = "Fallable")
-	FVector FallingTarget = FVector(0, 0, 0);
+	USceneComponent* FallingTarget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Fallable")
 	float FallingSpeed = 5.f;
@@ -44,4 +44,6 @@ protected:
 	AEnemyBase* EnemyToKill = nullptr;
 
 	bool bIsFalling = false;
+
+	FVector FallingTargetVector;
 };

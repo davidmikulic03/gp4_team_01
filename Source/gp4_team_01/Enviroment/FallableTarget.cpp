@@ -10,13 +10,19 @@
 // Sets default values
 AFallableTarget::AFallableTarget() {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>("Root");
+	FallingTarget = CreateDefaultSubobject<USceneComponent>("Falling Target");
+	FallingTarget->SetupAttachment(RootComponent);
+
 	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
 void AFallableTarget::BeginPlay() {
 	Super::BeginPlay();
-	
+
+	FallingTargetVector = FallingTarget->GetComponentLocation();
 }
 
 void AFallableTarget::OnInteract() {
@@ -28,9 +34,9 @@ void AFallableTarget::Tick(float DeltaTime) {
 	if(!bIsFalling)
 		return;
 
-	SetActorLocation(UKismetMathLibrary::VInterpTo_Constant(GetActorLocation(), FallingTarget, DeltaTime, FallingSpeed));
+	SetActorLocation(UKismetMathLibrary::VInterpTo_Constant(GetActorLocation(), FallingTargetVector, DeltaTime, FallingSpeed));
 
-	if(GetActorLocation() == FallingTarget)
+	if(GetActorLocation() == FallingTargetVector)
 		OnBreak();
 		
 }
