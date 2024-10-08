@@ -21,6 +21,7 @@
 #include "gp4_team_01/Public/ThrowableInventory.h"
 #include "CPlayerCharacter.generated.h"
 
+class UMagnetComponent;
 class UInputComponent;
 class UCapsuleComponent;
 class USkeletalMeshComponent;
@@ -47,6 +48,8 @@ public:
 	ACPlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE UCameraComponent* GetCamera() const noexcept { return Camera; }
 
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
@@ -110,7 +113,9 @@ public:
 	UAC_PetrifyGun* PetrifyGun;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
-	
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UMagnetComponent* Magnet;
+
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	int MaxMoveIncrement = 6;
@@ -128,4 +133,5 @@ public:
 	FVector CameraOffset; //this is the value for camera offset. It should be the same as the camera Offset.
 	
 protected:
+	
 };

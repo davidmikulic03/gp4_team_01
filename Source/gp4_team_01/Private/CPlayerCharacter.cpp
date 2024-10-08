@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "gp4_team_01/Player/MagnetComponent.h"
 
 // Sets default values
 ACPlayerCharacter::ACPlayerCharacter()
@@ -29,6 +30,9 @@ ACPlayerCharacter::ACPlayerCharacter()
 	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 	CurrentMoveIncrement = MinMoveIncriment;
 	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
+	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
+	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
+	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -74,6 +78,8 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	FVector2D InputVector = Value.Get<FVector2D>();
 	//redo increment movement
 	if(Controller != nullptr)
@@ -125,6 +131,8 @@ void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 
 void ACPlayerCharacter::MoveRight(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	//redo increment movement
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
@@ -189,6 +197,8 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	UE_LOG(LogTemp, Warning, TEXT("Trying to Crouch"));
 	bIsCrouching = !bIsCrouching;
 
@@ -252,11 +262,15 @@ void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Jump(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	Super::Jump();
 }
 
 void ACPlayerCharacter::Interact(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing() || Magnet->Use())
+		return;
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
