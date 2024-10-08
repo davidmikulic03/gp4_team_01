@@ -76,6 +76,11 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+UThrowableInventory* ACPlayerCharacter::GetThrowableInventory()
+{
+	return ThrowableInventory;
+}
+
 void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
 	if(Magnet->IsTraversing())
