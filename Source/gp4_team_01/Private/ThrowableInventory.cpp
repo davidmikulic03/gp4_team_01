@@ -55,3 +55,16 @@ void UThrowableInventory::IncrementNumberOfThrowables()
 	}
 }
 
+void UThrowableInventory::AddAmountToInventory(int AmountToAdd)
+{
+	CurrentNumberOfThrowables+= AmountToAdd;
+	if(CurrentNumberOfThrowables >= MaxNumberOfThrowables)
+	{
+		CurrentNumberOfThrowables = MaxNumberOfThrowables;
+	}
+	else if(CurrentNumberOfThrowables== MaxNumberOfThrowables)
+	{
+		return;
+	}
+}
+

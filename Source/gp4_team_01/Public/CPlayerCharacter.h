@@ -48,6 +48,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//getters
+	UFUNCTION()
+	UThrowableInventory* GetThrowableInventory();
+
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;

@@ -22,6 +22,8 @@ public:
 	void DecrementNumberOfThrowables();
 	UFUNCTION()
 	void IncrementNumberOfThrowables();
+	UFUNCTION()
+	void AddAmountToInventory(int AmountToAdd);
 protected:
 	virtual void BeginPlay() override;
 private:	
