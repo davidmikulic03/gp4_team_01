@@ -18,8 +18,10 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "gp4_team_01/Enviroment/Interactable.h"
+#include "gp4_team_01/Public/ThrowableInventory.h"
 #include "CPlayerCharacter.generated.h"
 
+class UMagnetComponent;
 class UInputComponent;
 class UCapsuleComponent;
 class USkeletalMeshComponent;
@@ -33,6 +35,7 @@ class UAC_ThrowerComponent;
 class UAC_PetrifyGun;
 class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
+class UThrowableInventory;
 struct FInputActionValue;
 
 UCLASS()
@@ -45,6 +48,12 @@ public:
 	ACPlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE UCameraComponent* GetCamera() const noexcept { return Camera; }
+
+	//getters
+	UFUNCTION()
+	UThrowableInventory* GetThrowableInventory();
 
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
@@ -74,6 +83,8 @@ protected:
 	bool bIsCrouching = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	UThrowableInventory* ThrowableInventory;
 public:
 	//actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -95,6 +106,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float AlphaValue;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -105,6 +117,8 @@ public:
 	UAC_PetrifyGun* PetrifyGun;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UMagnetComponent* Magnet;
 
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -123,4 +137,5 @@ public:
 	FVector CameraOffset; //this is the value for camera offset. It should be the same as the camera Offset.
 	
 protected:
+	
 };
