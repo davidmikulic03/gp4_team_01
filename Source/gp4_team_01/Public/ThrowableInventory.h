@@ -6,6 +6,14 @@
 #include "Components/ActorComponent.h"
 #include "ThrowableInventory.generated.h"
 
+class ACPlayerCharacter;
+
+UENUM(BlueprintType)
+enum class ItemType : uint8 {
+	None = 0,
+	Throwable,
+	SmokeBomb
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GP4_TEAM_01_API UThrowableInventory : public UActorComponent
@@ -16,27 +24,35 @@ public:
 	UThrowableInventory();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	//getters and setters
-	UFUNCTION()
-	int GetCurrentCount();
-	UFUNCTION()
-	void DecrementNumberOfThrowables();
-	UFUNCTION()
-	void IncrementNumberOfThrowables();
-	UFUNCTION()
-	void AddAmountToInventory(int AmountToAdd);
+
+	void AddPlayerRef(ACPlayerCharacter* Player) { PlayerRef = Player; };
+	
+	UFUNCTION(BlueprintCallable)
+	int GetCurrentCount(ItemType Type) const;
+	UFUNCTION(BlueprintCallable)
+	bool CanFitMoreItemOfType(ItemType Type) const;
+	UFUNCTION(BlueprintCallable)
+	void RemoveItem(ItemType Type);
+	UFUNCTION(BlueprintCallable)
+	void AddItem(ItemType Type);
+	UFUNCTION(BlueprintCallable)
+	void AddAmountToInventory(ItemType Type, int AmountToAdd);
+	
 protected:
 	virtual void BeginPlay() override;
-private:	
 
-//variables
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Throwables")
-	int MaxNumberOfThrowables = 12;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Throwables")
-	int CurrentNumberOfThrowables = 3;
-protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Inventory")
+	int MaxThrowables = 12;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Inventory")
+	int CurrentThrowables = 3;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Inventory")
+	int MaxSmokeBombs = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Inventory")
+	int CurrentSmokeBombs = 0;
+
 private:
-
-
-		
+	ACPlayerCharacter* PlayerRef;
 };

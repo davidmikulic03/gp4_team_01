@@ -52,13 +52,16 @@ public:
 	FORCEINLINE UCameraComponent* GetCamera() const noexcept { return Camera; }
 
 	//getters
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	UThrowableInventory* GetThrowableInventory();
 
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
-
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnInventoryUpdated();
+	
 	//void Fire(const FInputActionValue& Value);
 protected:
 	// Called when the game starts or when spawned
