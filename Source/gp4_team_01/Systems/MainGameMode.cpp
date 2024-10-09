@@ -85,12 +85,12 @@ void AMainGameMode::ShowWinScreen()
 
 void AMainGameMode::ShowLoseScreen()
 {
-	if (LoseScreenClass && !LoseScreenInstance)
+	if (LoseScreenClass)
 	{
-		LoseScreenInstance = CreateWidget<UUserWidget>(GetWorld(), LoseScreenClass);
-		if (LoseScreenInstance)
+		UUserWidget* LoseScreen = CreateWidget<UUserWidget>(GetWorld(), LoseScreenClass);
+		if (LoseScreen)
 		{
-			LoseScreenInstance->AddToViewport();
+			LoseScreen->AddToViewport();
 		}
 	}
 }
