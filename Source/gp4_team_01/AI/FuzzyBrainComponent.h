@@ -19,11 +19,11 @@ struct FSignalWeightThresholds {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = 0))
-		float WeakSignalThreshold = 10.f;
+		float WeakSignalThreshold = 0.1f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = 0))
-		float MediumSignalThreshold = 30.f;
+		float MediumSignalThreshold = 0.3f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = 0))
-		float StrongSignalThreshold = 60.f;
+		float StrongSignalThreshold = 0.6f;
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -52,18 +52,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		TArray<FWeightedClass> ClassPrejudice;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
+		float DefaultPrejudice = 0.1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		FSignalWeightParameters Params;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
-		float ForgetThreshold = 1.f;
+		float ForgetThreshold = 0.01f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain", meta = (UIMin = 0))
-		float MaxInterest = 100.f;
+		float MaxInterest = 1.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		FSignalWeightThresholds SignalWeightThresholds;
 
 protected:
-	void UpdateAnalyticWeight(FWeightedSignal& WeightedSignal, float DistanceExponent);
 	void IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime);
-	void DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay);
+	void Decrement(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay);
 	bool HasMemory(FPerceptionSignal Signal);
 	void See(double DeltaTime);
 	void Hear(double DeltaTime);

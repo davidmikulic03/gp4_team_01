@@ -13,7 +13,6 @@ UFuzzyBrainComponent::UFuzzyBrainComponent() {
 void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal) {
 	for(int i = 0; i < Memory.Num(); i++) {
 		if(Signal.Actor && Memory[i].Signal.Actor == Signal.Actor) {
-			Memory[i].ResetDecay();
 			IncrementCompoundingWeight(Memory[i], DeltaTime);
 			return;
 		}
@@ -79,7 +78,7 @@ void UFuzzyBrainComponent::UpdateSignal(FWeightedSignal& WeightedSignal, double 
 void UFuzzyBrainComponent::ForgetUnimportant() {
 	int Num = Memory.Num();
 	for(int i = 0; i < Num; i++) {
-		if(Memory[i].GetWeight() < ForgetThreshold) {
+		if(Memory[i].GetWeight() < ForgetThreshold && Memory[i].bIsForgettable) {
 			Memory.RemoveAt(i);
 			if(PreviousHighestWeightId >= static_cast<uint32>(i))
 				PreviousHighestWeightId--;
@@ -110,17 +109,17 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			Owner->OnInterestChanged(Memory[HighestId]);
 	}
 
+	See(DeltaTime);
+	Hear(DeltaTime);
+	
 	for(auto& WeightedSignal : Memory) {
-		UpdateAnalyticWeight(WeightedSignal, Params.DistanceExponent);
 		UpdateSignal(WeightedSignal, DeltaTime);
-		if(!WeightedSignal.bPositiveSlopeSign)
-			DecrementCompoundingWeight(WeightedSignal, DeltaTime, Params.PrejudiceDecay);
+		if(!WeightedSignal.bPositiveSlopeSign) {
+			Decrement(WeightedSignal, DeltaTime, Params.PrejudiceDecay);
+		}
 		WeightedSignal.bPositiveSlopeSign = false;
 	}
 	ForgetUnimportant();
-
-	See(DeltaTime);
-	Hear(DeltaTime);
 
 	for (uint64 i = 0; i < Memory.Num(); i++) {
 		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
@@ -128,38 +127,32 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 }
 
-void UFuzzyBrainComponent::UpdateAnalyticWeight(FWeightedSignal& WeightedSignal, float DistanceExponent) {
-	WeightedSignal.AnalyticWeight = WeightedSignal.Signal.SignalStrength;
-	float Distance = FVector::Distance(GetOwner()->GetActorLocation(), USignalFunctions::GetSignalOrigin(WeightedSignal.Signal)) / 100;
-	WeightedSignal.AnalyticWeight *= FMath::Exp(-Distance * DistanceExponent);
-}
-
 void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime) {
 	auto Actor = WeightedSignal.Signal.Actor;
 	if(Actor && !ClassPrejudice.IsEmpty()) {
 		auto ActorPrejudice = ClassPrejudice.FindByPredicate([this, Actor](FWeightedClass WeightedClass)
 		{ return Actor->IsA(WeightedClass.Class); });
-		float CurrentWeight = WeightedSignal.GetWeight();
-		if(ActorPrejudice && ActorPrejudice->Weight != 0 && CurrentWeight < MaxInterest) {
-			float Increment = ActorPrejudice->Weight * DeltaTime;
-			auto a = WeightedSignal.Signal.Actor;
-			
-			if(a) { if(auto DetectionModifier = Cast<UDetectionModifier>(a->GetComponentByClass(UDetectionModifier::StaticClass())))
-				Increment *= DetectionModifier->DefaultSignalModifier; }
-			WeightedSignal.CompoundingWeight += Increment;
-			WeightedSignal.bPositiveSlopeSign = true;
+		float Weight = DefaultPrejudice;
+		if(ActorPrejudice) {
+			Weight = ActorPrejudice->Weight;
 		}
-		else if(CurrentWeight > MaxInterest) {
-			float NewCompoundWeight = MaxInterest / WeightedSignal.AnalyticWeight;
-			if(NewCompoundWeight >= 0)
-				WeightedSignal.CompoundingWeight = NewCompoundWeight;
-		}
+		float Increment = Weight * DeltaTime;
+		auto a = WeightedSignal.Signal.Actor;
+		if(a && WeightedSignal.Weight < MaxInterest) { if(auto DetectionModifier = Cast<UDetectionModifier>(a->GetComponentByClass(UDetectionModifier::StaticClass())))
+			Increment *= DetectionModifier->DefaultSignalModifier; }
+		WeightedSignal.Weight += Increment * WeightedSignal.Signal.SignalStrength;
+		WeightedSignal.bPositiveSlopeSign = true;
+		if(WeightedSignal.Weight > MaxInterest) 
+			WeightedSignal.Weight = MaxInterest;
 	}
 }
 
-void UFuzzyBrainComponent::DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime,
+void UFuzzyBrainComponent::Decrement(FWeightedSignal& WeightedSignal, double DeltaTime,
 	float PrejudiceDecay) {
-	WeightedSignal.CompoundingWeight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
+	if(WeightedSignal.Weight > MaxInterest)
+		WeightedSignal.Weight = MaxInterest;
+	WeightedSignal.Weight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
+	WeightedSignal.bIsForgettable = true;
 }
 
 
