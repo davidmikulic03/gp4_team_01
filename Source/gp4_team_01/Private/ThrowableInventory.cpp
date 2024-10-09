@@ -3,6 +3,8 @@
 
 #include "ThrowableInventory.h"
 
+#include "CPlayerCharacter.h"
+
 UThrowableInventory::UThrowableInventory()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -55,6 +57,7 @@ void UThrowableInventory::AddAmountToInventory(const ItemType Type, const int Am
 	else if(Type == ItemType::SmokeBomb)
 		CurrentSmokeBombs = FMath::Clamp(CurrentSmokeBombs + AmountToAdd, 0, MaxSmokeBombs);
 
-	OnInventoryUpdated();
+	if(PlayerRef)
+		PlayerRef->OnInventoryUpdated();
 }
 

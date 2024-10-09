@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "ThrowableInventory.generated.h"
 
+class ACPlayerCharacter;
+
 UENUM(BlueprintType)
 enum class ItemType : uint8 {
 	None = 0,
@@ -23,8 +25,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	//getters and setters
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnInventoryUpdated();
+	void AddPlayerRef(ACPlayerCharacter* Player) { PlayerRef = Player; };
 	
 	UFUNCTION(BlueprintCallable)
 	int GetCurrentCount(ItemType Type) const;
@@ -51,4 +52,7 @@ public:
 	int MaxSmokeBombs = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Inventory")
 	int CurrentSmokeBombs = 0;
+
+private:
+	ACPlayerCharacter* PlayerRef;
 };

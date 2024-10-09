@@ -41,6 +41,8 @@ void ACPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
+
+	ThrowableInventory->AddPlayerRef(this);
 }
 
 
