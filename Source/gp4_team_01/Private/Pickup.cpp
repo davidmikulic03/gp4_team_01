@@ -30,7 +30,7 @@ void APickup::Interact(AActor* Caller)
 	if(CallerActor)
 	{
 		if(CallerActor->GetThrowableInventory()->CanFitMoreItemOfType(ItemType)) {
-			CallerActor->GetThrowableInventory()->AddAmountToInventory(ItemType::Throwable, AmountToAdd);
+			CallerActor->GetThrowableInventory()->AddAmountToInventory(ItemType, AmountToAdd);
 			Destroy();
 		}
 	}
