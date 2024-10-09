@@ -121,7 +121,7 @@ float USightComponent::EvaluateSignalStrength(FVector Location) const {
 float USightComponent::EvaluateSignalStrength(AActor* Actor) const {
 	float Result = EvaluateSignalStrength(Actor->GetActorLocation());
 	if(const auto DetectionModifier = Actor->GetComponentByClass(UDetectionModifier::StaticClass()))
-		Result *= Cast<UDetectionModifier>(DetectionModifier)->SignalModifier;
+		Result *= Cast<UDetectionModifier>(DetectionModifier)->DefaultSignalModifier;
 	return Result;
 }
 

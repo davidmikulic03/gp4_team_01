@@ -17,16 +17,18 @@ struct FWeightedSignal {
 	UPROPERTY(BlueprintReadOnly, Category = "AI|Perception|Signal")
 		FPerceptionSignal Signal;
 
-	// We need three weights for it to be non-destructive.
 	float AnalyticWeight = 0.f;
 	float DecayingWeight = 1.f;
 	float CompoundingWeight = 0.f;
+
+	bool bPositiveSlopeSign = false;
 	
 	FORCEINLINE void ResetDecay() noexcept { DecayingWeight = 1.f; }
 	FORCEINLINE float GetWeight() const noexcept {
-		return (AnalyticWeight * (CompoundingWeight + 1)) * DecayingWeight;
+		return AnalyticWeight * (1 + CompoundingWeight) * DecayingWeight;
 	}
-
+	FORCEINLINE bool IsResolvable() const noexcept { return !bPositiveSlopeSign; }
+	
 	FORCEINLINE bool operator ==(FWeightedSignal Other) const noexcept {
 		if(Signal.Actor)
 			return Signal.Actor == Other.Signal.Actor;
