@@ -26,29 +26,13 @@ void APickup::Tick(float DeltaTime)
 
 void APickup::Interact(AActor* Caller)
 {
-	auto CallerActor = Cast<ACPlayerCharacter>(Caller);
+	ACPlayerCharacter* CallerActor = Cast<ACPlayerCharacter>(Caller);
 	if(CallerActor)
 	{
-		if(bIsThrowable)
-		{
-			//HACK I don't know how expensive this is
-			if(CallerActor->GetThrowableInventory()->GetCurrentCount() <
-				CallerActor->GetThrowableInventory()->MaxNumberOfThrowables)
-			{
-				CallerActor->GetThrowableInventory()->AddAmountToInventory(AmountToAdd);
-				Destroy();
-			}
-			else return;
+		if(CallerActor->GetThrowableInventory()->CanFitMoreItemOfType(ItemType)) {
+			CallerActor->GetThrowableInventory()->AddAmountToInventory(ItemType::Throwable, AmountToAdd);
+			Destroy();
 		}
-		//other cases go here
-
 	}
 }
-
-//i can't remember why, safety I guess?
-bool APickup::GetIsThrowable()
-{
-	return bIsThrowable;
-}
-
 

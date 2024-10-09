@@ -18,21 +18,15 @@ class GP4_TEAM_01_API APickup : public AInteractable
 public:
 	APickup();
 	virtual void Tick(float DeltaTime) override;
+	
 	virtual void Interact(AActor* Caller) override;
-	bool GetIsThrowable();
+	inline ItemType GetItemType() const { return ItemType; };
 protected:
 	virtual void BeginPlay() override;
-private:
-
-//variables
-public:
-protected:
+	
 private:
 	UPROPERTY(EditAnywhere, Category="Pickup")
-	int AmountToAdd = 5; //TEST
+	int AmountToAdd = 5;
 	UPROPERTY(EditAnywhere, Category="Pickup")
-	bool bIsThrowable = false;
-
-	UPROPERTY(EditAnywhere, Category="Pickup")
-	bool bIsHealth; //change it later. This is left vague and simple for explansion
+	ItemType ItemType;
 };
