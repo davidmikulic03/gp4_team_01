@@ -3,68 +3,56 @@
 
 #include "ThrowableInventory.h"
 
-// Sets default values for this component's properties
 UThrowableInventory::UThrowableInventory()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
-// Called when the game starts
 void UThrowableInventory::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 
-// Called every frame
 void UThrowableInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
-int UThrowableInventory::GetCurrentCount()
-{
-	return CurrentNumberOfThrowables;
+int UThrowableInventory::GetCurrentCount(const ItemType Type) const {
+	if(Type == ItemType::Throwable)
+		return CurrentThrowables;
+	else if(Type == ItemType::SmokeBomb)
+		return  CurrentSmokeBombs;
+	
+	return -1;
 }
 
-void UThrowableInventory::DecrementNumberOfThrowables()
-{
-	CurrentNumberOfThrowables--;
-	if(CurrentNumberOfThrowables <= 0)
-	{
-		CurrentNumberOfThrowables = 0;
-	}
+bool UThrowableInventory::CanFitMoreItemOfType(const ItemType Type) const {
+	if(Type == ItemType::Throwable)
+		return CurrentThrowables < MaxThrowables;
+	else if (Type == ItemType::SmokeBomb)
+		return CurrentSmokeBombs < MaxSmokeBombs;
+	
+	return false;
 }
 
-void UThrowableInventory::IncrementNumberOfThrowables()
+void UThrowableInventory::RemoveItem(const ItemType Type)
 {
-	CurrentNumberOfThrowables++;
-	if(CurrentNumberOfThrowables >= MaxNumberOfThrowables)
-	{
-		CurrentNumberOfThrowables = MaxNumberOfThrowables;		
-	}
+	AddAmountToInventory(Type, -1);
 }
 
-void UThrowableInventory::AddAmountToInventory(int AmountToAdd)
+void UThrowableInventory::AddItem(const ItemType Type)
 {
-	CurrentNumberOfThrowables+= AmountToAdd;
-	if(CurrentNumberOfThrowables >= MaxNumberOfThrowables)
-	{
-		CurrentNumberOfThrowables = MaxNumberOfThrowables;
-	}
-	else if(CurrentNumberOfThrowables== MaxNumberOfThrowables)
-	{
-		return;
-	}
+	AddAmountToInventory(Type, 1);
+}
+
+void UThrowableInventory::AddAmountToInventory(const ItemType Type, const int AmountToAdd)
+{
+	if(Type == ItemType::Throwable)
+		CurrentThrowables = FMath::Clamp(CurrentThrowables + AmountToAdd, 0, MaxThrowables);
+	else if(Type == ItemType::SmokeBomb)
+		CurrentSmokeBombs = FMath::Clamp(CurrentSmokeBombs + AmountToAdd, 0, MaxSmokeBombs);
 }
 

@@ -153,17 +153,17 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	if(ThrowableInventory->GetCurrentCount() > 0 && !ThrowerComponent->IsOnCooldown())
+	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0 && !ThrowerComponent->IsOnCooldown())
 	{
 		ThrowerComponent->Launch();
-		ThrowableInventory->DecrementNumberOfThrowables();
+		ThrowableInventory->RemoveItem(ItemType::Throwable);
 		ThrowerComponent->ResetCooldown();
 	}
 	else if(ThrowerComponent->IsOnCooldown())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
 	}
-	else if(ThrowableInventory->GetCurrentCount() <= 0)
+	else if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
 	}
