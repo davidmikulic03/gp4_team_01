@@ -3,6 +3,8 @@
 
 #include "AC_PetrifyGun.h"
 
+#include "gp4_team_01/Enviroment/Interactable.h"
+
 // Sets default values for this component's properties
 UAC_PetrifyGun::UAC_PetrifyGun()
 {
@@ -64,16 +66,18 @@ void UAC_PetrifyGun::TryFirePetrifyGun()
 			CollisionParams);
 		if (bTraceHit)
 		{
-			AActor* HitActor = HitResult.GetActor(); 
-			if (HitActor->IsA(AEnemyBase::StaticClass()) || HitActor->GetClass()->IsChildOf<AEnemyBase>())
+			AEnemyBase* HitEnemy = Cast<AEnemyBase>(HitResult.GetActor());
+			if (HitEnemy)
 			{
 				//petrify
-				Cast<AEnemyBase>(HitActor)->Petrify(GetWorld()->GetFirstPlayerController()->GetPawn());
-				UE_LOG(LogTemp, Warning, TEXT("Hit Enemy - %s"), *HitActor->GetName());
+				HitEnemy->Petrify(Cast<APawn>(GetOwner()));
+				UE_LOG(LogTemp, Warning, TEXT("Hit Enemy - %s"), *HitEnemy->GetName());
 			}
-			else
+
+			AInteractable* HitInteractable = Cast<AInteractable>(HitResult.GetActor());
+			if(HitInteractable)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit Something - %s"), *HitActor->GetName());
+				HitInteractable->Break();
 			}
 		}
 		else
