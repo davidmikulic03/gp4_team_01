@@ -1,6 +1,6 @@
 ﻿#include "MagnetComponent.h"
 
-#include "CPlayerCharacter.h"
+#include "PlayerCharacter.h"
 #include "gp4_team_01/Enviroment/Magnet.h"
 
 UMagnetComponent::UMagnetComponent() {
@@ -29,7 +29,7 @@ void UMagnetComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UMagnetComponent::RegenerateInteractableArray() {
 	InteractableMagnets.Empty();
-	auto Player = Cast<ACPlayerCharacter>(GetOwner());
+	auto Player = Cast<APlayerCharacter>(GetOwner());
 	if(InInteractionRange.IsEmpty() || !Player) {
 		return;
 	}
@@ -58,7 +58,7 @@ void UMagnetComponent::Traverse(double DeltaTime) {
 	if(TraversalCounter >= TraversalTime) {
 		bIsTraversing = false;
 		TraversalCounter = 0;
-		if(auto Player = Cast<ACPlayerCharacter>(GetOwner()))
+		if(auto Player = Cast<APlayerCharacter>(GetOwner()))
 			Player->GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::Zero());
 	}
 }

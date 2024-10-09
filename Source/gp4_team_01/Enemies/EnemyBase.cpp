@@ -1,8 +1,8 @@
 ﻿#include "EnemyBase.h"
 
-#include "HearingComponent.h"
-#include "SightComponent.h"
-#include "PerceptionSignal.h"
+#include "AI/HearingComponent.h"
+#include "AI/SightComponent.h"
+#include "AI/PerceptionSignal.h"
 
 #include "Kismet/GameplayStatics.h"
 
