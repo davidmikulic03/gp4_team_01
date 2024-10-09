@@ -12,19 +12,22 @@ struct FWeightedSignal {
     
 	FWeightedSignal() { }
 	FWeightedSignal(FPerceptionSignal Signal)
-		: Signal(Signal) { }
+		: Signal(Signal)
+	{
+		if(Signal.Actor) bIsForgettable = false;
+		else Weight = Signal.SignalStrength;
+	}
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI|Perception|Signal")
 		FPerceptionSignal Signal;
 
-	float AnalyticWeight = 0.f;
-	float CompoundingWeight = 1.f;
-
-	bool bPositiveSlopeSign = false;
+	float Weight = 0.f;
+	bool bPositiveSlopeSign = true;
+	bool bIsForgettable = true;
 	
-	FORCEINLINE void ResetDecay() noexcept { if(CompoundingWeight < 1.f) CompoundingWeight = 1.f; }
+	FORCEINLINE void ResetDecay() noexcept { if(Weight < 1.f) Weight = 1.f; }
 	FORCEINLINE float GetWeight() const noexcept {
-		return AnalyticWeight * (CompoundingWeight);
+		return Weight;
 	}
 	FORCEINLINE bool IsResolvable() const noexcept { return !bPositiveSlopeSign; }
 	
