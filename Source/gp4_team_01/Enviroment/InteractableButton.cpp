@@ -16,7 +16,7 @@ void AInteractableButton::BeginPlay() {
 
 void AInteractableButton::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(bDoesResetAfterCooldown && bIsPressed) {
+	if(bDoesResetAfterCooldown && bIsPressed && !bIsBroken) {
 		TimeSpentPressed += DeltaTime;
 		if(TimeSpentPressed >= ResetCooldown) {
 			bIsPressed = false;
