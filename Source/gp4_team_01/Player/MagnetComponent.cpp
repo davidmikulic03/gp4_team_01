@@ -43,7 +43,7 @@ void UMagnetComponent::RegenerateInteractableArray() {
 	}
 }
 
-float UMagnetComponent::ModifyInterpolation(float Alpha) { return Alpha * Alpha * Alpha; }
+float UMagnetComponent::ModifyInterpolation(float Alpha) { return Alpha * Alpha; }
 
 void UMagnetComponent::BeginPlay() {
 	Super::BeginPlay();
