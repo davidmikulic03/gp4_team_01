@@ -54,5 +54,7 @@ void UThrowableInventory::AddAmountToInventory(const ItemType Type, const int Am
 		CurrentThrowables = FMath::Clamp(CurrentThrowables + AmountToAdd, 0, MaxThrowables);
 	else if(Type == ItemType::SmokeBomb)
 		CurrentSmokeBombs = FMath::Clamp(CurrentSmokeBombs + AmountToAdd, 0, MaxSmokeBombs);
+
+	OnInventoryUpdated();
 }
 

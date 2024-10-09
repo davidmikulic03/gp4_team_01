@@ -22,6 +22,10 @@ public:
 	UThrowableInventory();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	//getters and setters
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnInventoryUpdated();
+	
 	UFUNCTION(BlueprintCallable)
 	int GetCurrentCount(ItemType Type) const;
 	UFUNCTION(BlueprintCallable)

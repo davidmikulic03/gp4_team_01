@@ -52,7 +52,7 @@ public:
 	FORCEINLINE UCameraComponent* GetCamera() const noexcept { return Camera; }
 
 	//getters
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	UThrowableInventory* GetThrowableInventory();
 
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
