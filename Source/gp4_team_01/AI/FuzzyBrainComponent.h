@@ -12,8 +12,6 @@ struct FSignalWeightParameters {
 		float PrejudiceDecay = 1.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float DistanceExponent = 1.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float DecayExponent = 1.f;
 };
 
 USTRUCT(Blueprintable, meta=(CollapseCategories))
@@ -56,7 +54,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		FSignalWeightParameters Params;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
-		float ForgetThreshold = 0.f;
+		float ForgetThreshold = 1.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain", meta = (UIMin = 0))
 		float MaxInterest = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
@@ -66,14 +64,9 @@ protected:
 	void UpdateAnalyticWeight(FWeightedSignal& WeightedSignal, float DistanceExponent);
 	void IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime);
 	void DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay);
-	void UpdateDecayingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float DecayExponent);
 	bool HasMemory(FPerceptionSignal Signal);
 	void See(double DeltaTime);
 	void Hear(double DeltaTime);
-	FORCEINLINE void UpdateWeight(FWeightedSignal& WeightedSignal, double DeltaTime) {
-		UpdateAnalyticWeight(WeightedSignal, Params.DistanceExponent);
-		UpdateDecayingWeight(WeightedSignal, DeltaTime, Params.DecayExponent);
-	}
 	void UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime);
 	FORCEINLINE void ForgetUnimportant();
 	uint32 GetSignalIdOfHighestWeight();

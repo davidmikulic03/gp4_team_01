@@ -18,14 +18,13 @@ struct FWeightedSignal {
 		FPerceptionSignal Signal;
 
 	float AnalyticWeight = 0.f;
-	float DecayingWeight = 1.f;
-	float CompoundingWeight = 0.f;
+	float CompoundingWeight = 1.f;
 
 	bool bPositiveSlopeSign = false;
 	
-	FORCEINLINE void ResetDecay() noexcept { DecayingWeight = 1.f; }
+	FORCEINLINE void ResetDecay() noexcept { if(CompoundingWeight < 1.f) CompoundingWeight = 1.f; }
 	FORCEINLINE float GetWeight() const noexcept {
-		return AnalyticWeight * (1 + CompoundingWeight) * DecayingWeight;
+		return AnalyticWeight * (CompoundingWeight);
 	}
 	FORCEINLINE bool IsResolvable() const noexcept { return !bPositiveSlopeSign; }
 	

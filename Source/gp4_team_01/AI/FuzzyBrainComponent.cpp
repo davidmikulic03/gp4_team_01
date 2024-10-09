@@ -77,8 +77,16 @@ void UFuzzyBrainComponent::UpdateSignal(FWeightedSignal& WeightedSignal, double 
 }
 
 void UFuzzyBrainComponent::ForgetUnimportant() {
-	Memory.RemoveAll([this](FWeightedSignal Signal)
-				{ return Signal.GetWeight() < ForgetThreshold; });
+	int Num = Memory.Num();
+	for(int i = 0; i < Num; i++) {
+		if(Memory[i].GetWeight() < ForgetThreshold) {
+			Memory.RemoveAt(i);
+			if(PreviousHighestWeightId >= static_cast<uint32>(i))
+				PreviousHighestWeightId--;
+			i--;
+			Num--;
+		}
+	}
 }
 
 uint32 UFuzzyBrainComponent::GetSignalIdOfHighestWeight() {
@@ -94,7 +102,8 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	uint32 HighestId = GetSignalIdOfHighestWeight();
-	if(HighestId != INDEX_NONE && ((PreviousHighestWeightId == INDEX_NONE || static_cast<int>(PreviousHighestWeightId) > Memory.Num())
+	if(HighestId != INDEX_NONE
+		&& ((PreviousHighestWeightId == INDEX_NONE || PreviousHighestWeightId > static_cast<uint32>(Memory.Num()))
 		|| Memory[HighestId].Signal != Memory[PreviousHighestWeightId].Signal)) {
 		PreviousHighestWeightId = HighestId;
 		if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
@@ -102,10 +111,11 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 
 	for(auto& WeightedSignal : Memory) {
-		UpdateWeight(WeightedSignal, DeltaTime);
+		UpdateAnalyticWeight(WeightedSignal, Params.DistanceExponent);
 		UpdateSignal(WeightedSignal, DeltaTime);
 		if(!WeightedSignal.bPositiveSlopeSign)
 			DecrementCompoundingWeight(WeightedSignal, DeltaTime, Params.PrejudiceDecay);
+		WeightedSignal.bPositiveSlopeSign = false;
 	}
 	ForgetUnimportant();
 
@@ -113,7 +123,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Hear(DeltaTime);
 
 	for (uint64 i = 0; i < Memory.Num(); i++) {
-		GEngine->AddOnScreenDebugMessage(i+200, 1.f, FColor::Emerald,
+		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
 			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
 	}
 }
@@ -140,12 +150,11 @@ void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedS
 			WeightedSignal.bPositiveSlopeSign = true;
 		}
 		else if(CurrentWeight > MaxInterest) {
-			float NewCompoundWeight = MaxInterest / (WeightedSignal.AnalyticWeight * WeightedSignal.DecayingWeight) - 1.f;
+			float NewCompoundWeight = MaxInterest / WeightedSignal.AnalyticWeight;
 			if(NewCompoundWeight >= 0)
 				WeightedSignal.CompoundingWeight = NewCompoundWeight;
 		}
 	}
-	else WeightedSignal.bPositiveSlopeSign = false;
 }
 
 void UFuzzyBrainComponent::DecrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime,
@@ -153,9 +162,6 @@ void UFuzzyBrainComponent::DecrementCompoundingWeight(FWeightedSignal& WeightedS
 	WeightedSignal.CompoundingWeight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
 }
 
-void UFuzzyBrainComponent::UpdateDecayingWeight(FWeightedSignal& WeightedSignal, double DeltaTime, float DecayExponent) {
-	WeightedSignal.DecayingWeight *= FMath::Exp(-DeltaTime * DecayExponent);
-}
 
 bool UFuzzyBrainComponent::HasMemory(FPerceptionSignal Signal) {
 	for(auto WeightedSignal : Memory) {
