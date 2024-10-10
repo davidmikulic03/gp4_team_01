@@ -83,6 +83,7 @@ private:
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void PredictTrajectory(const FInputActionValue& Value);
 	//variables and methods
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -115,6 +116,8 @@ public:
 	UInputAction* IncrementSpeedAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PredictTrajectoryAction;
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -127,7 +130,7 @@ public:
 	UPetrifyGunComponent* PetrifyGun;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UMagnetComponent* Magnet;
 
 	//experimental
