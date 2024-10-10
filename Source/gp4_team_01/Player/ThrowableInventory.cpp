@@ -57,7 +57,15 @@ void UThrowableInventory::AddAmountToInventory(const ItemType Type, const int Am
 	else if(Type == ItemType::SmokeBomb)
 		CurrentSmokeBombs = FMath::Clamp(CurrentSmokeBombs + AmountToAdd, 0, MaxSmokeBombs);
 
-	if(PlayerRef)
-		PlayerRef->OnInventoryUpdated();
+	if(!PlayerRef) {
+		UE_LOG(LogTemp, Error, TEXT("ERROR: ThrowableInventory is missing a reference to the player"));
+		return;
+	}
+	
+	PlayerRef->OnInventoryUpdated();
+	if(CurrentThrowables == MaxThrowables)
+		PlayerRef->OnMaxThrowables();
+	if(CurrentSmokeBombs == MaxSmokeBombs)
+		PlayerRef->OnMaxSmokeBombs();
 }
 
