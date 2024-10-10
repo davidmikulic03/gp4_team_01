@@ -16,6 +16,8 @@
 
 AEnemyBase::AEnemyBase() {
 	PrimaryActorTick.bCanEverTick = true;
+
+	WaypointHolder = CreateDefaultSubobject<USceneComponent>("Waypoint Holder");
 }
 
 void AEnemyBase::Petrify(APawn* Player) {
@@ -108,8 +110,20 @@ void AEnemyBase::OnDeath(const AActor* Killer) {
 	Destroy();
 }
 
+FVector AEnemyBase::GetNextWaypointLocation()
+{
+	//TODO: Logic to return the correct waypoints based on enemy state
+	CurrentWaypointIndex += 1;
+	if(CurrentWaypointIndex >= IdleWaypoints.Num())
+		CurrentWaypointIndex = 0;
+	
+	return IdleWaypoints[CurrentWaypointIndex]->GetComponentLocation();
+}
+
 void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
+
+	CurrentWaypointIndex = 0;
 }
 
 void AEnemyBase::Tick(float DeltaTime) {
@@ -132,9 +146,9 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 #if WITH_EDITOR
 void AEnemyBase::UpdateNavigationArrays() {
 	for(int i = IdleWaypoints.Num(); i < NumberOfIdleWaypoints; i++) {
-		UWaypointComponent* NewWaypoint = NewObject<UWaypointComponent>(this, FName("Waypoint" + i));
+		UWaypointComponent* NewWaypoint = NewObject<UWaypointComponent>(this, FName("Waypoint"));
 		NewWaypoint->SetWorldLocation(GetActorLocation());
-		//NewWaypoint->SetupAttachment(GetCapsuleComponent());
+		NewWaypoint->SetupAttachment(WaypointHolder);
 		this->AddInstanceComponent(NewWaypoint);
 		this->AddOwnedComponent(NewWaypoint);
 		NewWaypoint->RegisterComponent();

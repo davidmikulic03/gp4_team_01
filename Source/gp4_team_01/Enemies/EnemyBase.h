@@ -54,7 +54,9 @@ public:
 		void OnDeath(const AActor* Killer);
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
-	
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetNextWaypointLocation();
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnPetrify(APawn* Player);
@@ -102,7 +104,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
 		TArray<UWaypointComponent*> AlertWaypoints;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+		USceneComponent* WaypointHolder = nullptr;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -112,6 +116,9 @@ protected:
 
 	UPROPERTY(EditInstanceOnly)
 		AActor* DebugActor;
+
+	UPROPERTY(VisibleAnywhere, Category = Debug)
+		int CurrentWaypointIndex;
 };
 
 
