@@ -40,6 +40,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void QuitGame() const;
 
+	
+	UFUNCTION(BlueprintCallable)
+	void LoadLevel(FName LevelName) const;
+
 	UFUNCTION(BlueprintCallable)
 	void WinGame();
 

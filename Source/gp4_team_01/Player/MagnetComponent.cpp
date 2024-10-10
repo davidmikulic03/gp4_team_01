@@ -39,7 +39,9 @@ void UMagnetComponent::RegenerateInteractableArray() {
 		float dot = ToMagnetDir.Dot(Player->GetCamera()->GetForwardVector());
 		if(dot > FMath::Cos(FMath::DegreesToRadians(AimThreshold))) {
 			InteractableMagnets.Add(Magnet);
-		}
+			Magnet->SetIsInteractable(true);
+		} else
+			Magnet->SetIsInteractable(false);
 	}
 }
 
@@ -71,6 +73,7 @@ void UMagnetComponent::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 void UMagnetComponent::EndOverlap(AActor* OverlappedActor, AActor* OtherActor) {
 	if(auto a = Cast<AMagnet>(OtherActor)) {
+		a->SetIsInteractable(false);
 		InInteractionRange.Remove(a);
 	}
 }
