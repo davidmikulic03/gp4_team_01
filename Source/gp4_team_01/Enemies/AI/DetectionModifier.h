@@ -16,7 +16,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (UIMin = 0.f))
 		float DefaultSignalModifier = 1.0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (UIMin = 0.f))
-		float SecondarySignalModifier = 0.5;
-	
 };

@@ -5,14 +5,6 @@
 #include "WeightedSignal.h"
 #include "FuzzyBrainComponent.generated.h"
 
-USTRUCT(BlueprintType)
-struct FSignalWeightParameters {
-	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float PrejudiceDecay = 1.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float DistanceExponent = 1.f;
-};
 
 USTRUCT(Blueprintable, meta=(CollapseCategories))
 struct FSignalWeightThresholds {
@@ -54,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		float DefaultPrejudice = 0.1f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
-		FSignalWeightParameters Params;
+		float PrejudiceDecay = 1.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		float ForgetThreshold = 0.01f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain", meta = (UIMin = 0))
@@ -64,7 +56,7 @@ public:
 
 protected:
 	void IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime);
-	void Decrement(FWeightedSignal& WeightedSignal, double DeltaTime, float PrejudiceDecay);
+	void Decrement(FWeightedSignal& WeightedSignal, double DeltaTime);
 	bool HasMemory(FPerceptionSignal Signal);
 	void See(double DeltaTime);
 	void Hear(double DeltaTime);
