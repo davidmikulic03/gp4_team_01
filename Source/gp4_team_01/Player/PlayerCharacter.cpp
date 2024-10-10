@@ -25,8 +25,13 @@ APlayerCharacter::APlayerCharacter()
 	Camera->bUsePawnControlRotation = true;
 	EyeOffset = FVector(0.f);
 	AlphaValue = 12.f;
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.cpp
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
+=======
+	ThrowerComponent = CreateDefaultSubobject<UACThrowerComponent>(TEXT("Thrower"));
+	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
+>>>>>>> Stashed changes:Source/gp4_team_01/Private/CPlayerCharacter.cpp
 	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 	CurrentMoveIncrement = MinMoveIncriment;
 	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
@@ -68,12 +73,22 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveRight);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		//crouch
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.cpp
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Crouch);
 		EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Throw);
 		EnhancedInputComponent->BindAction(PetrifyGunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::FirePetrifyGun);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
+=======
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Crouch);
+		EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Throw);
+		EnhancedInputComponent->BindAction(PetrifyGunAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::FirePetrifyGun);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Jump);
+		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::IncrementMovement);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Interact);
+		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::PredictTrajectory);
+>>>>>>> Stashed changes:Source/gp4_team_01/Private/CPlayerCharacter.cpp
 	}
 
 }
@@ -88,18 +103,9 @@ void APlayerCharacter::MoveForward(const FInputActionValue& Value)
 	if(Magnet->IsTraversing())
 		return;
 	FVector2D InputVector = Value.Get<FVector2D>();
-	//redo increment movement
 	if(Controller != nullptr)
 	{
-		if(bIncrementedMovement)
-		{
-			AddMovementInput(GetActorForwardVector(), InputVector.X);
-
-		}
-		else if(!bIncrementedMovement)
-		{
-			AddMovementInput(GetActorForwardVector(), InputVector.X);
-		}
+		AddMovementInput(GetActorForwardVector(), InputVector.X);
 	}
 }
 
@@ -107,18 +113,10 @@ void APlayerCharacter::MoveRight(const FInputActionValue& Value)
 {
 	if(Magnet->IsTraversing())
 		return;
-	//redo increment movement
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
 	{
-		if (bIncrementedMovement)
-		{
-			AddMovementInput(GetActorRightVector(), InputVector.X);
-		}
-		else if (!bIncrementedMovement)
-		{
-			AddMovementInput(GetActorRightVector(), InputVector.X);
-		}
+		AddMovementInput(GetActorRightVector(), InputVector.X);
 	}
 }
 
@@ -248,7 +246,17 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 	DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
 
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.cpp
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+=======
+void ACPlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
+{
+	ThrowerComponent->DrawProjectilePath();
+}
+
+
+void ACPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+>>>>>>> Stashed changes:Source/gp4_team_01/Private/CPlayerCharacter.cpp
 {
 	if(HalfHeightAdjust == 0.f)
 	{
@@ -282,3 +290,4 @@ void APlayerCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
 
 	}
 }
+

@@ -12,8 +12,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.h
 #include "ThrowerComponent.h"
 #include "PetrifyGunComponent.h"
+=======
+#include "ACThrowerComponent.h"
+#include "AC_PetrifyGun.h"
+>>>>>>> Stashed changes:Source/gp4_team_01/Public/CPlayerCharacter.h
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
@@ -31,8 +36,13 @@ class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
 class UCharacterMovementComponent;
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.h
 class UThrowerComponent;
 class UPetrifyGunComponent;
+=======
+class UACThrowerComponent;
+class UAC_PetrifyGun;
+>>>>>>> Stashed changes:Source/gp4_team_01/Public/CPlayerCharacter.h
 class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
 class UThrowableInventory;
@@ -59,6 +69,7 @@ public:
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.h
 	//Inventory events for player HUD
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnInventoryUpdated();
@@ -69,6 +80,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMaxSmokeBombs();
 	
+=======
+
+>>>>>>> Stashed changes:Source/gp4_team_01/Public/CPlayerCharacter.h
 	//void Fire(const FInputActionValue& Value);
 protected:
 	// Called when the game starts or when spawned
@@ -83,6 +97,7 @@ private:
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void PredictTrajectory(const FInputActionValue& Value);
 	//variables and methods
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -115,6 +130,8 @@ public:
 	UInputAction* IncrementSpeedAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PredictTrajectoryAction;
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -122,7 +139,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector EyeOffset;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+<<<<<<< Updated upstream:Source/gp4_team_01/Player/PlayerCharacter.h
 	UThrowerComponent* ThrowerComponent;
+=======
+	UACThrowerComponent* ThrowerComponent;
+>>>>>>> Stashed changes:Source/gp4_team_01/Public/CPlayerCharacter.h
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UPetrifyGunComponent* PetrifyGun;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
