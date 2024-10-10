@@ -30,7 +30,9 @@ protected:
 	void RegenerateInteractableArray();
 
 	float ModifyInterpolation(float Alpha);
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = Magnet)
+		FRuntimeFloatCurve TraversalCurve;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Magnet, meta=(UIMin=0,UIMax=180))
 		float AimThreshold = 60;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Magnet)
