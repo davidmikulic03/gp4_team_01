@@ -3,6 +3,12 @@
 #include "AI/HearingComponent.h"
 #include "AI/SightComponent.h"
 #include "AI/PerceptionSignal.h"
+#include "Components/CapsuleComponent.h"
+
+#if WITH_EDITOR
+#include "UnrealEdGlobals.h"
+#include "Editor/UnrealEdEngine.h"
+#endif
 
 #include "Kismet/GameplayStatics.h"
 
@@ -108,6 +114,10 @@ void AEnemyBase::BeginPlay() {
 void AEnemyBase::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
+#if WITH_EDITOR
+	DrawPath_Internal(false);
+#endif
+	
 	//TArray<FActorSignalPair> a = GetVisibleActors();
 	//GEngine->AddOnScreenDebugMessage(18095, 0.1f, FColor::Black,
 	//	FString::Printf(TEXT("Player Detection Delta: %f"), dr));
@@ -117,3 +127,39 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+
+#if WITH_EDITOR
+void AEnemyBase::UpdateNavigationArrays() {
+	for(int i = IdleWaypoints.Num(); i < NumberOfIdleWaypoints; i++) {
+		auto NewWaypoint = NewObject<USceneComponent>(this, FName("Waypoint" + i));
+		//NewWaypoint->SetupAttachment(GetCapsuleComponent());
+		this->AddInstanceComponent(NewWaypoint);
+		this->AddOwnedComponent(NewWaypoint);
+		NewWaypoint->RegisterComponent();
+		IdleWaypoints.Add(NewWaypoint);
+	}
+}
+
+void AEnemyBase::DeleteAllWaypoints() {
+	for(int i = 0; i < IdleWaypoints.Num(); i++) {
+		IdleWaypoints[i]->DestroyComponent();
+	}
+	IdleWaypoints.Empty();
+}
+
+void AEnemyBase::DrawPath() {
+	DrawPath_Internal(true);
+}
+
+void AEnemyBase::DrawPath_Internal(bool bPersistantLines) {
+	for(int i = 0; i < IdleWaypoints.Num() - 1; i++) {
+		DrawDebugLine(GetWorld(), IdleWaypoints[i]->GetComponentLocation(), IdleWaypoints[i+1]->GetComponentLocation(), FColor::Purple, bPersistantLines);
+	}
+	DrawDebugLine(GetWorld(), IdleWaypoints[IdleWaypoints.Num() - 1]->GetComponentLocation(), IdleWaypoints[0]->GetComponentLocation(), FColor::Purple, bPersistantLines);
+}
+
+void AEnemyBase::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
+	Super::PostEditChangeProperty(FPropertyChangedEvent);
+	//GUnrealEd->UpdateFloatingPropertyWindows();
+}
+#endif

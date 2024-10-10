@@ -6,6 +6,7 @@
 
 class UHearingComponent;
 class USightComponent;
+struct FPropertyChangedEvent;
 
 UCLASS(Abstract)
 class GP4_TEAM_01_API AEnemyBase : public ACharacter
@@ -64,6 +65,21 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+private:	//EDITOR ONLY functions
+	UFUNCTION(CallInEditor, Category = "Pathfinding")
+		void UpdateNavigationArrays();
+
+	UFUNCTION(CallInEditor, Category = "Pathfinding")
+		void DeleteAllWaypoints();
+
+	UFUNCTION(CallInEditor, Category = "Pathfinding")
+	void DrawPath();
+	
+	void DrawPath_Internal(bool bPersistantLines = false);
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) override;
+	//virtual bool ShouldTickIfViewportsOnly() const override { return true; };
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -75,6 +91,19 @@ protected:
 
 	bool bIsPetrified = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+		int NumberOfIdleWaypoints;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+		TArray<USceneComponent*> IdleWaypoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+		int NumberOfAlertWaypoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+		TArray<USceneComponent*> AlertWaypoints;
+	
+	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
 
