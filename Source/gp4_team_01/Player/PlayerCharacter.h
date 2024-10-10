@@ -58,9 +58,16 @@ public:
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
-	
+
+	//Inventory events for player HUD
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnInventoryUpdated();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMaxThrowables();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMaxSmokeBombs();
 	
 	//void Fire(const FInputActionValue& Value);
 protected:
