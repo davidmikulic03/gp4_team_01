@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "EnemyBase.generated.h"
 
+class UWaypointComponent;
 class UHearingComponent;
 class USightComponent;
 struct FPropertyChangedEvent;
@@ -78,8 +79,7 @@ private:	//EDITOR ONLY functions
 	void DrawPath_Internal(bool bPersistantLines = false);
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) override;
-	//virtual bool ShouldTickIfViewportsOnly() const override { return true; };
-
+	virtual bool ShouldTickIfViewportsOnly() const override { return true; };
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -95,13 +95,13 @@ protected:
 		int NumberOfIdleWaypoints;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
-		TArray<USceneComponent*> IdleWaypoints;
+		TArray<UWaypointComponent*> IdleWaypoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
 		int NumberOfAlertWaypoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
-		TArray<USceneComponent*> AlertWaypoints;
+		TArray<UWaypointComponent*> AlertWaypoints;
 	
 	
 	UPROPERTY()

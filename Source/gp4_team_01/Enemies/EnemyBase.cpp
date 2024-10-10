@@ -10,6 +10,7 @@
 #include "Editor/UnrealEdEngine.h"
 #endif
 
+#include "gp4_team_01/Utility/WaypointComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -131,7 +132,8 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 #if WITH_EDITOR
 void AEnemyBase::UpdateNavigationArrays() {
 	for(int i = IdleWaypoints.Num(); i < NumberOfIdleWaypoints; i++) {
-		auto NewWaypoint = NewObject<USceneComponent>(this, FName("Waypoint" + i));
+		UWaypointComponent* NewWaypoint = NewObject<UWaypointComponent>(this, FName("Waypoint" + i));
+		NewWaypoint->SetWorldLocation(GetActorLocation());
 		//NewWaypoint->SetupAttachment(GetCapsuleComponent());
 		this->AddInstanceComponent(NewWaypoint);
 		this->AddOwnedComponent(NewWaypoint);
@@ -153,9 +155,10 @@ void AEnemyBase::DrawPath() {
 
 void AEnemyBase::DrawPath_Internal(bool bPersistantLines) {
 	for(int i = 0; i < IdleWaypoints.Num() - 1; i++) {
-		DrawDebugLine(GetWorld(), IdleWaypoints[i]->GetComponentLocation(), IdleWaypoints[i+1]->GetComponentLocation(), FColor::Purple, bPersistantLines);
+		DrawDebugLine(GetWorld(), IdleWaypoints[i]->GetComponentLocation(), IdleWaypoints[i+1]->GetComponentLocation(), FColor::Purple, bPersistantLines, -1, 0, 10);
 	}
-	DrawDebugLine(GetWorld(), IdleWaypoints[IdleWaypoints.Num() - 1]->GetComponentLocation(), IdleWaypoints[0]->GetComponentLocation(), FColor::Purple, bPersistantLines);
+	if(IdleWaypoints.Num() >= 2)
+		DrawDebugLine(GetWorld(), IdleWaypoints[IdleWaypoints.Num() - 1]->GetComponentLocation(), IdleWaypoints[0]->GetComponentLocation(), FColor::Purple, bPersistantLines, -1, 0, 10);
 }
 
 void AEnemyBase::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
