@@ -91,15 +91,7 @@ void APlayerCharacter::MoveForward(const FInputActionValue& Value)
 	//redo increment movement
 	if(Controller != nullptr)
 	{
-		if(bIncrementedMovement)
-		{
-			AddMovementInput(GetActorForwardVector(), InputVector.X);
-
-		}
-		else if(!bIncrementedMovement)
-		{
-			AddMovementInput(GetActorForwardVector(), InputVector.X);
-		}
+		AddMovementInput(GetActorForwardVector(), InputVector.X);
 	}
 }
 
@@ -111,14 +103,7 @@ void APlayerCharacter::MoveRight(const FInputActionValue& Value)
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
 	{
-		if (bIncrementedMovement)
-		{
-			AddMovementInput(GetActorRightVector(), InputVector.X);
-		}
-		else if (!bIncrementedMovement)
-		{
-			AddMovementInput(GetActorRightVector(), InputVector.X);
-		}
+		AddMovementInput(GetActorRightVector(), InputVector.X);
 	}
 }
 
@@ -178,27 +163,27 @@ void APlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 
 void APlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 {
-	FVector2D InputVector = Value.Get<FVector2D>();
-	if(InputVector.X < 0)
-	{
-		CurrentMoveIncrement--;
-		if (CurrentMoveIncrement <= MinMoveIncriment)
-		{
-			CurrentMoveIncrement = MinMoveIncriment;
-		}
-		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-	}
-	else if(InputVector.X > 0)
-	{
-		CurrentMoveIncrement++;
-		if(CurrentMoveIncrement >= MaxMoveIncrement)
-		{
-			CurrentMoveIncrement = MaxMoveIncrement;
-		}
-		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-	}
+	//FVector2D InputVector = Value.Get<FVector2D>();
+	//if(InputVector.X < 0)
+	//{
+	//	CurrentMoveIncrement--;
+	//	if (CurrentMoveIncrement <= MinMoveIncriment)
+	//	{
+	//		CurrentMoveIncrement = MinMoveIncriment;
+	//	}
+	//	GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+	//	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+	//}
+	//else if(InputVector.X > 0)
+	//{
+	//	CurrentMoveIncrement++;
+	//	if(CurrentMoveIncrement >= MaxMoveIncrement)
+	//	{
+	//		CurrentMoveIncrement = MaxMoveIncrement;
+	//	}
+	//	GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+	//	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+	//}
 }
 
 void APlayerCharacter::Jump(const FInputActionValue& Value)
