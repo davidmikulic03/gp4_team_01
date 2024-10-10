@@ -1,7 +1,7 @@
 ﻿#include "NoiseSystem.h"
 
 #include "gp4_team_01/DataAssets/NoiseDataAsset.h"
-#include "gp4_team_01/Enemies/HearingComponent.h"
+#include "gp4_team_01/Enemies/AI/HearingComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
