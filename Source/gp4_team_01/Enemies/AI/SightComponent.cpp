@@ -73,7 +73,9 @@ void USightComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (OtherActor == GetOwner())
 		return;
-	ActorsInVisionCone.AddUnique(OtherActor);
+	
+	if(!OtherActor->GetComponentsCollisionResponseToChannel(TraceChannel) == ECR_Ignore)
+		ActorsInVisionCone.AddUnique(OtherActor);
 }
 
 void USightComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

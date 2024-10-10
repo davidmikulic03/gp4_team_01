@@ -14,6 +14,7 @@ void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionS
 	for(int i = 0; i < Memory.Num(); i++) {
 		if(Signal.Actor && Memory[i].Signal.Actor == Signal.Actor) {
 			IncrementCompoundingWeight(Memory[i], DeltaTime);
+			Memory[i].Signal.SignalStrength = Signal.SignalStrength;
 			return;
 		}
 	}
@@ -78,7 +79,7 @@ void UFuzzyBrainComponent::UpdateSignal(FWeightedSignal& WeightedSignal, double 
 void UFuzzyBrainComponent::ForgetUnimportant() {
 	int Num = Memory.Num();
 	for(int i = 0; i < Num; i++) {
-		if(Memory[i].GetWeight() < ForgetThreshold && Memory[i].bIsForgettable) {
+		if(Memory[i].GetWeight() < ForgetThreshold && !Memory[i].bPositiveSlopeSign) {
 			Memory.RemoveAt(i);
 			if(PreviousHighestWeightId >= static_cast<uint32>(i))
 				PreviousHighestWeightId--;
@@ -109,17 +110,17 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			Owner->OnInterestChanged(Memory[HighestId]);
 	}
 
-	See(DeltaTime);
+	See(DeltaTime); 
 	Hear(DeltaTime);
+	ForgetUnimportant();
 	
 	for(auto& WeightedSignal : Memory) {
 		UpdateSignal(WeightedSignal, DeltaTime);
 		if(!WeightedSignal.bPositiveSlopeSign) {
-			Decrement(WeightedSignal, DeltaTime, Params.PrejudiceDecay);
+			Decrement(WeightedSignal, DeltaTime);
 		}
 		WeightedSignal.bPositiveSlopeSign = false;
 	}
-	ForgetUnimportant();
 
 	for (uint64 i = 0; i < Memory.Num(); i++) {
 		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
@@ -147,12 +148,10 @@ void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedS
 	}
 }
 
-void UFuzzyBrainComponent::Decrement(FWeightedSignal& WeightedSignal, double DeltaTime,
-	float PrejudiceDecay) {
+void UFuzzyBrainComponent::Decrement(FWeightedSignal& WeightedSignal, double DeltaTime) {
 	if(WeightedSignal.Weight > MaxInterest)
 		WeightedSignal.Weight = MaxInterest;
 	WeightedSignal.Weight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
-	WeightedSignal.bIsForgettable = true;
 }
 
 

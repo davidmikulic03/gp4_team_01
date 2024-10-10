@@ -14,8 +14,7 @@ struct FWeightedSignal {
 	FWeightedSignal() { }
 	FWeightedSignal(FPerceptionSignal Signal)
 		: Signal(Signal) {
-		if(Signal.Actor) bIsForgettable = false;
-		else Weight = Signal.SignalStrength;
+		if(!Signal.Actor) Weight = Signal.SignalStrength;
 	}
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI|Perception|Signal")
@@ -23,7 +22,6 @@ struct FWeightedSignal {
 
 	float Weight = 0.f;
 	bool bPositiveSlopeSign = true;
-	bool bIsForgettable = true;
 	
 	FORCEINLINE void ResetDecay() noexcept { if(Weight < 1.f) Weight = 1.f; }
 	FORCEINLINE float GetWeight() const noexcept {
