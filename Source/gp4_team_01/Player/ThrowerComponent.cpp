@@ -76,21 +76,15 @@ bool UThrowerComponent::IsOnCooldown()
 	return false;
 }
 
-FPredictProjectilePathResult UThrowerComponent::PredictTrajectory(
-	FVector StartLocation,
-	FVector LaunchVelocity,
-	float ProjectileRadius,
-	float MaxSimTime,
-	float SimFrequency,
-	bool bTracePath)
+FPredictProjectilePathResult UThrowerComponent::PredictTrajectory()
 {
 	FPredictProjectilePathParams PredictParams;
-	PredictParams.StartLocation = StartLocation;
-	PredictParams.LaunchVelocity = LaunchVelocity;
+	PredictParams.StartLocation = GetComponentLocation();
+	PredictParams.LaunchVelocity = GetForwardVector() * ThrowSpeed;
 	PredictParams.ProjectileRadius = ProjectileRadius;
-	PredictParams.MaxSimTime = MaxSimTime;
-	PredictParams.SimFrequency = SimFrequency;
-	PredictParams.bTraceWithCollision = bTracePath;
+	PredictParams.MaxSimTime = PredictionTime;
+	PredictParams.SimFrequency = PredictionFrequency;
+	PredictParams.bTraceWithCollision = true;
 	PredictParams.bTraceWithChannel = true;
 	PredictParams.TraceChannel = ECC_Visibility;
 
