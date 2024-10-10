@@ -1,7 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ThrowerComponent.h"
+
+#include "PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
+
 
 // Sets default values for this component's properties
 UThrowerComponent::UThrowerComponent()
@@ -11,6 +13,7 @@ UThrowerComponent::UThrowerComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	MuzzleOffset = FVector(300.f, 0.f, 10.f);
+
 }
 
 
@@ -18,6 +21,7 @@ UThrowerComponent::UThrowerComponent()
 void UThrowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 }
 
 
@@ -49,6 +53,10 @@ void UThrowerComponent::Launch()
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			World->SpawnActor<AThrowableProjectile>(Throwable, SpawnLocation, SpawnRotation, SpawnParams);
+			/*PredictPath
+			(
+			
+			);*/
 			UE_LOG(LogTemp, Warning, TEXT("Throwable spawned and thrown"));
 		}
 	}
@@ -76,3 +84,39 @@ bool UThrowerComponent::IsOnCooldown()
 	return false;
 }
 
+TArray<FPredictProjectilePathPointData> UThrowerComponent::PreditctTrajectory(
+	FVector StartLocation,
+	FVector LaunchVelocity,
+	float ProjectileRadius,
+	float MaxSimTime,
+	float SimFrequency,
+	bool bTracePath)
+{
+	FPredictProjectilePathParams PredictParams;
+	PredictParams.StartLocation = StartLocation;
+	PredictParams.LaunchVelocity = LaunchVelocity;
+	PredictParams.ProjectileRadius = ProjectileRadius;
+	PredictParams.MaxSimTime = MaxSimTime;
+	PredictParams.SimFrequency = SimFrequency;
+	PredictParams.bTraceWithCollision = bTracePath;
+	PredictParams.bTraceWithChannel = true;
+	PredictParams.TraceChannel = ECC_Visibility;
+
+	FPredictProjectilePathResult PredictResult;
+	UGameplayStatics::PredictProjectilePath(GetWorld(), PredictParams, PredictResult);
+	return PredictResult.PathData;
+}
+
+void UThrowerComponent::DrawProjectilePath()
+{
+	FVector StartLocation = PlayerCharacter->GetActorLocation() + MuzzleOffset; 
+	FVector LaunchVelocity = PlayerCharacter->GetActorForwardVector() * 300.f; //test 
+
+	TArray<FPredictProjectilePathPointData> PathPoints = PreditctTrajectory(StartLocation, LaunchVelocity, 5.0f, 2.0f, 60.0f, true);
+
+	for (int i = 0; i < PathPoints.Num() - 1; i++)
+	{
+		DrawDebugLine(GetWorld(), PathPoints[i].Location, PathPoints[i + 1].Velocity, FColor::Red, false, -1.0f, 0, 5.0f);
+		UE_LOG(LogTemp, Warning, TEXT("Drawing Projectile Trajectory"))
+	}
+}

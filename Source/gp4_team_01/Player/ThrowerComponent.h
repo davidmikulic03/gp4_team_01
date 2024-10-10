@@ -10,6 +10,7 @@
 #include  "ThrowableInventory.h"
 #include "ThrowerComponent.generated.h"
 
+struct FPredictProjectilePathPointData;
 class AThrowableProjectile;
 class UObject;
 class APlayerCharacter;
@@ -31,6 +32,16 @@ public:
 	void ResetCooldown();
 	UFUNCTION()
 	bool IsOnCooldown();
+	TArray<FPredictProjectilePathPointData> PreditctTrajectory(
+		FVector StartLocation,
+		FVector LaunchVelocity,
+		float ProjectileRadius,
+		float MaxSimTime,
+		float SimFrequency,
+		bool bTracePath);
+	UFUNCTION()
+	void DrawProjectilePath();
+	
 protected:
 	virtual void BeginPlay() override;
 private:	
@@ -49,7 +60,6 @@ private:
 	TSubclassOf<AThrowableProjectile> Throwable;
 	UPROPERTY(EditAnywhere, Category = "Thrower")
 	FVector MuzzleOffset;
-	AGameModeBase* GameMode;
 	UPROPERTY(EditAnywhere, Category = "Thrower")
 	float ThrowAngle = 30.f;
 };
