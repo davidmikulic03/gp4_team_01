@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "gp4_team_01/Player/MagnetComponent.h"
 
 // Sets default values
 ACPlayerCharacter::ACPlayerCharacter()
@@ -26,6 +27,12 @@ ACPlayerCharacter::ACPlayerCharacter()
 	AlphaValue = 12.f;
 	ThrowerComponent = CreateDefaultSubobject<UAC_ThrowerComponent>(TEXT("Thrower"));
 	PetrifyGun = CreateDefaultSubobject<UAC_PetrifyGun>(TEXT("Petrify Gun"));
+	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
+	CurrentMoveIncrement = MinMoveIncriment;
+	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
+	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
+	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
+	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +41,8 @@ void ACPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
+
+	ThrowableInventory->AddPlayerRef(this);
 }
 
 
@@ -62,26 +71,54 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Crouch);
 		EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Throw);
 		EnhancedInputComponent->BindAction(PetrifyGunAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::FirePetrifyGun);
-
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Jump);
+		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::IncrementMovement);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Interact);
 	}
 
 }
 
+UThrowableInventory* ACPlayerCharacter::GetThrowableInventory()
+{
+	return ThrowableInventory;
+}
+
 void ACPlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	FVector2D InputVector = Value.Get<FVector2D>();
+	//redo increment movement
 	if(Controller != nullptr)
 	{
-		AddMovementInput(GetActorForwardVector(), InputVector.X);
+		if(bIncrementedMovement)
+		{
+			AddMovementInput(GetActorForwardVector(), InputVector.X);
+
+		}
+		else if(!bIncrementedMovement)
+		{
+			AddMovementInput(GetActorForwardVector(), InputVector.X);
+		}
 	}
 }
 
 void ACPlayerCharacter::MoveRight(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
+	//redo increment movement
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
 	{
-		AddMovementInput(GetActorRightVector(), InputVector.X);
+		if (bIncrementedMovement)
+		{
+			AddMovementInput(GetActorRightVector(), InputVector.X);
+		}
+		else if (!bIncrementedMovement)
+		{
+			AddMovementInput(GetActorRightVector(), InputVector.X);
+		}
 	}
 }
 
@@ -98,9 +135,10 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 {
+	if(Magnet->IsTraversing())
+		return;
 	UE_LOG(LogTemp, Warning, TEXT("Trying to Crouch"));
 	bIsCrouching = !bIsCrouching;
-
 	if(bIsCrouching)
 	{
 		GetCharacterMovement()->bWantsToCrouch = true;
@@ -113,17 +151,101 @@ void ACPlayerCharacter::Crouch(const FInputActionValue& Value)
 		GetCharacterMovement()->UnCrouch();
 		UE_LOG(LogTemp, Warning, TEXT("Stood up"));
 	}
-	//this is the way I would do it in Unity - however it's only in the update method and it triggers multiple times. I need to find out why.
 }
 
 void ACPlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	ThrowerComponent->Launch();
+	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0 && !ThrowerComponent->IsOnCooldown())
+	{
+		ThrowerComponent->Launch();
+		ThrowableInventory->RemoveItem(ItemType::Throwable);
+		ThrowerComponent->ResetCooldown();
+	}
+	else if(ThrowerComponent->IsOnCooldown())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
+	}
+	else if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
+	}
 }
 
 void ACPlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 {
 	PetrifyGun->TryFirePetrifyGun();
+}
+
+void ACPlayerCharacter::IncrementMovement(const FInputActionValue& Value)
+{
+	FVector2D InputVector = Value.Get<FVector2D>();
+	if(InputVector.X < 0)
+	{
+		CurrentMoveIncrement--;
+		if (CurrentMoveIncrement <= MinMoveIncriment)
+		{
+			CurrentMoveIncrement = MinMoveIncriment;
+		}
+		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+	}
+	else if(InputVector.X > 0)
+	{
+		CurrentMoveIncrement++;
+		if(CurrentMoveIncrement >= MaxMoveIncrement)
+		{
+			CurrentMoveIncrement = MaxMoveIncrement;
+		}
+		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
+	}
+}
+
+void ACPlayerCharacter::Jump(const FInputActionValue& Value)
+{
+	if(Magnet->IsTraversing())
+		return;
+	Super::Jump();
+}
+
+void ACPlayerCharacter::Interact(const FInputActionValue& Value)
+{
+	if(Magnet->IsTraversing() || Magnet->Use())
+		return;
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	
+	FRotator StartRotation;
+	FVector StartLocation;
+
+	GetController()->GetPlayerViewPoint(StartLocation, StartRotation);
+	FVector EndLocation = StartLocation + StartRotation.Vector() * 500.f;
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel
+	(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	if(bHit)
+	{
+		AInteractable* HitActor = Cast<AInteractable>(HitResult.GetActor());
+		if(HitActor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit actor with interface"));
+			HitActor->Interact(this);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit nothing"));
+		}
+		
+	}
+	DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
 
 void ACPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)

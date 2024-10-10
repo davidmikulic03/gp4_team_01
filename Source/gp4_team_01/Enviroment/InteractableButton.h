@@ -8,7 +8,7 @@
 class AInteractableTargetBase;
 
 UCLASS(Abstract)
-class GP4_TEAM_01_API AInteractableButton : public AActor, public IInteractable {
+class GP4_TEAM_01_API AInteractableButton : public AInteractable {
 	GENERATED_BODY()
 
 public:
@@ -33,13 +33,13 @@ private:
 	
 private:
 	//TODO: maybe this guy should also be its own interface? IInteractionTarget?
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	UPROPERTY(EditAnywhere, Category = "Interaction")
 	AInteractableTargetBase* InteractionTarget = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	UPROPERTY(EditAnywhere, Category = "Interaction")
 	bool bDoesResetAfterCooldown = true;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction", meta = (EditCondition = "bDoesResetAfterCooldown", EditConditionHides))
+	UPROPERTY(EditAnywhere, Category = "Interaction", meta = (EditCondition = "bDoesResetAfterCooldown", EditConditionHides))
 	float ResetCooldown = 10.f;
 	
 	bool bIsPressed = false;

@@ -93,7 +93,12 @@ FPerceptionSignal AEnemyBase::GetLastHearingSignal(AEnemyBase* Target) {
 }
 
 bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
-	return Target->GetHearingComponent()->HasNewSignalBeenHeard();
+	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
+}
+
+void AEnemyBase::OnDeath(const AActor* Killer) {
+	//TODO: handle death better
+	Destroy();
 }
 
 void AEnemyBase::BeginPlay() {

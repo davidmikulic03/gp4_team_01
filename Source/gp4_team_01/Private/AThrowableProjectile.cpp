@@ -26,8 +26,8 @@ AAThrowableProjectile::AAThrowableProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 3000.f;
-	ProjectileMovement->MaxSpeed = 3000.f;
+	ProjectileMovement->InitialSpeed = 1500.f;
+	ProjectileMovement->MaxSpeed = 2000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
@@ -43,9 +43,9 @@ void AAThrowableProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 		//Destroy();
-		if(NoiseDataAsset != nullptr)
+		if(NoiseDataAsset != nullptr && (GetVelocity().Length() >= 1000)) //TODO: the hardcoded 1000 is just to make sure it doesn't keep making noise with every microbounce, let's get rid of this
 		{
-			NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetActorLocation());
+			GenerateNoise(NoiseDataAsset, GetActorLocation());
 		}
 		
 	}
@@ -63,6 +63,11 @@ void AAThrowableProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AAThrowableProjectile::GenerateNoise(UNoiseDataAsset* Asset, FVector Location)
+{
+	NoiseSystem->RegisterNoiseEvent(Asset, Location);
 }
 
 

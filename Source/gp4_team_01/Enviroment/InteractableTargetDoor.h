@@ -4,7 +4,7 @@
 #include "InteractableTargetBase.h"
 #include "InteractableTargetDoor.generated.h"
 
-UCLASS(Abstract)
+UCLASS()
 class GP4_TEAM_01_API AInteractableTargetDoor : public AInteractableTargetBase {
 	GENERATED_BODY()
 
@@ -23,14 +23,8 @@ public:
 
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction Target")
-	float ZTargetOffest = .0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction Target")
-	float XTargetOffest = .0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction Target")
-	float YTargetOffest = .0f;
+	UPROPERTY(EditAnywhere, Category = "Interaction Target")
+	FVector TargetOffset = FVector(0.f, 0.f, 0.f);
 
 	FVector StartingPosition;
 };

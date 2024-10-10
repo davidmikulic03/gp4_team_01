@@ -16,10 +16,11 @@ void AInteractableButton::BeginPlay() {
 
 void AInteractableButton::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(bDoesResetAfterCooldown && bIsPressed) {
+	if(bDoesResetAfterCooldown && bIsPressed && !bIsBroken) {
 		TimeSpentPressed += DeltaTime;
 		if(TimeSpentPressed >= ResetCooldown) {
 			bIsPressed = false;
+			TimeSpentPressed = 0.f;
 			DeactivateTarget();
 		}
 	}
@@ -37,7 +38,7 @@ void AInteractableButton::Interact(AActor* Caller) {
 }
 
 void AInteractableButton::Break() {
-	IInteractable::Break();
+	Super::Break();
 	//TODO: change mesh/shader to show it's broken
 }
 

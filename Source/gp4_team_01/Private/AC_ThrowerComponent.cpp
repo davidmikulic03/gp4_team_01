@@ -18,9 +18,6 @@ UAC_ThrowerComponent::UAC_ThrowerComponent()
 void UAC_ThrowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	
 }
 
 
@@ -28,8 +25,7 @@ void UAC_ThrowerComponent::BeginPlay()
 void UAC_ThrowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	TimeSinceLastThrown += DeltaTime;
 }
 
 void UAC_ThrowerComponent::Launch()
@@ -39,7 +35,7 @@ void UAC_ThrowerComponent::Launch()
 		return;
 	}
 
-	if(Throwable != nullptr)
+	if(Throwable != nullptr && TimeSinceLastThrown >= ThrowCooldown)
 	{
 		UWorld* const World = GetWorld();
 		if(World !=nullptr)
@@ -56,5 +52,27 @@ void UAC_ThrowerComponent::Launch()
 			UE_LOG(LogTemp, Warning, TEXT("Throwable spawned and thrown"));
 		}
 	}
+	else if(TimeSinceLastThrown <= ThrowCooldown)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Throw on cooldown"));		
+	}
+}
+
+void UAC_ThrowerComponent::ResetCooldown()
+{
+	TimeSinceLastThrown = 0;
+}
+
+bool UAC_ThrowerComponent::IsOnCooldown()
+{
+	if(TimeSinceLastThrown >= ThrowCooldown)
+	{
+		return false;	
+	}
+	else if(TimeSinceLastThrown <= ThrowCooldown)
+	{
+		return true;
+	}
+	return false;
 }
 

@@ -17,8 +17,8 @@ bool USightComponent::IsActorVisible(AActor* Actor, float& SignalStrength) const
 	SignalStrength = 0.f;
 	if (!Actor || !ActorsInVisionCone.Contains(Actor))
 		return false;
-	if(!IsLocationInVisionCone(Actor->GetActorLocation()))
-		return false;
+	//if(!IsLocationInVisionCone(Actor->GetActorLocation()))
+	//	return false;
 
 	FHitResult Hit = TraceTo(Actor->GetActorLocation());
 	if(Hit.GetActor()) {
@@ -121,7 +121,7 @@ float USightComponent::EvaluateSignalStrength(FVector Location) const {
 float USightComponent::EvaluateSignalStrength(AActor* Actor) const {
 	float Result = EvaluateSignalStrength(Actor->GetActorLocation());
 	if(const auto DetectionModifier = Actor->GetComponentByClass(UDetectionModifier::StaticClass()))
-		Result *= Cast<UDetectionModifier>(DetectionModifier)->SignalModifier;
+		Result *= Cast<UDetectionModifier>(DetectionModifier)->DefaultSignalModifier;
 	return Result;
 }
 
