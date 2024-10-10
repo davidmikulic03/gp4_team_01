@@ -238,16 +238,7 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 
 void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
 {
-	FVector StartLocation = ThrowerComponent->GetComponentLocation();
-	float Speed = ThrowerComponent->GetThrowSpeed();
-	FVector LaunchVelocity = ThrowerComponent->GetForwardVector() * Speed; //test
-	FPredictProjectilePathResult Result = ThrowerComponent->PredictTrajectory(
-			StartLocation,
-			LaunchVelocity,
-			5.0f,
-			10.0f,
-			60.0f,
-			true);;
+	FPredictProjectilePathResult Result = ThrowerComponent->PredictTrajectory();
 	ThrowerComponent->DrawProjectilePath(Result);
 }
 

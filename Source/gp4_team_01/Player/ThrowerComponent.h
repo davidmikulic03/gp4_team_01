@@ -32,13 +32,7 @@ public:
 	void ResetCooldown();
 	UFUNCTION()
 	bool IsOnCooldown();
-	FPredictProjectilePathResult PredictTrajectory(
-		FVector StartLocation,
-		FVector LaunchVelocity,
-		float ProjectileRadius,
-		float MaxSimTime,
-		float SimFrequency,
-		bool bTracePath);
+	FPredictProjectilePathResult PredictTrajectory();
 	UFUNCTION()
 	void DrawProjectilePath(FPredictProjectilePathResult PathResult);
 	float GetThrowSpeed() { return ThrowSpeed; }
@@ -60,4 +54,10 @@ protected:
 	TSubclassOf<AThrowableProjectile> Throwable;
 	UPROPERTY(EditAnywhere, Category = "Thrower")
 	float ThrowSpeed = 1500.f;
+	UPROPERTY(EditAnywhere, Category = "Thrower")
+	float ProjectileRadius = 5.f;
+	UPROPERTY(EditAnywhere, Category = "Thrower")
+	float PredictionTime = 5.f;
+	UPROPERTY(EditAnywhere, Category = "Thrower")
+	float PredictionFrequency = 60.f;
 };
