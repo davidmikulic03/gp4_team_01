@@ -21,7 +21,7 @@ void UWaypointComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 #if WITH_EDITOR
-	DrawDebugSphere(GetWorld(), GetComponentLocation(), 20, 10, FColor::Purple, false, -1, 0, 3);
+	DrawDebugSphere(GetWorld(), GetComponentLocation(), 20, 10, Color, false, -1, 0, 3);
 #endif
 }
 

@@ -3,21 +3,16 @@
 #include "AI/HearingComponent.h"
 #include "AI/SightComponent.h"
 #include "AI/PerceptionSignal.h"
-#include "Components/CapsuleComponent.h"
 
-#if WITH_EDITOR
-#include "UnrealEdGlobals.h"
-#include "Editor/UnrealEdEngine.h"
-#endif
-
-#include "gp4_team_01/Utility/WaypointComponent.h"
+#include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
 AEnemyBase::AEnemyBase() {
 	PrimaryActorTick.bCanEverTick = true;
 
-	WaypointHolder = CreateDefaultSubobject<USceneComponent>("Waypoint Holder");
+	IdleWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Idle Waypoint Holder");
+	AlertWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Alert Waypoint Holder");
 }
 
 void AEnemyBase::Petrify(APawn* Player) {
@@ -113,24 +108,19 @@ void AEnemyBase::OnDeath(const AActor* Killer) {
 FVector AEnemyBase::GetNextWaypointLocation()
 {
 	//TODO: Logic to return the correct waypoints based on enemy state
-	CurrentWaypointIndex += 1;
-	if(CurrentWaypointIndex >= IdleWaypoints.Num())
-		CurrentWaypointIndex = 0;
-	
-	return IdleWaypoints[CurrentWaypointIndex]->GetComponentLocation();
+	return IdleWaypointHolder->GetNextWaypoint();
 }
 
 void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
-
-	CurrentWaypointIndex = 0;
 }
 
 void AEnemyBase::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 #if WITH_EDITOR
-	DrawPath_Internal(false);
+	IdleWaypointHolder->DrawPath(false);
+	AlertWaypointHolder->DrawPath(false);
 #endif
 	
 	//TArray<FActorSignalPair> a = GetVisibleActors();
@@ -144,39 +134,13 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 
 #if WITH_EDITOR
-void AEnemyBase::UpdateNavigationArrays() {
-	for(int i = IdleWaypoints.Num(); i < NumberOfIdleWaypoints; i++) {
-		UWaypointComponent* NewWaypoint = NewObject<UWaypointComponent>(this, FName("Waypoint"));
-		NewWaypoint->SetWorldLocation(GetActorLocation());
-		NewWaypoint->SetupAttachment(WaypointHolder);
-		this->AddInstanceComponent(NewWaypoint);
-		this->AddOwnedComponent(NewWaypoint);
-		NewWaypoint->RegisterComponent();
-		IdleWaypoints.Add(NewWaypoint);
-	}
+void AEnemyBase::UpdateNavigationArrays() const {
+	IdleWaypointHolder->UpdateWaypointArray(NumberOfIdleWaypoints, "Idle");
+	AlertWaypointHolder->UpdateWaypointArray(NumberOfAlertWaypoints, "Alert");
 }
 
-void AEnemyBase::DeleteAllWaypoints() {
-	for(int i = 0; i < IdleWaypoints.Num(); i++) {
-		IdleWaypoints[i]->DestroyComponent();
-	}
-	IdleWaypoints.Empty();
-}
-
-void AEnemyBase::DrawPath() {
-	DrawPath_Internal(true);
-}
-
-void AEnemyBase::DrawPath_Internal(bool bPersistantLines) {
-	for(int i = 0; i < IdleWaypoints.Num() - 1; i++) {
-		DrawDebugLine(GetWorld(), IdleWaypoints[i]->GetComponentLocation(), IdleWaypoints[i+1]->GetComponentLocation(), FColor::Purple, bPersistantLines, -1, 0, 10);
-	}
-	if(IdleWaypoints.Num() >= 2)
-		DrawDebugLine(GetWorld(), IdleWaypoints[IdleWaypoints.Num() - 1]->GetComponentLocation(), IdleWaypoints[0]->GetComponentLocation(), FColor::Purple, bPersistantLines, -1, 0, 10);
-}
-
-void AEnemyBase::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
-	Super::PostEditChangeProperty(FPropertyChangedEvent);
-	//GUnrealEd->UpdateFloatingPropertyWindows();
+void AEnemyBase::DeleteAllWaypoints() const {
+	IdleWaypointHolder->DeleteAllWaypoints();
+	AlertWaypointHolder->DeleteAllWaypoints();
 }
 #endif

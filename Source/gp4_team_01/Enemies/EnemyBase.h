@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "EnemyBase.generated.h"
 
+class UWaypointHolderComponent;
 class UWaypointComponent;
 class UHearingComponent;
 class USightComponent;
@@ -69,18 +70,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:	//EDITOR ONLY functions
-	UFUNCTION(CallInEditor, Category = "Pathfinding")
-		void UpdateNavigationArrays();
+	UFUNCTION(CallInEditor, Category = "Waypoints")
+		void UpdateNavigationArrays() const;
 
-	UFUNCTION(CallInEditor, Category = "Pathfinding")
-		void DeleteAllWaypoints();
-
-	UFUNCTION(CallInEditor, Category = "Pathfinding")
-	void DrawPath();
-	
-	void DrawPath_Internal(bool bPersistantLines = false);
-
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) override;
+	UFUNCTION(CallInEditor, Category = "Waypoints")
+		void DeleteAllWaypoints() const;
 	virtual bool ShouldTickIfViewportsOnly() const override { return true; };
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -93,20 +87,17 @@ protected:
 
 	bool bIsPetrified = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
 		int NumberOfIdleWaypoints;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
-		TArray<UWaypointComponent*> IdleWaypoints;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+		UWaypointHolderComponent* IdleWaypointHolder;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
 		int NumberOfAlertWaypoints;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pathfinding")
-		TArray<UWaypointComponent*> AlertWaypoints;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pathfinding")
-		USceneComponent* WaypointHolder = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+		UWaypointHolderComponent* AlertWaypointHolder;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -116,9 +107,6 @@ protected:
 
 	UPROPERTY(EditInstanceOnly)
 		AActor* DebugActor;
-
-	UPROPERTY(VisibleAnywhere, Category = Debug)
-		int CurrentWaypointIndex;
 };
 
 

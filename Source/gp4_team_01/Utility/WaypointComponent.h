@@ -13,11 +13,16 @@ class GP4_TEAM_01_API UWaypointComponent : public USceneComponent
 public:
 	UWaypointComponent();
 
+	void SetColor(const FColor NewColor) { Color = NewColor;};
+
 protected:
 	virtual void BeginPlay() override;
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
-
+	
+private:
+	UPROPERTY()
+	FColor Color = FColor::Purple;
 };
