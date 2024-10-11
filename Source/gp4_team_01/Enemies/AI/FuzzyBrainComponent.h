@@ -3,8 +3,11 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "WeightedSignal.h"
+#include "SignalSeverity.h"
 #include "FuzzyBrainComponent.generated.h"
 
+
+class AEnemyAIController;
 
 USTRUCT(Blueprintable, meta=(CollapseCategories))
 struct FSignalWeightThresholds {
@@ -25,11 +28,17 @@ class GP4_TEAM_01_API UFuzzyBrainComponent : public UActorComponent {
 public:
 	UFuzzyBrainComponent();
 	
-	void RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal);
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE float GetWeight(FWeightedSignal WeightedSignal) const noexcept { return WeightedSignal.GetWeight(); }
-
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
+	UFUNCTION(BlueprintCallable, DisplayName="Get Severity (Branching)", meta=(ExpandEnumAsExecs="Branches"))
+		void GetSeverity_Branching(FWeightedSignal WeightedSignal, ESignalSeverity& Branches);
+	UFUNCTION(BlueprintCallable)
+		bool IsValid(FWeightedSignal WeightedSignal) const;
+	UFUNCTION(BlueprintCallable, DisplayName="Is Valid (Branching)", meta=(ExpandBoolAsExecs="Result"))
+		void IsValid_Branching(FWeightedSignal WeightedSignal, bool& Result);
+	
 	UFUNCTION(BlueprintCallable)
 		bool TryResolvePointOfInterest(FPerceptionSignal Signal);
 	UFUNCTION(BlueprintCallable)
@@ -38,8 +47,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		float GetNormalizedWeight(AActor* Actor) const;
 
-	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; } 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		TArray<FWeightedClass> ClassPrejudice;
@@ -55,9 +63,12 @@ public:
 		FSignalWeightThresholds SignalWeightThresholds;
 
 protected:
+	virtual void BeginPlay() override;
+	
+	void RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal);
 	void IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime);
 	void Decrement(FWeightedSignal& WeightedSignal, double DeltaTime);
-	bool HasMemory(FPerceptionSignal Signal);
+	bool HasMemory(FPerceptionSignal Signal) const;
 	void See(double DeltaTime);
 	void Hear(double DeltaTime);
 	void UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime);
@@ -65,6 +76,11 @@ protected:
 	uint32 GetSignalIdOfHighestWeight();
 	
 
-	uint32 PreviousHighestWeightId = INDEX_NONE;
+	uint32 HighestWeightId = INDEX_NONE;
 	TArray<FWeightedSignal> Memory;
+
+	AEnemyAIController* Controller;
+	AEnemyBase* Body;
+
+	bool bIsThinking = true;
 };
