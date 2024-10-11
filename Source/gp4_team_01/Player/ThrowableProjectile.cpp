@@ -59,7 +59,6 @@ void AThrowableProjectile::BeginPlay()
 void AThrowableProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AThrowableProjectile::GenerateNoise(UNoiseDataAsset* Asset, FVector Location)
