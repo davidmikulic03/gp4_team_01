@@ -67,8 +67,6 @@ protected:
 	USplineComponent* Spline;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UMaterialInterface* PredictionLineMaterial;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMesh* SplineMesh;
 	UPROPERTY()
 	TArray<USplineMeshComponent*> SplineMeshes;

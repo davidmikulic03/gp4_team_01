@@ -20,14 +20,13 @@ void UThrowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
-
+	
 	for(int i = 0; i < PredictionFrequency * PredictionTime; i++) {
 		auto NewComponent = Cast<USplineMeshComponent>(GetOwner()->AddComponentByClass(USplineMeshComponent::StaticClass(), true, FTransform::Identity, false));
 		NewComponent->SetMobility(EComponentMobility::Movable);
 		NewComponent->SetStaticMesh(SplineMesh);
 		NewComponent->SetVisibility(false);
-		if(PredictionLineMaterial) 
-			NewComponent->SetMaterial(0, PredictionLineMaterial);
+		//NewComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		SplineMeshes.Add(NewComponent);
 	}
 }
