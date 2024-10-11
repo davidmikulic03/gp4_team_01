@@ -11,6 +11,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
 #include "gp4_team_01/Player/MagnetComponent.h"
+#include "Kismet/GameplayStaticsTypes.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -26,6 +27,7 @@ APlayerCharacter::APlayerCharacter()
 	EyeOffset = FVector(0.f);
 	AlphaValue = 12.f;
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
+	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
 	AIStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIStimuliComponent"));
 	CurrentMoveIncrement = MinMoveIncriment;
@@ -74,6 +76,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
+		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
 	}
 
 }
@@ -91,15 +94,7 @@ void APlayerCharacter::MoveForward(const FInputActionValue& Value)
 	//redo increment movement
 	if(Controller != nullptr)
 	{
-		if(bIncrementedMovement)
-		{
-			AddMovementInput(GetActorForwardVector(), InputVector.X);
-
-		}
-		else if(!bIncrementedMovement)
-		{
-			AddMovementInput(GetActorForwardVector(), InputVector.X);
-		}
+		AddMovementInput(GetActorForwardVector(), InputVector.X);
 	}
 }
 
@@ -111,14 +106,7 @@ void APlayerCharacter::MoveRight(const FInputActionValue& Value)
 	FVector2D InputVector = Value.Get<FVector2D>();
 	if(Controller != nullptr)
 	{
-		if (bIncrementedMovement)
-		{
-			AddMovementInput(GetActorRightVector(), InputVector.X);
-		}
-		else if (!bIncrementedMovement)
-		{
-			AddMovementInput(GetActorRightVector(), InputVector.X);
-		}
+		AddMovementInput(GetActorRightVector(), InputVector.X);
 	}
 }
 
@@ -247,6 +235,14 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 	}
 	DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
+
+void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
+{
+	FPredictProjectilePathResult Result = ThrowerComponent->PredictTrajectory();
+	ThrowerComponent->DrawProjectilePath(Result);
+}
+
+
 
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
