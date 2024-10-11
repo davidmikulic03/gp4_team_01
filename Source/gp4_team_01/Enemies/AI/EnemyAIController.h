@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Runtime/AIModule/Classes/AIController.h"
+#include "SignalSeverity.h"
+
 #include "EnemyAIController.generated.h"
 
 
@@ -15,7 +17,10 @@ public:
 	AEnemyAIController();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnInterestChanged(struct FWeightedSignal Signal);
+		void OnInterestChanged(struct FWeightedSignal WeightedSignal);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnSignalSeverityChanged(struct FWeightedSignal WeightedSignal);
 
 protected:
 	virtual void BeginPlay() override;
