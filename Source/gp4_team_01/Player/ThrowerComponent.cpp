@@ -1,7 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ThrowerComponent.h"
+
+#include "PlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
+
 
 // Sets default values for this component's properties
 UThrowerComponent::UThrowerComponent()
@@ -9,8 +11,7 @@ UThrowerComponent::UThrowerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	MuzzleOffset = FVector(300.f, 0.f, 10.f);
+	
 }
 
 
@@ -18,6 +19,7 @@ UThrowerComponent::UThrowerComponent()
 void UThrowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 }
 
 
@@ -30,25 +32,23 @@ void UThrowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UThrowerComponent::Launch()
 {
-	if(GetWorld()->GetFirstPlayerController()->GetPawn() == nullptr || GetWorld()->GetFirstPlayerController() == nullptr)
-	{
-		return;
-	}
-
 	if(Throwable != nullptr && TimeSinceLastThrown >= ThrowCooldown)
 	{
 		UWorld* const World = GetWorld();
 		if(World !=nullptr)
 		{
-			APlayerCharacterController* Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
-
-			const FRotator SpawnRotation = Controller->PlayerCameraManager->GetCameraRotation() + FRotator(0.f, 0.f, ThrowAngle);
-			const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+			const FRotator SpawnRotation = GetComponentRotation();
+			const FVector SpawnLocation = GetComponentLocation();
 
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-			World->SpawnActor<AThrowableProjectile>(Throwable, SpawnLocation, SpawnRotation, SpawnParams);
+			auto Projectile = World->SpawnActor<AThrowableProjectile>(Throwable, SpawnLocation, SpawnRotation, SpawnParams);
+			Projectile->GetProjectileMovement()->InitialSpeed = ThrowSpeed;
+			/*PredictPath
+			(
+			
+			);*/
 			UE_LOG(LogTemp, Warning, TEXT("Throwable spawned and thrown"));
 		}
 	}
@@ -76,3 +76,27 @@ bool UThrowerComponent::IsOnCooldown()
 	return false;
 }
 
+FPredictProjectilePathResult UThrowerComponent::PredictTrajectory()
+{
+	FPredictProjectilePathParams PredictParams;
+	PredictParams.StartLocation = GetComponentLocation();
+	PredictParams.LaunchVelocity = GetForwardVector() * ThrowSpeed;
+	PredictParams.ProjectileRadius = ProjectileRadius;
+	PredictParams.MaxSimTime = PredictionTime;
+	PredictParams.SimFrequency = PredictionFrequency;
+	PredictParams.bTraceWithCollision = true;
+	PredictParams.bTraceWithChannel = true;
+	PredictParams.TraceChannel = ECC_Visibility;
+
+	FPredictProjectilePathResult PredictResult;
+	UGameplayStatics::PredictProjectilePath(GetWorld(), PredictParams, PredictResult);
+	return PredictResult;
+}
+
+void UThrowerComponent::DrawProjectilePath(FPredictProjectilePathResult PathResult) {
+	for (int i = 0; i < PathResult.PathData.Num() - 1; i++)
+	{
+		DrawDebugLine(GetWorld(), PathResult.PathData[i].Location, PathResult.PathData[i + 1].Location, FColor::Red, false);
+		UE_LOG(LogTemp, Warning, TEXT("Drawing Projectile Trajectory"))
+	}
+}

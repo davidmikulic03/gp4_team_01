@@ -45,7 +45,12 @@ void UMagnetComponent::RegenerateInteractableArray() {
 	}
 }
 
-float UMagnetComponent::ModifyInterpolation(float Alpha) { return Alpha * Alpha; }
+float UMagnetComponent::ModifyInterpolation(float Alpha)
+{
+	if(TraversalCurve.ExternalCurve)
+		return TraversalCurve.ExternalCurve->GetFloatValue(Alpha);
+	else return Alpha;
+}
 
 void UMagnetComponent::BeginPlay() {
 	Super::BeginPlay();

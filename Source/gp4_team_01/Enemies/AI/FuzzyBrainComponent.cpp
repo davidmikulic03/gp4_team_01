@@ -1,14 +1,75 @@
-﻿
-#include "FuzzyBrainComponent.h"
+﻿#include "FuzzyBrainComponent.h"
 
 #include "DetectionModifier.h"
 #include "EnemyAIController.h"
 #include "gp4_team_01/Enemies/EnemyBase.h"
 
-
 UFuzzyBrainComponent::UFuzzyBrainComponent() {
 	PrimaryComponentTick.bCanEverTick = true;
 }
+
+void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
+	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	uint32 NewHighestId = GetSignalIdOfHighestWeight();
+	if(NewHighestId != INDEX_NONE
+		&& ((HighestWeightId == INDEX_NONE || HighestWeightId > static_cast<uint32>(Memory.Num()))
+		|| Memory[NewHighestId].Signal != Memory[HighestWeightId].Signal)) {
+		HighestWeightId = NewHighestId;
+		if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
+			Owner->OnInterestChanged(Memory[NewHighestId]);
+		}
+
+	See(DeltaTime); 
+	Hear(DeltaTime);
+	ForgetUnimportant();
+	
+	for(auto& WeightedSignal : Memory) {
+		UpdateSignal(WeightedSignal, DeltaTime);
+		if(!WeightedSignal.bPositiveSlopeSign) {
+			Decrement(WeightedSignal, DeltaTime);
+		}
+		WeightedSignal.bPositiveSlopeSign = false;
+	}
+
+	for (uint64 i = 0; i < Memory.Num(); i++) {
+		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
+			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
+	}
+}
+
+void UFuzzyBrainComponent::BeginPlay() {
+	Super::BeginPlay();
+	Controller = Cast<AEnemyAIController>(GetOwner());
+	if(Controller)
+		Body = Cast<AEnemyBase>(Controller->GetPawn());
+}
+
+ESignalSeverity UFuzzyBrainComponent::GetSeverity(FWeightedSignal WeightedSignal) const noexcept {
+	if(WeightedSignal.Weight < SignalWeightThresholds.WeakSignalThreshold)
+		return ESignalSeverity::Nonperceptible;
+	else if(WeightedSignal.Weight < SignalWeightThresholds.MediumSignalThreshold)
+		return ESignalSeverity::Weak;
+	else if(WeightedSignal.Weight < SignalWeightThresholds.StrongSignalThreshold)
+		return ESignalSeverity::Medium;
+	else
+		return ESignalSeverity::Strong;
+	
+}
+
+void UFuzzyBrainComponent::GetSeverity_Branching(FWeightedSignal WeightedSignal,
+	ESignalSeverity& Branches) {
+	Branches = GetSeverity(WeightedSignal);
+}
+
+bool UFuzzyBrainComponent::IsValid(FWeightedSignal WeightedSignal) const {
+	return HasMemory(WeightedSignal.Signal);
+}
+
+void UFuzzyBrainComponent::IsValid_Branching(FWeightedSignal WeightedSignal, bool& Result) {
+	Result = IsValid(WeightedSignal);
+}
+
 
 void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal) {
 	for(int i = 0; i < Memory.Num(); i++) {
@@ -44,17 +105,16 @@ float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
 			return WeightedSignal.Signal.Actor == Actor;
 		})) {
 		float Result = inMemory->GetWeight() / MaxInterest;
-		return Result < 1.f ? Result > 0 ? Result : 0.f : 1.f;
+		return Result < 1.f ? Result : 1.f;
 	}
 	return 0;
 }
 
 void UFuzzyBrainComponent::See(double DeltaTime) {
-	auto Controller = Cast<AEnemyAIController>(GetOwner());
 	if(!Controller)
 		return;
-	if(auto Self = Cast<AEnemyBase>(Controller->GetPawn())){
-		auto Signals = AEnemyBase::GetVisionSignals(Self);
+	if(Body){
+		auto Signals = AEnemyBase::GetVisionSignals(Body);
 		for (auto& Signal : Signals) {
 			RegisterSignalToMemory(DeltaTime, Signal);
 		}
@@ -62,10 +122,9 @@ void UFuzzyBrainComponent::See(double DeltaTime) {
 }
 
 void UFuzzyBrainComponent::Hear(double DeltaTime) {
-	auto Controller = Cast<AEnemyAIController>(GetOwner());
-	if(auto Self = Cast<AEnemyBase>(Controller->GetPawn())){
-		if (AEnemyBase::HasNewSignalBeenHeard(Self) ) {
-			RegisterSignalToMemory(DeltaTime, AEnemyBase::GetLastHearingSignal(Self));
+	if(Body) {
+		if (AEnemyBase::HasNewSignalBeenHeard(Body) ) {
+			RegisterSignalToMemory(DeltaTime, AEnemyBase::GetLastHearingSignal(Body));
 		}
 	}
 }
@@ -81,8 +140,8 @@ void UFuzzyBrainComponent::ForgetUnimportant() {
 	for(int i = 0; i < Num; i++) {
 		if(Memory[i].GetWeight() < ForgetThreshold && !Memory[i].bPositiveSlopeSign) {
 			Memory.RemoveAt(i);
-			if(PreviousHighestWeightId >= static_cast<uint32>(i))
-				PreviousHighestWeightId--;
+			if(HighestWeightId >= static_cast<uint32>(i))
+				HighestWeightId--;
 			i--;
 			Num--;
 		}
@@ -96,36 +155,6 @@ uint32 UFuzzyBrainComponent::GetSignalIdOfHighestWeight() {
 			Result = Id;
 	}
 	return Result;
-}
-
-void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	uint32 HighestId = GetSignalIdOfHighestWeight();
-	if(HighestId != INDEX_NONE
-		&& ((PreviousHighestWeightId == INDEX_NONE || PreviousHighestWeightId > static_cast<uint32>(Memory.Num()))
-		|| Memory[HighestId].Signal != Memory[PreviousHighestWeightId].Signal)) {
-		PreviousHighestWeightId = HighestId;
-		if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
-			Owner->OnInterestChanged(Memory[HighestId]);
-	}
-
-	See(DeltaTime); 
-	Hear(DeltaTime);
-	ForgetUnimportant();
-	
-	for(auto& WeightedSignal : Memory) {
-		UpdateSignal(WeightedSignal, DeltaTime);
-		if(!WeightedSignal.bPositiveSlopeSign) {
-			Decrement(WeightedSignal, DeltaTime);
-		}
-		WeightedSignal.bPositiveSlopeSign = false;
-	}
-
-	for (uint64 i = 0; i < Memory.Num(); i++) {
-		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
-			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
-	}
 }
 
 void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime) {
@@ -149,13 +178,19 @@ void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedS
 }
 
 void UFuzzyBrainComponent::Decrement(FWeightedSignal& WeightedSignal, double DeltaTime) {
+	ESignalSeverity PreviousSeverity = GetSeverity(WeightedSignal);
 	if(WeightedSignal.Weight > MaxInterest)
 		WeightedSignal.Weight = MaxInterest;
 	WeightedSignal.Weight *= FMath::Exp(-DeltaTime * PrejudiceDecay);
+	if(HighestWeightId != INDEX_NONE && WeightedSignal.Signal == Memory[HighestWeightId]
+		&& PreviousSeverity != GetSeverity(WeightedSignal)) {
+		
+	}
+		
 }
 
 
-bool UFuzzyBrainComponent::HasMemory(FPerceptionSignal Signal) {
+bool UFuzzyBrainComponent::HasMemory(FPerceptionSignal Signal) const {
 	for(auto WeightedSignal : Memory) {
 		if(WeightedSignal.Signal == Signal)
 			return true;
