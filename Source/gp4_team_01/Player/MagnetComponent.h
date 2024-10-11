@@ -5,6 +5,7 @@
 #include "MagnetComponent.generated.h"
 
 
+class APlayerCharacter;
 class AMagnet;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -24,15 +25,13 @@ public:
 		void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()
 		void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	
+	
 protected:
 	virtual void BeginPlay() override;
 	void Traverse(double DeltaTime);
 	void RegenerateInteractableArray();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnStartTraversal();
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnFinishTraversal();
 	
 	float ModifyInterpolation(float Alpha);
 
@@ -48,4 +47,6 @@ protected:
 	
 	TArray<AMagnet*> InInteractionRange;
 	TArray<AMagnet*> InteractableMagnets;
+
+	APlayerCharacter* Player;
 };

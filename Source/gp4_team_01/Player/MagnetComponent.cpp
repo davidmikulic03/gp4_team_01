@@ -13,7 +13,8 @@ bool UMagnetComponent::Use() {
 	TraversalCounter = 0.f;
 	TraversalStart = GetOwner()->GetActorLocation();
 	bIsTraversing = true;
-	OnStartTraversal();
+	if(Player)
+		Player->OnStartMagnetTraversal();
 	return true;
 }
 
@@ -30,7 +31,6 @@ void UMagnetComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UMagnetComponent::RegenerateInteractableArray() {
 	InteractableMagnets.Empty();
-	auto Player = Cast<APlayerCharacter>(GetOwner());
 	if(InInteractionRange.IsEmpty() || !Player) {
 		return;
 	}
@@ -55,7 +55,7 @@ float UMagnetComponent::ModifyInterpolation(float Alpha)
 
 void UMagnetComponent::BeginPlay() {
 	Super::BeginPlay();
-
+	Player = Cast<APlayerCharacter>(GetOwner());
 }
 
 void UMagnetComponent::Traverse(double DeltaTime) {
@@ -66,9 +66,10 @@ void UMagnetComponent::Traverse(double DeltaTime) {
 	if(TraversalCounter >= TraversalTime) {
 		bIsTraversing = false;
 		TraversalCounter = 0;
-		if(auto Player = Cast<APlayerCharacter>(GetOwner()))
+		if(Player) {
 			Player->GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::Zero());
-		OnFinishTraversal();
+			Player->OnFinishMagnetTraversal();
+		}
 	}
 }
 

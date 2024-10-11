@@ -71,6 +71,11 @@ public:
 	void OnMaxThrowables();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMaxSmokeBombs();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStartMagnetTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnFinishMagnetTraversal();
+	
 	void Landed(const FHitResult& Hit) override;
 	//noise calculations
 	UFUNCTION()
