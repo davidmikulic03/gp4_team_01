@@ -10,8 +10,9 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "DSP/Osc.h"
 #include "gp4_team_01/Player/MagnetComponent.h"
-#include "Kismet/GameplayStaticsTypes.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -37,6 +38,25 @@ APlayerCharacter::APlayerCharacter()
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
 
+void APlayerCharacter::TryGenerateNoise()
+{
+	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
+	{
+		if(NoiseDataAsset != nullptr) //add more checks in necessary.
+		{
+			GenerateNoise();
+		}
+		TimeSinceLastMadeNoise = 0.f;
+	}
+	else return;
+}
+
+void APlayerCharacter::GenerateNoise()
+{
+	NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetActorLocation());
+	UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -45,6 +65,7 @@ void APlayerCharacter::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
 
 	ThrowableInventory->AddPlayerRef(this);
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 
@@ -57,6 +78,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 	float CrouchInterpolateTime = FMath::Min(1.f, AlphaValue * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
 
+	TimeSinceLastMadeNoise += DeltaTime;
+	if(GetMovementComponent()->Velocity.Length() <= .1f || GetMovementComponent()->Velocity.Length() >= 1.f)
+	{
+		
+		
+	}
 }
 
 // Called to bind functionality to input

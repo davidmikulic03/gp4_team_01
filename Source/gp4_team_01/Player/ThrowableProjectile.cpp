@@ -40,9 +40,6 @@ void AThrowableProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 
 	if ((OtherActor != nullptr) && (OtherActor != this))
 	{
-		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		//Destroy();
 		if(NoiseDataAsset != nullptr && (GetVelocity().Length() >= 1000)) //TODO: the hardcoded 1000 is just to make sure it doesn't keep making noise with every microbounce, let's get rid of this
 		{
 			GenerateNoise(NoiseDataAsset, GetActorLocation());
