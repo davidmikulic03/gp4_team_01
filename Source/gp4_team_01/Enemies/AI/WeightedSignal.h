@@ -19,8 +19,9 @@ struct FWeightedSignal {
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI|Perception|Signal")
 		FPerceptionSignal Signal;
-
-	float Weight = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category = "AI|Perception|Signal")
+		float Weight = 0.f;
+	
 	bool bPositiveSlopeSign = true;
 	
 	FORCEINLINE void ResetDecay() noexcept { if(Weight < 1.f) Weight = 1.f; }

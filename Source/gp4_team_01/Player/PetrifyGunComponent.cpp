@@ -2,7 +2,7 @@
 
 
 #include "PetrifyGunComponent.h"
-
+#include "PlayerCharacter.h"
 #include "gp4_team_01/Enviroment/Interactable.h"
 
 // Sets default values for this component's properties
@@ -66,12 +66,11 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 			CollisionParams);
 		if (bTraceHit)
 		{
-			AEnemyBase* HitEnemy = Cast<AEnemyBase>(HitResult.GetActor());
-			if (HitEnemy)
+			if (HitResult.GetActor() && HitResult.GetActor()->Implements<UPetrifiable>())
 			{
+				auto asPetrifiable = Cast<IPetrifiable>(HitResult.GetActor());
 				//petrify
-				HitEnemy->Petrify(Cast<APawn>(GetOwner()));
-				UE_LOG(LogTemp, Warning, TEXT("Hit Enemy - %s"), *HitEnemy->GetName());
+				asPetrifiable->Petrify(HitResult.GetActor(), Cast<APlayerCharacter>(GetOwner()));
 			}
 
 			AInteractable* HitInteractable = Cast<AInteractable>(HitResult.GetActor());

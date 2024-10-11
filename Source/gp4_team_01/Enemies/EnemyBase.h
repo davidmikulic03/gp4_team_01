@@ -2,23 +2,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
+class UWaypointHolderComponent;
+class AEnemyAIController;
+class APlayerCharacter;
+class UWaypointComponent;
 class UHearingComponent;
 class USightComponent;
+struct FPropertyChangedEvent;
 
 UCLASS(Abstract)
-class GP4_TEAM_01_API AEnemyBase : public ACharacter
+class GP4_TEAM_01_API AEnemyBase : public ACharacter, public IPetrifiable
 {
 	GENERATED_BODY()
 
 public:
 	AEnemyBase();
-	// TODO: Change APawn* to Player Class.
-	UFUNCTION(BlueprintCallable)
-	virtual void Petrify(APawn* Player);
-	UFUNCTION(BlueprintCallable)
-	virtual void Unpetrify(APawn* Player);
 
 	FORCEINLINE void RegisterSight(USightComponent* Component) { SightComponents.AddUnique(Component); }
 
@@ -43,7 +44,11 @@ public:
 		static FPerceptionSignal GetLastHearingSignal(AEnemyBase* Target);
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
 		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
-	
+
+	UFUNCTION(BlueprintCallable)
+		bool Petrify(UObject* Target, APlayerCharacter* Player) override;
+	UFUNCTION(BlueprintCallable)
+		void Unpetrify(UObject* Target, APlayerCharacter* Player) override;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
@@ -52,18 +57,22 @@ public:
 		void OnDeath(const AActor* Killer);
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
-	
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetNextWaypointLocation();
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnPetrify(APawn* Player);
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnUnpetrify(APawn* Player);
-	
 	TArray<AActor*> GetVisibleActorCandidatesOfClass(TSubclassOf<AActor> Class) const;
 	TArray<AActor*> GetVisibleActorCandidates() const;
 	
 	virtual void BeginPlay() override;
 
+private:	//EDITOR ONLY functions
+	UFUNCTION(CallInEditor, Category = "Waypoints")
+		void UpdateNavigationArrays() const;
+
+	UFUNCTION(CallInEditor, Category = "Waypoints")
+		void DeleteAllWaypoints() const;
+	virtual bool ShouldTickIfViewportsOnly() const override { return true; };
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -75,6 +84,18 @@ protected:
 
 	bool bIsPetrified = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+		int NumberOfIdleWaypoints;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+		UWaypointHolderComponent* IdleWaypointHolder;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+		int NumberOfAlertWaypoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+		UWaypointHolderComponent* AlertWaypointHolder;
+	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
 
@@ -83,6 +104,8 @@ protected:
 
 	UPROPERTY(EditInstanceOnly)
 		AActor* DebugActor;
+
+	AEnemyAIController* EnemyController;
 };
 
 
