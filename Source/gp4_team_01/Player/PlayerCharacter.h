@@ -166,10 +166,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float MakeNoiseFrequency = .75f; //test value. Edit later in the Blueprint.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
-	UNoiseDataAsset* NoiseDataAsset;
+	UNoiseDataAsset* CrouchedNoiseDataAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	UNoiseDataAsset* WalkingNoiseDataAsset;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	ANoiseSystem* NoiseSystem;
-	void GenerateNoise();
+	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);
 protected:
 	
 };

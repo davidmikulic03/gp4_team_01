@@ -42,18 +42,28 @@ void APlayerCharacter::TryGenerateNoise()
 {
 	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
 	{
-		if(NoiseDataAsset != nullptr) //add more checks in necessary.
+		if(GetMovementComponent()->IsCrouching())
 		{
-			GenerateNoise();
+			if(CrouchedNoiseDataAsset != nullptr) //add more checks in necessary.
+			{
+				GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
+			}
+			TimeSinceLastMadeNoise = 0.f;
 		}
-		TimeSinceLastMadeNoise = 0.f;
+		else if(!GetMovementComponent()->IsCrouching())
+		{
+			if(WalkingNoiseDataAsset != nullptr)
+			{
+				GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
+			}
+		}
 	}
 	else return;
 }
 
-void APlayerCharacter::GenerateNoise()
+void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location)
 {
-	NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetActorLocation());
+	NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, Location);
 	UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
 }
 
@@ -79,10 +89,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
 
 	TimeSinceLastMadeNoise += DeltaTime;
-	if(GetMovementComponent()->Velocity.Length() <= .1f || GetMovementComponent()->Velocity.Length() >= 1.f)
+	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
-		
-		
+		TryGenerateNoise();
 	}
 }
 
