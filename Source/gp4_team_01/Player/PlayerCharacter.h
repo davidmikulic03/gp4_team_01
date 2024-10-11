@@ -89,6 +89,7 @@ private:
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
 	void PredictTrajectory(const FInputActionValue& Value);
+	void StopPredictingTrajectory(const FInputActionValue& Value);
 	//variables and methods
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")

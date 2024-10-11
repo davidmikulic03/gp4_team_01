@@ -10,6 +10,8 @@
 #include  "ThrowableInventory.h"
 #include "ThrowerComponent.generated.h"
 
+class USplineMeshComponent;
+class USplineComponent;
 struct FPredictProjectilePathPointData;
 class AThrowableProjectile;
 class UObject;
@@ -35,6 +37,7 @@ public:
 	FPredictProjectilePathResult PredictTrajectory();
 	UFUNCTION()
 	void DrawProjectilePath(FPredictProjectilePathResult PathResult);
+	void HideProjectilePath();
 	float GetThrowSpeed() { return ThrowSpeed; }
 	
 protected:
@@ -59,5 +62,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Thrower")
 	float PredictionTime = 5.f;
 	UPROPERTY(EditAnywhere, Category = "Thrower")
-	float PredictionFrequency = 60.f;
+	float PredictionFrequency = 20.f;
+	UPROPERTY(EditDefaultsOnly)
+	USplineComponent* Spline;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UMaterialInterface* PredictionLineMaterial;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UStaticMesh* SplineMesh;
+	UPROPERTY()
+	TArray<USplineMeshComponent*> SplineMeshes;
 };

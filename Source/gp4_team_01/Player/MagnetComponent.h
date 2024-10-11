@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Magnet)
 		FRuntimeFloatCurve TraversalCurve;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Magnet, meta=(UIMin=0,UIMax=180))
-		float AimThreshold = 60;
+		float AimThreshold = 30.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Magnet)
 		float TraversalTime = 0.5f;
 	float TraversalCounter = 0;

@@ -125,6 +125,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
 		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
+		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 	}
 
 }
@@ -290,6 +291,9 @@ void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
 	ThrowerComponent->DrawProjectilePath(Result);
 }
 
+void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) {
+	ThrowerComponent->HideProjectilePath();
+}
 
 
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
