@@ -10,8 +10,9 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "DSP/Osc.h"
 #include "gp4_team_01/Player/MagnetComponent.h"
-#include "Kismet/GameplayStaticsTypes.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -37,6 +38,49 @@ APlayerCharacter::APlayerCharacter()
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
 
+void APlayerCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
+	{
+		GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
+		TimeSinceLastMadeNoise = 0;
+		UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
+	}
+}
+
+void APlayerCharacter::TryGenerateNoise()
+{
+	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
+	{
+		if(GetMovementComponent()->IsCrouching())
+		{
+			if(CrouchedNoiseDataAsset != nullptr) //add more checks in necessary.
+			{
+				GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
+			}
+			TimeSinceLastMadeNoise = 0.f;
+		}
+		else if(!GetMovementComponent()->IsCrouching())
+		{
+			if(WalkingNoiseDataAsset != nullptr)
+			{
+				GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
+			}
+			TimeSinceLastMadeNoise = 0.f;
+		}
+		/*else
+		HasSwitchedMovementMode();*/
+	}
+	else return;
+}
+
+void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location)
+{
+	NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, Location);
+	UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -45,9 +89,8 @@ void APlayerCharacter::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
 
 	ThrowableInventory->AddPlayerRef(this);
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
-
-
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
@@ -57,6 +100,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 	float CrouchInterpolateTime = FMath::Min(1.f, AlphaValue * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
 
+	TimeSinceLastMadeNoise += DeltaTime;
+	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
+	{
+		TryGenerateNoise();
+	}
 }
 
 // Called to bind functionality to input
@@ -77,6 +125,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
 		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
+		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 	}
 
 }
@@ -242,6 +291,9 @@ void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
 	ThrowerComponent->DrawProjectilePath(Result);
 }
 
+void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) {
+	ThrowerComponent->HideProjectilePath();
+}
 
 
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
