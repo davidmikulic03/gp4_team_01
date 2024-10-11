@@ -71,7 +71,7 @@ public:
 	void OnMaxThrowables();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMaxSmokeBombs();
-	
+	void Landed(const FHitResult& Hit) override;
 	//noise calculations
 	UFUNCTION()
 	void TryGenerateNoise();
@@ -169,6 +169,8 @@ public:
 	UNoiseDataAsset* CrouchedNoiseDataAsset;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	UNoiseDataAsset* WalkingNoiseDataAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	UNoiseDataAsset* LandingNoiseDataAsset;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	ANoiseSystem* NoiseSystem;
 	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);

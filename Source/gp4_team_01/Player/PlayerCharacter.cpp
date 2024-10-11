@@ -38,6 +38,17 @@ APlayerCharacter::APlayerCharacter()
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
 
+void APlayerCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
+	{
+		GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
+		TimeSinceLastMadeNoise = 0;
+		UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
+	}
+}
+
 void APlayerCharacter::TryGenerateNoise()
 {
 	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
@@ -58,6 +69,8 @@ void APlayerCharacter::TryGenerateNoise()
 			}
 			TimeSinceLastMadeNoise = 0.f;
 		}
+		/*else
+		HasSwitchedMovementMode();*/
 	}
 	else return;
 }
@@ -78,8 +91,6 @@ void APlayerCharacter::BeginPlay()
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
-
-
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
