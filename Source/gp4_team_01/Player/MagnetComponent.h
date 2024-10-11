@@ -29,6 +29,11 @@ protected:
 	void Traverse(double DeltaTime);
 	void RegenerateInteractableArray();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnStartTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnFinishTraversal();
+	
 	float ModifyInterpolation(float Alpha);
 
 	UPROPERTY(EditDefaultsOnly, Category = Magnet)

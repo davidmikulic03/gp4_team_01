@@ -13,6 +13,7 @@ bool UMagnetComponent::Use() {
 	TraversalCounter = 0.f;
 	TraversalStart = GetOwner()->GetActorLocation();
 	bIsTraversing = true;
+	OnStartTraversal();
 	return true;
 }
 
@@ -67,6 +68,7 @@ void UMagnetComponent::Traverse(double DeltaTime) {
 		TraversalCounter = 0;
 		if(auto Player = Cast<APlayerCharacter>(GetOwner()))
 			Player->GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::Zero());
+		OnFinishTraversal();
 	}
 }
 
