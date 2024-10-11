@@ -56,6 +56,7 @@ void APlayerCharacter::TryGenerateNoise()
 			{
 				GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
 			}
+			TimeSinceLastMadeNoise = 0.f;
 		}
 	}
 	else return;
