@@ -3,6 +3,16 @@
 #include "AI/HearingComponent.h"
 #include "AI/SightComponent.h"
 #include "AI/PerceptionSignal.h"
+#include "Components/CapsuleComponent.h"
+#include "gp4_team_01/Utility/WaypointComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "AI/EnemyAIController.h"
+#include "AI/FuzzyBrainComponent.h"
+
+#if WITH_EDITOR
+#include "UnrealEdGlobals.h"
+#include "Editor/UnrealEdEngine.h"
+#endif
 
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,25 +20,9 @@
 
 AEnemyBase::AEnemyBase() {
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	IdleWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Idle Waypoint Holder");
 	AlertWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Alert Waypoint Holder");
-}
-
-void AEnemyBase::Petrify(APawn* Player) {
-	bIsPetrified = true;
-	OnPetrify(Player);
-	if(GEngine && Player)
-		GEngine->AddOnScreenDebugMessage(666, 15.f, FColor::Blue,
-			FString::Printf(TEXT("Enemy petrified by %s"), *Player->GetName()));
-}
-
-void AEnemyBase::Unpetrify(APawn* Player) {
-	bIsPetrified = false;
-	OnUnpetrify(Player);
-	if(GEngine && Player)
-		GEngine->AddOnScreenDebugMessage(666, 15.f, FColor::Green,
-			FString::Printf(TEXT("Enemy unpetrified by %s"), *Player->GetName()));
 }
 
 bool AEnemyBase::IsActorInView(AEnemyBase* Target, AActor* Actor, float& SignalStrength) {
@@ -100,6 +94,20 @@ bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
 	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
+bool AEnemyBase::Petrify(UObject* Target, APlayerCharacter* Player) {
+	bIsPetrified = true;
+	EnemyController->Brain->SetIsThinking(false);
+	return IPetrifiable::Petrify(Target, Player);
+}
+
+void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
+	if(!Target)
+		return;
+	bIsPetrified = false;
+	EnemyController->Brain->SetIsThinking(true);
+	IPetrifiable::Unpetrify(Target, Player);
+}
+
 void AEnemyBase::OnDeath(const AActor* Killer) {
 	//TODO: handle death better
 	Destroy();
@@ -113,6 +121,7 @@ FVector AEnemyBase::GetNextWaypointLocation()
 
 void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
+	EnemyController = Cast<AEnemyAIController>(Controller);
 }
 
 void AEnemyBase::Tick(float DeltaTime) {

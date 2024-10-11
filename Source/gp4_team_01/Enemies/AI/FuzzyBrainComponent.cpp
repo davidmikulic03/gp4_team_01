@@ -10,6 +10,8 @@ UFuzzyBrainComponent::UFuzzyBrainComponent() {
 
 void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if(!bIsThinking)
+		return;
 
 	uint32 NewHighestId = GetSignalIdOfHighestWeight();
 	if(NewHighestId != INDEX_NONE

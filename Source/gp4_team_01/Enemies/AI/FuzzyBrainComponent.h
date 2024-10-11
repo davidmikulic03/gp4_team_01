@@ -30,7 +30,6 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
 	UFUNCTION(BlueprintCallable, DisplayName="Get Severity (Branching)", meta=(ExpandEnumAsExecs="Branches"))
@@ -39,7 +38,6 @@ public:
 		bool IsValid(FWeightedSignal WeightedSignal) const;
 	UFUNCTION(BlueprintCallable, DisplayName="Is Valid (Branching)", meta=(ExpandBoolAsExecs="Result"))
 		void IsValid_Branching(FWeightedSignal WeightedSignal, bool& Result);
-
 	
 	UFUNCTION(BlueprintCallable)
 		bool TryResolvePointOfInterest(FPerceptionSignal Signal);
@@ -48,6 +46,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		float GetNormalizedWeight(AActor* Actor) const;
+
+	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; } 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		TArray<FWeightedClass> ClassPrejudice;
@@ -81,4 +81,6 @@ protected:
 
 	AEnemyAIController* Controller;
 	AEnemyBase* Body;
+
+	bool bIsThinking = true;
 };
