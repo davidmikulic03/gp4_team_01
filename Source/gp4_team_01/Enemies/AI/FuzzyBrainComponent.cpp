@@ -2,6 +2,9 @@
 
 #include "DetectionModifier.h"
 #include "EnemyAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "gp4_team_01/Enemies/EnemyBase.h"
 
 UFuzzyBrainComponent::UFuzzyBrainComponent() {
@@ -62,19 +65,24 @@ void UFuzzyBrainComponent::BeginPlay() {
 }
 
 ESignalSeverity UFuzzyBrainComponent::GetSeverity(FWeightedSignal WeightedSignal) const noexcept {
-	if(WeightedSignal.Weight < SignalWeightThresholds.WeakSignalThreshold)
-		return ESignalSeverity::Nonperceptible;
-	else if(WeightedSignal.Weight < SignalWeightThresholds.MediumSignalThreshold)
-		return ESignalSeverity::Weak;
-	else if(WeightedSignal.Weight < SignalWeightThresholds.StrongSignalThreshold)
-		return ESignalSeverity::Medium;
-	else
-		return ESignalSeverity::Strong;
+	return GetSeverityFromWeight(WeightedSignal.Weight);
 	
 }
 
+ESignalSeverity UFuzzyBrainComponent::GetSeverityFromWeight(float Weight) const noexcept {
+	if(Weight < SignalWeightThresholds.WeakSignalThreshold)
+		return ESignalSeverity::Nonperceptible;
+	else if(Weight < SignalWeightThresholds.MediumSignalThreshold)
+		return ESignalSeverity::Weak;
+	else if(Weight < SignalWeightThresholds.StrongSignalThreshold)
+		return ESignalSeverity::Medium;
+	else
+		return ESignalSeverity::Strong;
+}
+
+
 void UFuzzyBrainComponent::GetSeverity_Branching(FWeightedSignal WeightedSignal,
-	ESignalSeverity& Branches) {
+                                                 ESignalSeverity& Branches) {
 	Branches = GetSeverity(WeightedSignal);
 }
 
@@ -147,8 +155,11 @@ void UFuzzyBrainComponent::Hear(double DeltaTime) {
 
 void UFuzzyBrainComponent::UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime) {
 	auto Actor = WeightedSignal.Signal.Actor;
-	if(Actor && WeightedSignal.GetWeight() > SignalWeightThresholds.StrongSignalThreshold)
+	if(Actor && WeightedSignal.GetWeight() > SignalWeightThresholds.StrongSignalThreshold) {
 		WeightedSignal.Signal.SignalOrigin = Actor->GetActorLocation();
+
+		UAIBlueprintHelperLibrary::GetBlackboard(GetOwner())->SetValueAsVector("TargetLocation",WeightedSignal.Signal.SignalOrigin );
+	}
 }
 
 void UFuzzyBrainComponent::ForgetUnimportant() {

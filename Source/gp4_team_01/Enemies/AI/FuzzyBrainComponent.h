@@ -32,6 +32,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
+
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetSeverityFromWeight(float Weight) const noexcept;
+	
 	UFUNCTION(BlueprintCallable, DisplayName="Get Severity (Branching)", meta=(ExpandEnumAsExecs="Branches"))
 		void GetSeverity_Branching(FWeightedSignal WeightedSignal, ESignalSeverity& Branches);
 	UFUNCTION(BlueprintCallable)
