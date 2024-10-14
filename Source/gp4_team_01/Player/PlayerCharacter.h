@@ -24,6 +24,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 #include "ThrowableInventory.h"
+#include "CameraShake.h"
 #include "PlayerCharacter.generated.h"
 
 class UMagnetComponent;
@@ -42,6 +43,7 @@ class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
 class UThrowableInventory;
 class ANoiseSystem;
+class UCameraShake;
 struct FInputActionValue;
 
 UCLASS()
@@ -180,6 +182,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	ANoiseSystem* NoiseSystem;
 	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);
+
+	//camera shake
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	UCameraShake* CameraShake; //
+	
 protected:
 	
 };
