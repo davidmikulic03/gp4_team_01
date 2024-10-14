@@ -20,11 +20,16 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		HighestWeightId = NewHighestId;
 		if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
 			Owner->OnInterestChanged(Memory[NewHighestId]);
+			UpdateEnemyState();
 		}
 
 	See(DeltaTime); 
 	Hear(DeltaTime);
 	ForgetUnimportant();
+
+	ESignalSeverity PreviousSeverity;
+	if(HighestWeightId < static_cast<uint32>(Memory.Num()))
+		PreviousSeverity = GetSeverity(Memory[HighestWeightId]);
 	
 	for(auto& WeightedSignal : Memory) {
 		UpdateSignal(WeightedSignal, DeltaTime);
@@ -32,6 +37,14 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			Decrement(WeightedSignal, DeltaTime);
 		}
 		WeightedSignal.bPositiveSlopeSign = false;
+	}
+
+	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
+		if(GetSeverity(Memory[HighestWeightId]) != PreviousSeverity) {
+			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
+				Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
+			UpdateEnemyState(); //TODO: temp just for testing
+		}
 	}
 
 	for (uint64 i = 0; i < Memory.Num(); i++) {
@@ -157,6 +170,20 @@ uint32 UFuzzyBrainComponent::GetSignalIdOfHighestWeight() {
 			Result = Id;
 	}
 	return Result;
+}
+
+void UFuzzyBrainComponent::UpdateEnemyState() const {
+	//TODO:this sucks, do it in the controller instead?
+	AEnemyBase* const EnemyPawn = Cast<AEnemyBase>(Cast<AEnemyAIController>(GetOwner())->GetPawn());
+	if(!EnemyPawn)
+		return;
+
+	const ESignalSeverity Severity = GetSeverity(Memory[HighestWeightId]);
+	
+	if(Severity == ESignalSeverity::Medium)
+		EnemyPawn->SetCurrentState(EEnemyState::Suspicious);
+	else if(Severity == ESignalSeverity::Strong)
+		EnemyPawn->SetCurrentState(EEnemyState::Agitated);
 }
 
 void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime) {

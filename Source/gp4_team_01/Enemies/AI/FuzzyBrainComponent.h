@@ -74,6 +74,7 @@ protected:
 	void UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime);
 	FORCEINLINE void ForgetUnimportant();
 	uint32 GetSignalIdOfHighestWeight();
+	void UpdateEnemyState() const;
 	
 
 	uint32 HighestWeightId = INDEX_NONE;

@@ -1,10 +1,12 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyState.h"
 #include "GameFramework/Character.h"
 #include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
+enum EEnemyState : uint8;
 class UWaypointHolderComponent;
 class AEnemyAIController;
 class APlayerCharacter;
@@ -45,6 +47,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
 		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|State")
+		EEnemyState GetCurrentState() const { return CurrentState; }
+
+	UFUNCTION(BlueprintCallable, Category = "AI|State")
+		void SetCurrentState(const TEnumAsByte<EEnemyState> NewState) { CurrentState = NewState; }
+	
 	UFUNCTION(BlueprintCallable)
 		bool Petrify(UObject* Target, APlayerCharacter* Player) override;
 	UFUNCTION(BlueprintCallable)
@@ -91,10 +99,10 @@ protected:
 		UWaypointHolderComponent* IdleWaypointHolder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
-		int NumberOfAlertWaypoints;
+		int NumberOfSuspiciousWaypoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
-		UWaypointHolderComponent* AlertWaypointHolder;
+		UWaypointHolderComponent* SuspiciousWaypointHolder;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -104,6 +112,9 @@ protected:
 
 	UPROPERTY(EditInstanceOnly)
 		AActor* DebugActor;
+
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+		TEnumAsByte<EEnemyState> CurrentState;
 
 	AEnemyAIController* EnemyController;
 };

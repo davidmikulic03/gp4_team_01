@@ -22,7 +22,7 @@ AEnemyBase::AEnemyBase() {
 	PrimaryActorTick.bCanEverTick = true;
 	
 	IdleWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Idle Waypoint Holder");
-	AlertWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Alert Waypoint Holder");
+	SuspiciousWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Alert Waypoint Holder");
 }
 
 bool AEnemyBase::IsActorInView(AEnemyBase* Target, AActor* Actor, float& SignalStrength) {
@@ -115,8 +115,12 @@ void AEnemyBase::OnDeath(const AActor* Killer) {
 
 FVector AEnemyBase::GetNextWaypointLocation()
 {
-	//TODO: Logic to return the correct waypoints based on enemy state
-	return IdleWaypointHolder->GetNextWaypoint();
+	if(CurrentState == EEnemyState::Idle)
+		return IdleWaypointHolder->GetNextWaypoint();
+	else if(CurrentState == EEnemyState::Suspicious)
+		return SuspiciousWaypointHolder->GetNextWaypoint();
+
+	return FVector::Zero();
 }
 
 void AEnemyBase::BeginPlay() {
@@ -129,7 +133,7 @@ void AEnemyBase::Tick(float DeltaTime) {
 
 #if WITH_EDITOR
 	IdleWaypointHolder->DrawPath(false);
-	AlertWaypointHolder->DrawPath(false);
+	SuspiciousWaypointHolder->DrawPath(false);
 #endif
 	
 	//TArray<FActorSignalPair> a = GetVisibleActors();
@@ -145,11 +149,11 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 #if WITH_EDITOR
 void AEnemyBase::UpdateNavigationArrays() const {
 	IdleWaypointHolder->UpdateWaypointArray(NumberOfIdleWaypoints, "Idle");
-	AlertWaypointHolder->UpdateWaypointArray(NumberOfAlertWaypoints, "Alert");
+	SuspiciousWaypointHolder->UpdateWaypointArray(NumberOfSuspiciousWaypoints, "Alert");
 }
 
 void AEnemyBase::DeleteAllWaypoints() const {
 	IdleWaypointHolder->DeleteAllWaypoints();
-	AlertWaypointHolder->DeleteAllWaypoints();
+	SuspiciousWaypointHolder->DeleteAllWaypoints();
 }
 #endif
