@@ -17,7 +17,8 @@ class GP4_TEAM_01_API UCameraShake : public UActorComponent
 public:
 	UCameraShake();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
-	void ToggleCameraShake();
+	UFUNCTION()
+	void CameraShake(float InputValue);
 	UCameraComponent* GetPlayerCamera();
 	void DebugMessage();
 protected:

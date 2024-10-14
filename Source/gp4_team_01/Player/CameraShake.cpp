@@ -32,7 +32,23 @@ void UCameraShake::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		//TODO: After lunch - test through UE_LOG how the values change and use dummy variables to see if your manual lerps work
 		//when I say manual I mean the included math library
 	{
-		
+		//possible nesting overdrive
+		//this should return camera only if camera is not at original position
+		if(Camera->GetRelativeRotation() != OriginalCameraRotation &&
+			Camera->GetRelativeLocation() != OriginalCameraPosition &&
+			!bCameraShakeOn)
+		{
+			FRotator NewRotation = FMath::Lerp(Camera->GetRelativeRotation(), OriginalCameraRotation, 1.f * DeltaTime);
+			FVector NewPosition = FMath::Lerp(Camera->GetRelativeLocation(), OriginalCameraPosition, 1.f * DeltaTime);
+			Camera->SetRelativeRotation(NewRotation);
+			Camera->SetRelativeLocation(NewPosition);
+			UE_LOG(LogTemp, Warning, TEXT("New Position: %f, %f, %f"), NewPosition.X, NewPosition.Y, NewPosition.Z);
+			UE_LOG(LogTemp, Warning, TEXT("New Rotation: %f, %f, %f"), NewRotation.Vector().X, NewRotation.Vector().Y, NewRotation.Vector().Z);
+		}
+		else if(bCameraShakeOn)
+		{
+			CameraShake(1.f); //TODO remove the magic number. See if it makes any sense for the function to take in anything.
+		}
 		
 	}
 }
@@ -55,22 +71,15 @@ UCameraComponent* UCameraShake::GetPlayerCamera()
 	return nullptr;
 }
 
-void UCameraShake::ToggleCameraShake()
+void UCameraShake::CameraShake(float InputValue)
 {
-	bCameraShakeOn = !bCameraShakeOn;
-
-	if(bCameraShakeOn)
-	{
-		//camera shake functionality
-	}
-	else if(!bCameraShakeOn && Camera->GetRelativeLocation() == OriginalCameraPosition)
-	{
-		//return everything to normal
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Camera Shaking, wob wob wob"));
 }
 
 //temp debugging functions
 void UCameraShake::DebugMessage()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Camera Assigned"));
+	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), OriginalCameraPosition.X, OriginalCameraPosition.Y, OriginalCameraPosition.Z);
+	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), OriginalCameraRotation.Vector().X, OriginalCameraRotation.Vector().Y, OriginalCameraRotation.Vector().Z);
 }
