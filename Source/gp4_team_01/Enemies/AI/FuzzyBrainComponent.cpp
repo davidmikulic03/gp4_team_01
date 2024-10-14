@@ -100,6 +100,8 @@ void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionS
 		if(Signal.Actor && Memory[i].Signal.Actor == Signal.Actor) {
 			IncrementCompoundingWeight(Memory[i], DeltaTime);
 			Memory[i].Signal.SignalStrength = Signal.SignalStrength;
+			if(i == HighestWeightId)
+				
 			return;
 		}
 	}
@@ -158,7 +160,9 @@ void UFuzzyBrainComponent::UpdateSignal(FWeightedSignal& WeightedSignal, double 
 	if(Actor && WeightedSignal.GetWeight() > SignalWeightThresholds.StrongSignalThreshold) {
 		WeightedSignal.Signal.SignalOrigin = Actor->GetActorLocation();
 
-		UAIBlueprintHelperLibrary::GetBlackboard(GetOwner())->SetValueAsVector("TargetLocation",WeightedSignal.Signal.SignalOrigin );
+		AEnemyAIController* AiController = Cast<AEnemyAIController>(GetOwner());
+		if(Controller)  // BUG THIS HAPPENS FOR ALL SIGNALS
+			AiController->OnSignalOriginChanged(WeightedSignal.Signal.SignalOrigin);
 	}
 }
 
