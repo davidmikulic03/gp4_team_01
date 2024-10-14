@@ -83,5 +83,6 @@ protected:
 	AEnemyAIController* Controller;
 	AEnemyBase* Body;
 
+	ESignalSeverity LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 	bool bIsThinking = true;
 };

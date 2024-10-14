@@ -27,9 +27,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Hear(DeltaTime);
 	ForgetUnimportant();
 
-	ESignalSeverity PreviousSeverity;
-	if(HighestWeightId < static_cast<uint32>(Memory.Num()))
-		PreviousSeverity = GetSeverity(Memory[HighestWeightId]);
+	
 	
 	for(auto& WeightedSignal : Memory) {
 		UpdateSignal(WeightedSignal, DeltaTime);
@@ -40,7 +38,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 
 	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
-		if(GetSeverity(Memory[HighestWeightId]) != PreviousSeverity) {
+		if(GetSeverity(Memory[HighestWeightId]) != LastRecordedSeverity) {
 			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
 				Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
 			UpdateEnemyState(); //TODO: temp just for testing
@@ -51,6 +49,9 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
 			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
 	}
+
+	if(HighestWeightId < static_cast<uint32>(Memory.Num()))
+		LastRecordedSeverity = GetSeverity(Memory[HighestWeightId]);
 }
 
 void UFuzzyBrainComponent::BeginPlay() {
@@ -180,9 +181,9 @@ void UFuzzyBrainComponent::UpdateEnemyState() const {
 
 	const ESignalSeverity Severity = GetSeverity(Memory[HighestWeightId]);
 	
-	if(Severity == ESignalSeverity::Medium)
+	if(Severity == ESignalSeverity::Medium && EnemyPawn->GetCurrentState() == EEnemyState::Idle)
 		EnemyPawn->SetCurrentState(EEnemyState::Suspicious);
-	else if(Severity == ESignalSeverity::Strong)
+	else if(Severity == ESignalSeverity::Strong && EnemyPawn->GetCurrentState() == EEnemyState::Suspicious)
 		EnemyPawn->SetCurrentState(EEnemyState::Agitated);
 }
 
