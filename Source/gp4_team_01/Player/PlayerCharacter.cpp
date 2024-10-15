@@ -34,8 +34,21 @@ APlayerCharacter::APlayerCharacter()
 	CurrentMoveIncrement = MinMoveIncriment;
 	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
 	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
+	CameraShake = CreateDefaultSubobject<UCameraShake>("Camera Shake Component");
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
+}
+
+bool APlayerCharacter::InputIsPressed(FVector2D Value)
+{
+	float Epsilon = 0.00001f;
+	if(Value.GetAbs().X >= Epsilon || Value.GetAbs().Y >= Epsilon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Bro is shaking."));
+		return true;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Bro is not shakind."));
+	return false;
 }
 
 void APlayerCharacter::Landed(const FHitResult& Hit)
@@ -114,8 +127,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveForward);
-		EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveRight);
+		/*EnhancedInputComponent->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveForward);
+		EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveRight);*/
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		//crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Crouch);
@@ -135,16 +149,34 @@ UThrowableInventory* APlayerCharacter::GetThrowableInventory()
 	return ThrowableInventory;
 }
 
-void APlayerCharacter::MoveForward(const FInputActionValue& Value)
+void APlayerCharacter::Move(const FInputActionValue& Value)
+{
+	if(Magnet->IsTraversing())
+		return;
+	const FVector2D InputVector = Value.Get<FVector2D>();
+
+	if(Controller != nullptr)
+	{
+		AddMovementInput(GetActorForwardVector(), InputVector.Y);
+		AddMovementInput((GetActorRightVector()), InputVector.X);
+		InputIsPressed(InputVector);
+		UE_LOG(LogTemp, Warning, TEXT("X: %f, Y: %f"), InputVector.X, InputVector.Y);
+	}
+	
+}
+
+/*void APlayerCharacter::MoveForward(const FInputActionValue& Value)
 {
 	if(Magnet->IsTraversing())
 		return;
 	FVector2D InputVector = Value.Get<FVector2D>();
 	//redo increment movement
-	if(Controller != nullptr)
+	if(Controller != nullptr)//bad choice. I can't check this every frame the button is held.
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.X);
+		InputIsPressed(InputVector);
 	}
+
 }
 
 void APlayerCharacter::MoveRight(const FInputActionValue& Value)
@@ -156,8 +188,9 @@ void APlayerCharacter::MoveRight(const FInputActionValue& Value)
 	if(Controller != nullptr)
 	{
 		AddMovementInput(GetActorRightVector(), InputVector.X);
+		InputIsPressed(InputVector);
 	}
-}
+}*/
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
@@ -327,6 +360,7 @@ void APlayerCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
 	{
 		Camera->GetCameraView(DeltaTime, OutResult);
 		OutResult.Location += EyeOffset;
-
 	}
 }
+
+
