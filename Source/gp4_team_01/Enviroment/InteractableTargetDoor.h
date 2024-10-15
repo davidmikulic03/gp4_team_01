@@ -22,15 +22,16 @@ public:
 	virtual void OnUnInteract() override;
 
 
-private:
+protected:
 	UPROPERTY(EditAnywhere, Category = "Interaction Target")
-	float ZTargetOffest = .0f;
+	USceneComponent* Target = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Interaction Target")
-	float XTargetOffest = .0f;
+	UPROPERTY(EditAnywhere, Category = "Fallable")
+	float Speed = 5.f;
 
-	UPROPERTY(EditAnywhere, Category = "Interaction Target")
-	float YTargetOffest = .0f;
-
+	bool bIsMoving = false;
+	
 	FVector StartingPosition;
+
+	FVector TargetVector;
 };

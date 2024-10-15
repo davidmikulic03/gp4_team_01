@@ -12,6 +12,13 @@ class GP4_TEAM_01_API AMagnet : public AActor
 public:
 	AMagnet();
 
+	void SetIsInteractable(bool Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInteractable();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnNotInteractable();
+
 	UPROPERTY(EditAnywhere)
 		USceneComponent* TraversalTarget;
 
@@ -20,4 +27,5 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	bool bIsInteractable = false;
 };

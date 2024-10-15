@@ -49,6 +49,10 @@ void AMainGameMode::QuitGame() const
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
 }
 
+void AMainGameMode::LoadLevel(FName LevelName) const {
+	UGameplayStatics::OpenLevel(GetWorld(), FName(LevelName));
+}
+
 void AMainGameMode::LoadFromLastCheckpoint()
 {
 	//checkpoint reloading logic
@@ -85,12 +89,12 @@ void AMainGameMode::ShowWinScreen()
 
 void AMainGameMode::ShowLoseScreen()
 {
-	if (LoseScreenClass && !LoseScreenInstance)
+	if (LoseScreenClass)
 	{
-		LoseScreenInstance = CreateWidget<UUserWidget>(GetWorld(), LoseScreenClass);
-		if (LoseScreenInstance)
+		UUserWidget* LoseScreen = CreateWidget<UUserWidget>(GetWorld(), LoseScreenClass);
+		if (LoseScreen)
 		{
-			LoseScreenInstance->AddToViewport();
+			LoseScreen->AddToViewport();
 		}
 	}
 }

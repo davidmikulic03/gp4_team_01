@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "gp4_team_01/Enemies/HearingComponent.h"
+#include "gp4_team_01/Enemies/AI/HearingComponent.h"
 #include "NoiseSystem.generated.h"
 
 class UHearingComponent;
@@ -29,7 +29,7 @@ public:
 	
 private:
 	void DispatchNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location);
-	void PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location) const;
+	void PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location, bool bPickRandom = true) const;
 	
 private:
 	UPROPERTY()

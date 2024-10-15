@@ -14,6 +14,9 @@ public:
 	virtual void Interact(AActor* Caller) PURE_VIRTUAL(AInteractableTargetBase::OnInteract, ;);
 	virtual void Break() { bIsBroken = true; } ;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInteract(AActor* Caller);
+
 protected:
 	virtual void BeginPlay() override;
 
