@@ -26,7 +26,7 @@ APlayerCharacter::APlayerCharacter()
 	Camera->SetRelativeLocation(FVector(-10.f, 0.f, 60.f));
 	Camera->bUsePawnControlRotation = true;
 	EyeOffset = FVector(0.f);
-	AlphaValue = 12.f;
+	CrouchAlpha = 12.f;
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -110,7 +110,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	DeltaValue += DeltaTime;
-	float CrouchInterpolateTime = FMath::Min(1.f, AlphaValue * DeltaTime);
+	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
 
 	TimeSinceLastMadeNoise += DeltaTime;
@@ -118,10 +118,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		TryGenerateNoise();
 	}
-	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())))
+	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != FVector::ZeroVector)
 	{
 		ResetCameraPosition();
-		
 	}
 }
 

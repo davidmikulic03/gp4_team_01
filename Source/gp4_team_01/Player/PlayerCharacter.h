@@ -144,7 +144,7 @@ public:
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float AlphaValue;
+	float CrouchAlpha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector EyeOffset;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
