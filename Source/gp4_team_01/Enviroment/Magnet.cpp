@@ -10,6 +10,18 @@ AMagnet::AMagnet() {
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+void AMagnet::SetIsInteractable(bool Value) {
+	if(Value != bIsInteractable) {
+		bIsInteractable = Value;
+		if(bIsInteractable)
+			OnInteractable();
+		else
+			OnNotInteractable();
+			
+	}
+		
+}
+
 void AMagnet::BeginPlay() {
 	Super::BeginPlay();
 	
