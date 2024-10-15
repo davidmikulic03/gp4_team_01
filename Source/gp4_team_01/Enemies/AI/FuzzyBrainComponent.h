@@ -32,6 +32,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
+
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetSeverityFromWeight(float Weight) const noexcept;
+	
 	UFUNCTION(BlueprintCallable, DisplayName="Get Severity (Branching)", meta=(ExpandEnumAsExecs="Branches"))
 		void GetSeverity_Branching(FWeightedSignal WeightedSignal, ESignalSeverity& Branches);
 	UFUNCTION(BlueprintCallable)
@@ -74,6 +78,7 @@ protected:
 	void UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime);
 	FORCEINLINE void ForgetUnimportant();
 	uint32 GetSignalIdOfHighestWeight();
+	void UpdateEnemyState() const;
 	
 
 	uint32 HighestWeightId = INDEX_NONE;
@@ -82,5 +87,6 @@ protected:
 	AEnemyAIController* Controller;
 	AEnemyBase* Body;
 
+	ESignalSeverity LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 	bool bIsThinking = true;
 };

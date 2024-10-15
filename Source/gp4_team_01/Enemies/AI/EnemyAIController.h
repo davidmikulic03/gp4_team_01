@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnSignalSeverityChanged(struct FWeightedSignal WeightedSignal);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnSignalOriginChanged(FVector NewSignalOrigin);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
