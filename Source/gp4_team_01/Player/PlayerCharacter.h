@@ -24,6 +24,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 #include "ThrowableInventory.h"
+#include "CameraShake.h"
 #include "PlayerCharacter.generated.h"
 
 class UMagnetComponent;
@@ -42,6 +43,7 @@ class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
 class UThrowableInventory;
 class ANoiseSystem;
+class UCameraShake;
 struct FInputActionValue;
 
 UCLASS()
@@ -75,6 +77,10 @@ public:
 	void OnStartMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnFinishMagnetTraversal();
+
+
+	UFUNCTION()
+	bool InputIsPressed(FVector2D Value);
 	
 	void Landed(const FHitResult& Hit) override;
 	//noise calculations
@@ -83,9 +89,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-private:	
-	void MoveForward(const FInputActionValue& Value);
-	void MoveRight(const FInputActionValue& Value);
+private:
+	void Move(const FInputActionValue& Value);
+	/*void MoveForward(const FInputActionValue& Value);
+	void MoveRight(const FInputActionValue& Value);*/
 	void Look(const FInputActionValue& Value);
 	void Crouch(const FInputActionValue& Value);
 	void Throw(const FInputActionValue& Value);
@@ -109,10 +116,12 @@ protected:
 	UThrowableInventory* ThrowableInventory;
 public:
 	//actions
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveForwardAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveRightAction;
+	UInputAction* MoveRightAction;*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -180,6 +189,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	ANoiseSystem* NoiseSystem;
 	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);
+
+	//camera shake
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	UCameraShake* CameraShake; //
+	
 protected:
 	
 };
