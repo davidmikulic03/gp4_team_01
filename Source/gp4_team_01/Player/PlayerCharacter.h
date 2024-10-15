@@ -192,7 +192,7 @@ public:
 
 	//camera shake
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
-	UCameraShake* CameraShake; //
+	UCameraShake* CustomCameraShake; //
 	
 protected:
 	

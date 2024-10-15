@@ -34,7 +34,7 @@ APlayerCharacter::APlayerCharacter()
 	CurrentMoveIncrement = MinMoveIncriment;
 	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
 	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
-	CameraShake = CreateDefaultSubobject<UCameraShake>("Camera Shake Component");
+	CustomCameraShake = CreateDefaultSubobject<UCameraShake>("Custom Camera Shake Component");
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
