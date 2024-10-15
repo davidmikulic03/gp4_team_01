@@ -34,7 +34,7 @@ APlayerCharacter::APlayerCharacter()
 	CurrentMoveIncrement = MinMoveIncriment;
 	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
 	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
-	CustomCameraShake = CreateDefaultSubobject<UCameraShake>("Custom Camera Shake Component");
+	/*CustomCameraShake = CreateDefaultSubobject<UCameraShake>("Custom Camera Shake Component");*/
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 }
@@ -109,7 +109,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	DeltaValue += DeltaTime;
 	float CrouchInterpolateTime = FMath::Min(1.f, AlphaValue * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
 
@@ -117,6 +117,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
 		TryGenerateNoise();
+	}
+	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())))
+	{
+		ResetCameraPosition();
+		
 	}
 }
 
@@ -141,7 +146,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
 		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 	}
-
 }
 
 UThrowableInventory* APlayerCharacter::GetThrowableInventory()
@@ -159,10 +163,9 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.Y);
 		AddMovementInput((GetActorRightVector()), InputVector.X);
-		InputIsPressed(InputVector);
-		UE_LOG(LogTemp, Warning, TEXT("X: %f, Y: %f"), InputVector.X, InputVector.Y);
+		/*CustomCameraShake->CameraShake(InputVector.X, InputVector.Y, CustomCameraShake->DeltaTimeValue);*/
+		CameraShake(InputVector.X, InputVector.Y, DeltaValue);
 	}
-	
 }
 
 /*void APlayerCharacter::MoveForward(const FInputActionValue& Value)
@@ -328,6 +331,40 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 	ThrowerComponent->HideProjectilePath();
 }
 
+void APlayerCharacter::CameraShake(float InputX, float InputY, float DeltaTime)
+{
+	float Epsilon = 0.001f;
+
+	float ElapsedTime = 0.f;
+	if(!bIsCrouching)
+	{
+		ElapsedTime += ShakeSpeedWalking * DeltaTime;
+	
+		float DeltaZ = AmplitudeWalking * FMath::Sin(ElapsedTime);
+
+		if(FMath::Abs(InputX) > Epsilon || FMath::Abs(InputY) > Epsilon)
+		{
+			Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+		}
+	}
+	else if(bIsCrouching)
+	{
+		ElapsedTime += ShakeSpeedCrouched * DeltaTime;
+	
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(ElapsedTime); //add fraction
+
+		if(FMath::Abs(InputX) > Epsilon || FMath::Abs(InputY) > Epsilon)
+		{
+			Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+		}
+	}
+}
+
+void APlayerCharacter::ResetCameraPosition()
+{
+	Camera->SetRelativeLocation(FVector::ZeroVector);
+	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
+}
 
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
