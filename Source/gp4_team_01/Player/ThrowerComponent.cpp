@@ -3,15 +3,15 @@
 #include "PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
 
 
 // Sets default values for this component's properties
 UThrowerComponent::UThrowerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+	Spline = CreateDefaultSubobject<USplineComponent>("Prediction Spline");
 	PrimaryComponentTick.bCanEverTick = true;
-	
 }
 
 
@@ -20,6 +20,15 @@ void UThrowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+	
+	for(int i = 0; i < PredictionFrequency * PredictionTime; i++) {
+		auto NewComponent = Cast<USplineMeshComponent>(GetOwner()->AddComponentByClass(USplineMeshComponent::StaticClass(), true, FTransform::Identity, false));
+		NewComponent->SetMobility(EComponentMobility::Movable);
+		NewComponent->SetStaticMesh(SplineMesh);
+		NewComponent->SetVisibility(false);
+		//NewComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		SplineMeshes.Add(NewComponent);
+	}
 }
 
 
@@ -86,7 +95,8 @@ FPredictProjectilePathResult UThrowerComponent::PredictTrajectory()
 	PredictParams.SimFrequency = PredictionFrequency;
 	PredictParams.bTraceWithCollision = true;
 	PredictParams.bTraceWithChannel = true;
-	PredictParams.TraceChannel = ECC_Visibility;
+	PredictParams.TraceChannel = ECC_WorldStatic;
+	PredictParams.ActorsToIgnore = { GetOwner() };
 
 	FPredictProjectilePathResult PredictResult;
 	UGameplayStatics::PredictProjectilePath(GetWorld(), PredictParams, PredictResult);
@@ -94,9 +104,22 @@ FPredictProjectilePathResult UThrowerComponent::PredictTrajectory()
 }
 
 void UThrowerComponent::DrawProjectilePath(FPredictProjectilePathResult PathResult) {
-	for (int i = 0; i < PathResult.PathData.Num() - 1; i++)
-	{
-		DrawDebugLine(GetWorld(), PathResult.PathData[i].Location, PathResult.PathData[i + 1].Location, FColor::Red, false);
-		UE_LOG(LogTemp, Warning, TEXT("Drawing Projectile Trajectory"))
+	if(!SplineMesh) return;
+	for (int i = 0; i < FMath::Max(PathResult.PathData.Num() - 1, SplineMeshes.Num()); i++) {
+		if(i + 1 < PathResult.PathData.Num()) {
+			SplineMeshes[i]->SetVisibility(true);
+			SplineMeshes[i]->SetStartAndEnd(
+				PathResult.PathData[i].Location, PathResult.PathData[i].Velocity.GetSafeNormal(),
+				PathResult.PathData[i+1].Location, PathResult.PathData[i+1].Velocity.GetSafeNormal());
+		}
+		else {
+			SplineMeshes[i]->SetVisibility(false);
+		}
+	}
+}
+
+void UThrowerComponent::HideProjectilePath() {
+	for (int i = 0; i < SplineMeshes.Num(); i++) {
+		SplineMeshes[i]->SetVisibility(false);
 	}
 }

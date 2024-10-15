@@ -18,7 +18,13 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "gp4_team_01/Enviroment/Interactable.h"
+#include "gp4_team_01/DataAssets/NoiseDataAsset.h"
+#include "gp4_team_01/Enviroment/NoiseMaker.h"
+#include "gp4_team_01/Systems/NoiseSystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
 #include "ThrowableInventory.h"
+#include "CameraShake.h"
 #include "PlayerCharacter.generated.h"
 
 class UMagnetComponent;
@@ -36,6 +42,8 @@ class UPetrifyGunComponent;
 class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
 class UThrowableInventory;
+class ANoiseSystem;
+class UCameraShake;
 struct FInputActionValue;
 
 UCLASS()
@@ -58,24 +66,33 @@ public:
 	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
-
 	//Inventory events for player HUD
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnInventoryUpdated();
-
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMaxThrowables();
-
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMaxSmokeBombs();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStartMagnetTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnFinishMagnetTraversal();
+
+
+	UFUNCTION()
+	bool InputIsPressed(FVector2D Value);
 	
-	//void Fire(const FInputActionValue& Value);
+	void Landed(const FHitResult& Hit) override;
+	//noise calculations
+	UFUNCTION()
+	void TryGenerateNoise();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-private:	
-	void MoveForward(const FInputActionValue& Value);
-	void MoveRight(const FInputActionValue& Value);
+private:
+	void Move(const FInputActionValue& Value);
+	/*void MoveForward(const FInputActionValue& Value);
+	void MoveRight(const FInputActionValue& Value);*/
 	void Look(const FInputActionValue& Value);
 	void Crouch(const FInputActionValue& Value);
 	void Throw(const FInputActionValue& Value);
@@ -84,6 +101,7 @@ private:
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
 	void PredictTrajectory(const FInputActionValue& Value);
+	void StopPredictingTrajectory(const FInputActionValue& Value);
 	//variables and methods
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -98,10 +116,12 @@ protected:
 	UThrowableInventory* ThrowableInventory;
 public:
 	//actions
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveForwardAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveRightAction;
+	UInputAction* MoveRightAction;*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -148,6 +168,31 @@ public:
 	bool bIncrementedMovement = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector CameraOffset; //this is the value for camera offset. It should be the same as the camera Offset.
+
+	//noise
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	float NoiseScaleMovement = 10.f; //noise generated as player is moving
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	float MovementSpeedFraction = 0.1f; //used to calculate NoiseScale when moving slower or faster
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	float CrouchedFraction = 0.5f; //added to the calculation when crouched
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	float TimeSinceLastMadeNoise;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	float MakeNoiseFrequency = .75f; //test value. Edit later in the Blueprint.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	UNoiseDataAsset* CrouchedNoiseDataAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	UNoiseDataAsset* WalkingNoiseDataAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	UNoiseDataAsset* LandingNoiseDataAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
+	ANoiseSystem* NoiseSystem;
+	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);
+
+	//camera shake
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	UCameraShake* CameraShake; //
 	
 protected:
 	

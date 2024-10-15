@@ -5,6 +5,7 @@
 #include "MagnetComponent.generated.h"
 
 
+class APlayerCharacter;
 class AMagnet;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -24,17 +25,20 @@ public:
 		void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION()
 		void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	
+	
 protected:
 	virtual void BeginPlay() override;
 	void Traverse(double DeltaTime);
 	void RegenerateInteractableArray();
 
+	
 	float ModifyInterpolation(float Alpha);
 
 	UPROPERTY(EditDefaultsOnly, Category = Magnet)
 		FRuntimeFloatCurve TraversalCurve;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Magnet, meta=(UIMin=0,UIMax=180))
-		float AimThreshold = 60;
+		float AimThreshold = 30.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Magnet)
 		float TraversalTime = 0.5f;
 	float TraversalCounter = 0;
@@ -43,4 +47,6 @@ protected:
 	
 	TArray<AMagnet*> InInteractionRange;
 	TArray<AMagnet*> InteractableMagnets;
+
+	APlayerCharacter* Player;
 };
