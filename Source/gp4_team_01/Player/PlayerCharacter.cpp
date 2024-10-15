@@ -215,12 +215,14 @@ void APlayerCharacter::Crouch(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->bWantsToCrouch = true;
 		GetCharacterMovement()->Crouch();
+		ResetCameraPosition();
 		UE_LOG(LogTemp, Warning, TEXT("Crouched"));
 	}
 	else if(!bIsCrouching)
 	{
 		GetCharacterMovement()->bWantsToCrouch = false;
 		GetCharacterMovement()->UnCrouch();
+		ResetCameraPosition();
 		UE_LOG(LogTemp, Warning, TEXT("Stood up"));
 	}
 }
