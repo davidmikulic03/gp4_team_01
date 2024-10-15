@@ -35,6 +35,7 @@ void AInteractableButton::Interact(AActor* Caller) {
 	
 	if(bDoesResetAfterCooldown)
 		bIsPressed = true;
+	OnInteract(Caller);
 }
 
 void AInteractableButton::Break() {
