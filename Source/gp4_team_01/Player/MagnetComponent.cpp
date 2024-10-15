@@ -1,6 +1,6 @@
 ﻿#include "MagnetComponent.h"
 
-#include "CPlayerCharacter.h"
+#include "PlayerCharacter.h"
 #include "gp4_team_01/Enviroment/Magnet.h"
 
 UMagnetComponent::UMagnetComponent() {
@@ -13,6 +13,8 @@ bool UMagnetComponent::Use() {
 	TraversalCounter = 0.f;
 	TraversalStart = GetOwner()->GetActorLocation();
 	bIsTraversing = true;
+	if(Player)
+		Player->OnStartMagnetTraversal();
 	return true;
 }
 
@@ -29,7 +31,6 @@ void UMagnetComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UMagnetComponent::RegenerateInteractableArray() {
 	InteractableMagnets.Empty();
-	auto Player = Cast<ACPlayerCharacter>(GetOwner());
 	if(InInteractionRange.IsEmpty() || !Player) {
 		return;
 	}
@@ -39,15 +40,22 @@ void UMagnetComponent::RegenerateInteractableArray() {
 		float dot = ToMagnetDir.Dot(Player->GetCamera()->GetForwardVector());
 		if(dot > FMath::Cos(FMath::DegreesToRadians(AimThreshold))) {
 			InteractableMagnets.Add(Magnet);
-		}
+			Magnet->SetIsInteractable(true);
+		} else
+			Magnet->SetIsInteractable(false);
 	}
 }
 
-float UMagnetComponent::ModifyInterpolation(float Alpha) { return Alpha * Alpha; }
+float UMagnetComponent::ModifyInterpolation(float Alpha)
+{
+	if(TraversalCurve.ExternalCurve)
+		return TraversalCurve.ExternalCurve->GetFloatValue(Alpha);
+	else return Alpha;
+}
 
 void UMagnetComponent::BeginPlay() {
 	Super::BeginPlay();
-
+	Player = Cast<APlayerCharacter>(GetOwner());
 }
 
 void UMagnetComponent::Traverse(double DeltaTime) {
@@ -58,8 +66,10 @@ void UMagnetComponent::Traverse(double DeltaTime) {
 	if(TraversalCounter >= TraversalTime) {
 		bIsTraversing = false;
 		TraversalCounter = 0;
-		if(auto Player = Cast<ACPlayerCharacter>(GetOwner()))
+		if(Player) {
 			Player->GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::Zero());
+			Player->OnFinishMagnetTraversal();
+		}
 	}
 }
 
@@ -71,6 +81,7 @@ void UMagnetComponent::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 void UMagnetComponent::EndOverlap(AActor* OverlappedActor, AActor* OtherActor) {
 	if(auto a = Cast<AMagnet>(OtherActor)) {
+		a->SetIsInteractable(false);
 		InInteractionRange.Remove(a);
 	}
 }

@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableTargetBase.h"
+#include "InteractableTargetDoor.h"
 #include "FallableTarget.generated.h"
 
 class AEnemyBase;
 
 UCLASS()
-class GP4_TEAM_01_API AFallableTarget : public AInteractableTargetBase {
+class GP4_TEAM_01_API AFallableTarget : public AInteractableTargetDoor {
 	GENERATED_BODY()
 
 public:
@@ -32,18 +32,10 @@ private:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Fallable")
-	USceneComponent* FallingTarget = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "Fallable")
-	float FallingSpeed = 5.f;
-
-	UPROPERTY(EditAnywhere, Category = "Fallable")
 	bool bKillsEnemyOnFall = false;
 
 	UPROPERTY(EditAnywhere, Category = "Fallable", meta = (EditCondition = "bKillsEnemyOnFall", EditConditionHides))
 	AEnemyBase* EnemyToKill = nullptr;
-
-	bool bIsFalling = false;
 
 	FVector FallingTargetVector;
 };

@@ -49,6 +49,10 @@ void AMainGameMode::QuitGame() const
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
 }
 
+void AMainGameMode::LoadLevel(FName LevelName) const {
+	UGameplayStatics::OpenLevel(GetWorld(), FName(LevelName));
+}
+
 void AMainGameMode::LoadFromLastCheckpoint()
 {
 	//checkpoint reloading logic
