@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "EnemyState.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
@@ -62,6 +63,9 @@ public:
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
 	UFUNCTION(BlueprintCallable)
+		void SetIsChasing(bool IsChasing);
+	
+	UFUNCTION(BlueprintCallable)
 		void OnDeath(const AActor* Killer);
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
@@ -103,6 +107,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
 		UWaypointHolderComponent* SuspiciousWaypointHolder;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)	
+		float ChaseSpeedMultiplier = 1.5f;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -116,7 +123,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 		TEnumAsByte<EEnemyState> CurrentState;
 
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+		bool bIsChasing;
+
 	AEnemyAIController* EnemyController;
+
+	float BaseSpeed;
 };
 
 
