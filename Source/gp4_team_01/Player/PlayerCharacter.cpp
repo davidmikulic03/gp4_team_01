@@ -121,7 +121,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		TryGenerateNoise();
 	}
-	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != FVector::ZeroVector)
+	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != OriginalCameraPosition)
 	{
 		ResetCameraPosition();
 	}
