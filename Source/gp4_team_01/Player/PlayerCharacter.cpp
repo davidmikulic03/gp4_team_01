@@ -347,12 +347,12 @@ void APlayerCharacter::CameraShake()
 	if(!bIsCrouching)
 	{
 		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTime * TWO_PI);
-		Camera->AddLocalOffset(FVector(0.f, DeltaZ * 0.5f, DeltaZ));
+		Camera->AddLocalOffset(FVector(0.f, DeltaZ * AmplitudeFractionWalking, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
 		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTime * TWO_PI); //add fraction
-		Camera->AddLocalOffset(FVector(0.f, DeltaZ * 0.5f, DeltaZ));
+		Camera->AddLocalOffset(FVector(0.f, DeltaZ * AmplitudeFractionCrouched, DeltaZ));
 	}
 }
 

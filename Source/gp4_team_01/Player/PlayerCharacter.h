@@ -207,9 +207,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float AmplitudeCrouching = 1.0f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
-	float AmplitudeFractionWalking = 2.0f; //the amount that the final result is divided by;
+	float AmplitudeFractionWalking = 1.0f; //the amount that the final result is divided by;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
-	float AmplitudeFractionCrouched = 4.0f; //the amount that the final result is divided by. Recommended amount is two times the size of the walking Fraction;
+	float AmplitudeFractionCrouched = .5f; //the amount that the final result is divided by. Recommended amount is two times the size of the walking Fraction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float ShakeSpeedWalking = 1.0f; //how fast the camera moves up and down
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
