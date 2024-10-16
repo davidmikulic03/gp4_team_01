@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-FMODStudioNiagara-Win64-DebugGame.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\david.mikulic\Perforce\gp4_team_01\FG23_MAL_GP4_Team01\Intermediate\Build\Win64\x64\gp4_team_01Editor\DebugGame\UnrealEd\SharedPCH.UnrealEd.Project.NonOptimized.ValApi.Cpp20.h.obj"
+"C:\Users\david.mikulic\Perforce\gp4_team_01\FG23_MAL_GP4_Team01\Plugins\FMODStudioNiagara\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\FMODStudioNiagara\Module.FMODStudioNiagara.cpp.obj"
+"C:\Users\david.mikulic\Perforce\gp4_team_01\FG23_MAL_GP4_Team01\Plugins\FMODStudioNiagara\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\FMODStudioNiagara\Default.rc2.res"
+/OUT:"C:\Users\david.mikulic\Perforce\gp4_team_01\FG23_MAL_GP4_Team01\Plugins\FMODStudioNiagara\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\FMODStudioNiagara\UnrealEditor-FMODStudioNiagara-Win64-DebugGame.lib"

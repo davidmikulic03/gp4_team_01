@@ -1,0 +1,21 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudioeditor\\private\\fmodbankupdatenotifier.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\intermediate\\build\\win64\\x64\\unrealeditor\\debuggame\\fmodstudioeditor\\pch.fmodstudioeditor.h.pch",
+        "Includes": [
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudioeditor\\private\\fmodbankupdatenotifier.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodsettings.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_common.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_codec.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_dsp.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_dsp_effects.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_output.h",
+            "c:\\users\\david.mikulic\\perforce\\gp4_team_01\\fg23_mal_gp4_team01\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\inc\\fmodstudio\\uht\\fmodsettings.generated.h",
+            "c:\\program files\\epic games\\ue_5.4\\engine\\source\\runtime\\core\\public\\hal\\filemanager.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
