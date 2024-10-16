@@ -42,8 +42,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
 		if(GetSeverity(Memory[HighestWeightId]) != LastRecordedSeverity) {
-			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
-				Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
+			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
 			UpdateEnemyState(); //TODO: temp just for testing
 		}
 	}
@@ -112,6 +111,7 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
+		HighestWeightId = GetSignalIdOfHighestWeight(); //TODO: temp
 		return true;
 	}
 	return false;
