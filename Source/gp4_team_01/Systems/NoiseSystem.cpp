@@ -21,7 +21,7 @@ void ANoiseSystem::Tick(float DeltaTime) {
 
 void ANoiseSystem::RegisterNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location) {
 	PlaySFX(NoiseDataAsset, Location);
-	if(NoiseDataAsset->bCanAlertAI)
+	if(NoiseDataAsset && NoiseDataAsset->bCanAlertAI)
 			DispatchNoiseEvent(NoiseDataAsset, Location);
 }
 
