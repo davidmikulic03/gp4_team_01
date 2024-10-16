@@ -77,6 +77,11 @@ public:
 	void OnStartMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnFinishMagnetTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDeath();
+
+	UFUNCTION(BlueprintCallable)
+		void Die();
 
 
 	UFUNCTION()
@@ -103,6 +108,9 @@ private:
 	void PredictTrajectory(const FInputActionValue& Value);
 	void StopPredictingTrajectory(const FInputActionValue& Value);
 	//variables and methods
+
+	void CameraShake();
+	void ResetCameraPosition();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeedWalk = 300.f;
@@ -139,9 +147,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PredictTrajectoryAction;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Mesh")
+	UStaticMeshComponent* PetrifyGunStaticMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float AlphaValue;
+	float CrouchAlpha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector EyeOffset;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -191,9 +200,22 @@ public:
 	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);
 
 	//camera shake
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
-	UCameraShake* CustomCameraShake; //
-	
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	UCameraShake* CustomCameraShake; //*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeWalking = 1.0f; //the amplitude of the SIN function. Recommended balue is 0.25 and the recommended range is 0 to 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeCrouching = 1.0f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeFractionWalking = 2.0f; //the amount that the final result is divided by;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeFractionCrouched = 4.0f; //the amount that the final result is divided by. Recommended amount is two times the size of the walking Fraction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float ShakeSpeedWalking = 1.0f; //how fast the camera moves up and down
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
+	float DeltaValue;
+	FVector OriginalCameraPosition;
 protected:
 	
 };
