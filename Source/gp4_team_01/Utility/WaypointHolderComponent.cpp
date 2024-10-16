@@ -40,8 +40,11 @@ FVector UWaypointHolderComponent::GetNextWaypoint() {
 	CurrentWaypointIndex += 1;
 	if(CurrentWaypointIndex >= Waypoints.Num())
 		CurrentWaypointIndex = 0;
-	
-	return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
+
+	if(CurrentWaypointIndex > Waypoints.Num())
+		return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
+	else
+		return FVector::Zero();
 }
 
 void UWaypointHolderComponent::UpdateWaypointArray(const int NewSize, const FString& WaypointNamePrefix) {
