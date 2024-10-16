@@ -32,7 +32,8 @@ void ANoiseSystem::DispatchNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, con
 }
 
 void ANoiseSystem::PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location, bool bPickRandom) const {
-	if(!NoiseDataAsset->Sound) {
+	
+	if(!NoiseDataAsset || !NoiseDataAsset->Sound) {
 		UE_LOG(LogTemp, Error, TEXT("ERROR: Couldn't play sound, missing ref in NoiseDataAsset"));
 		return;
 	}
