@@ -90,6 +90,9 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 ;		UE_LOG(LogTemp, Warning, TEXT("PetrifyGun Fired"));
 		TimeSinceLastShot = ShotCooldown;
 	}
-
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't fire. Coolingdown"));
+	}
 }
 
