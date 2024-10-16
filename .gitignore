@@ -78,8 +78,4 @@ Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Manual includes
-!Plugins/FMODStudio
-!Plugins/FMODStudioNiagara
-
 # End of https://mrkandreev.name/snippets/gitignore-generator/#UnrealEngine
