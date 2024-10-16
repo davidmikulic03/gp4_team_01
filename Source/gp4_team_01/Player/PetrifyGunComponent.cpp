@@ -21,8 +21,7 @@ void UPetrifyGunComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	TimeSinceLastShot = 0.f;
-
-
+	
 	Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
 }
 
@@ -60,7 +59,6 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
 		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
 		
-
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
 			StartLocation + MuzzleOffset, 
@@ -92,7 +90,7 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Can't fire. Coolingdown"));
+		UE_LOG(LogTemp, Warning, TEXT("Can't fire. Cooling down"));
 	}
 }
 

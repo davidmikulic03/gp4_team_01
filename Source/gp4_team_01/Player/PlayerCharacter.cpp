@@ -343,18 +343,16 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 
 void APlayerCharacter::CameraShake()
 {
-	float Epsilon = 0.001f;
-
 	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
 	if(!bIsCrouching)
 	{
 		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTime * TWO_PI);
-		Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+		Camera->AddLocalOffset(FVector(0.f, DeltaZ * 0.5f, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
 		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTime * TWO_PI); //add fraction
-		Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+		Camera->AddLocalOffset(FVector(0.f, DeltaZ * 0.5f, DeltaZ));
 	}
 }
 
