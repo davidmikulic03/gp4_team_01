@@ -121,7 +121,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		TryGenerateNoise();
 	}
-	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != FVector::ZeroVector)
+	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != OriginalCameraPosition)
 	{
 		ResetCameraPosition();
 	}
@@ -165,8 +165,7 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.Y);
 		AddMovementInput((GetActorRightVector()), InputVector.X);
-		/*CustomCameraShake->CameraShake(InputVector.X, InputVector.Y, CustomCameraShake->DeltaTimeValue);*/
-		CameraShake(InputVector.X, InputVector.Y, DeltaValue);
+		CameraShake();
 	}
 }
 
@@ -205,7 +204,6 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(InputVector.X);
 		AddControllerPitchInput(-InputVector.Y);
 	}
-
 }
 
 void APlayerCharacter::Crouch(const FInputActionValue& Value)
@@ -335,48 +333,20 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 	ThrowerComponent->HideProjectilePath();
 }
 
-void APlayerCharacter::CameraShake(float InputX, float InputY, float DeltaTime)
+void APlayerCharacter::CameraShake()
 {
 	float Epsilon = 0.001f;
 
-	float ElapsedTime = 0.f;
+	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
 	if(!bIsCrouching)
 	{
-		ElapsedTime += ShakeSpeedWalking * DeltaTime;
-	
-		float DeltaZ = AmplitudeWalking * FMath::Sin(ElapsedTime);
-
-		if(FMath::Abs(InputY) > Epsilon)
-		{
-			Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
-		}
-		else if( FMath::Abs(InputX) > Epsilon)
-		{
-			Camera->AddLocalOffset(FVector(0.f, DeltaZ, 0.f));
-		}
-		else if(FMath::Abs(InputX) > Epsilon && FMath::Abs(InputY) > Epsilon)
-		{
-			Camera->AddLocalOffset(FVector(0.f, DeltaZ, DeltaZ));
-		}
+		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTime * TWO_PI);
+		Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
-		ElapsedTime += ShakeSpeedCrouched * DeltaTime;
-	
-		float DeltaZ = AmplitudeCrouching * FMath::Sin(ElapsedTime); //add fraction
-
-		if(FMath::Abs(InputY) > Epsilon)
-		{
-			Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
-		}
-		else if(FMath::Abs(InputX) > Epsilon)
-		{
-			Camera->AddLocalOffset(FVector(0.f, DeltaZ, 0.f));
-		}
-		else if(FMath::Abs(InputX) > Epsilon && FMath::Abs(InputY) > Epsilon)
-		{
-			Camera->AddLocalOffset(FVector(0.f, DeltaZ, DeltaZ));
-		}
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTime * TWO_PI); //add fraction
+		Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
 	}
 }
 

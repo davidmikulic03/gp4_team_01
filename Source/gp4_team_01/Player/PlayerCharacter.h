@@ -104,7 +104,7 @@ private:
 	void StopPredictingTrajectory(const FInputActionValue& Value);
 	//variables and methods
 
-	void CameraShake(float InputX, float InputY, float DeltaTime);
+	void CameraShake();
 	void ResetCameraPosition();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
