@@ -45,6 +45,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::Die() {
 	if(auto GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
 		//TODO: Put a bunch of stuff that happens when you die here, and probably delay the actually LoseGame call.
+		OnDeath();
 		GameMode->LoseGame();
 	}
 }

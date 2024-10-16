@@ -77,6 +77,8 @@ public:
 	void OnStartMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnFinishMagnetTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDeath();
 
 	UFUNCTION(BlueprintCallable)
 		void Die();
