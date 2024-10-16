@@ -78,6 +78,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnFinishMagnetTraversal();
 
+	UFUNCTION(BlueprintCallable)
+		void Die();
+
 
 	UFUNCTION()
 	bool InputIsPressed(FVector2D Value);

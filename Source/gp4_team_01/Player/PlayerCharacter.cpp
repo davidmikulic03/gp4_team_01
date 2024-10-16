@@ -42,6 +42,13 @@ APlayerCharacter::APlayerCharacter()
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
 }
 
+void APlayerCharacter::Die() {
+	if(auto GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
+		//TODO: Put a bunch of stuff that happens when you die here, and probably delay the actually LoseGame call.
+		GameMode->LoseGame();
+	}
+}
+
 bool APlayerCharacter::InputIsPressed(FVector2D Value)
 {
 	float Epsilon = 0.00001f;
