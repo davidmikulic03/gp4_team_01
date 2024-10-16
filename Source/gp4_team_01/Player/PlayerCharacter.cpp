@@ -103,6 +103,7 @@ void APlayerCharacter::BeginPlay()
 
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
+	OriginalCameraPosition = Camera->GetRelativeLocation();
 }
 
 // Called every frame
@@ -379,7 +380,7 @@ void APlayerCharacter::CameraShake(float InputX, float InputY, float DeltaTime)
 
 void APlayerCharacter::ResetCameraPosition()
 {
-	Camera->SetRelativeLocation(FVector::ZeroVector);
+	Camera->SetRelativeLocation(OriginalCameraPosition);
 	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
 }
 
