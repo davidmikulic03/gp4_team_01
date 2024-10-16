@@ -124,7 +124,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	DeltaValue += DeltaTime;
 	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
-	TimeSinceLastMadeNoise += DeltaTime;
+	TimeSinceLastMadeNoise -= DeltaTime;
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
 		TryGenerateNoise();
