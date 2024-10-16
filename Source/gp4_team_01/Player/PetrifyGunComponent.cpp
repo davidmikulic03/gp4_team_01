@@ -13,16 +13,16 @@ UPetrifyGunComponent::UPetrifyGunComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComp");
-	
+	TimeSinceLastShot = ShotCooldown;	
 }
-
 
 // Called when the game starts
 void UPetrifyGunComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	TimeSinceLastShot = 1000.f;
-	// ...
+	TimeSinceLastShot = 0.f;
+
+
 	Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
 }
 
@@ -32,17 +32,20 @@ void UPetrifyGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	TimeSinceLastShot += DeltaTime;
-
+	TimeSinceLastShot -= DeltaTime;
+	if(TimeSinceLastShot <= 0.f)
+	{
+		TimeSinceLastShot = 0.f;		
+	}
 }
 
 void UPetrifyGunComponent::TryFirePetrifyGun()
 {
-	if(TimeSinceLastShot < ShotCooldown)
+	/*if(TimeSinceLastShot >= ShotCooldown)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Cannot fire gun. Cooldown in progress"))
-	}
-	else if(TimeSinceLastShot >= ShotCooldown)
+		UE_LOG(LogTemp, Warning, TEXT("Cannot fire gun. Cooldown in progress")) //this never fires off. Doesn't matter?
+	}*/
+	if(TimeSinceLastShot <= 0.f)
 	{
 		//fire
 		//linetrace
@@ -85,7 +88,7 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		}
 
 ;		UE_LOG(LogTemp, Warning, TEXT("PetrifyGun Fired"));
-		TimeSinceLastShot = 0.f;
+		TimeSinceLastShot = ShotCooldown;
 	}
 
 }
