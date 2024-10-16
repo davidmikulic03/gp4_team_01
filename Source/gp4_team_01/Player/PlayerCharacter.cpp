@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "Engine.h"
 #include "DSP/Osc.h"
 #include "gp4_team_01/Player/MagnetComponent.h"
 
@@ -27,6 +28,7 @@ APlayerCharacter::APlayerCharacter()
 	Camera->bUsePawnControlRotation = true;
 	EyeOffset = FVector(0.f);
 	CrouchAlpha = 12.f;
+	PetrifyGunStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Petrify Gun StaticMesh");
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -37,6 +39,7 @@ APlayerCharacter::APlayerCharacter()
 	/*CustomCameraShake = CreateDefaultSubobject<UCameraShake>("Custom Camera Shake Component");*/
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
+	PetrifyGunStaticMesh->SetupAttachment(Camera);
 }
 
 bool APlayerCharacter::InputIsPressed(FVector2D Value)
@@ -113,7 +116,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	DeltaValue += DeltaTime;
 	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
-
 	TimeSinceLastMadeNoise += DeltaTime;
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{

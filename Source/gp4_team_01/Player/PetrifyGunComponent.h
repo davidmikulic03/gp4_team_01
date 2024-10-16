@@ -42,17 +42,17 @@ public:
 	FVector MuzzleOffset;
 	FVector MuzzlePosition;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
-	float TimeSinceLastShot;
+	float TimeSinceLastShot; //Time that has passed since the player last shot (in Seconds)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun")
-	float ShotCooldown = 5.f; //value hardcoded for testing but exposed in editor. 
+	float ShotCooldown = 5.f; //Mumber of seconds that need to pass between each shot 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
-	float TraceLength = 1000.f; //exposed for easy editing,
+	float TraceLength = 1000.f; //exposed for easy editing, Value for the length of the line trace (default is 1000 cm or 10M)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transform")
 	USceneComponent* SceneComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
 	APlayerCharacterController* Controller;
 private:
 protected:
-
+	
 		
 };
