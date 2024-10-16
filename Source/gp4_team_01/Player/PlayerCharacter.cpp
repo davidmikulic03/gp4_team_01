@@ -343,9 +343,17 @@ void APlayerCharacter::CameraShake(float InputX, float InputY, float DeltaTime)
 	
 		float DeltaZ = AmplitudeWalking * FMath::Sin(ElapsedTime);
 
-		if(FMath::Abs(InputX) > Epsilon || FMath::Abs(InputY) > Epsilon)
+		if(FMath::Abs(InputY) > Epsilon)
 		{
 			Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+		}
+		else if( FMath::Abs(InputX) > Epsilon)
+		{
+			Camera->AddLocalOffset(FVector(0.f, DeltaZ, 0.f));
+		}
+		else if(FMath::Abs(InputX) > Epsilon && FMath::Abs(InputY) > Epsilon)
+		{
+			Camera->AddLocalOffset(FVector(0.f, DeltaZ, DeltaZ));
 		}
 	}
 	else if(bIsCrouching)
@@ -354,9 +362,17 @@ void APlayerCharacter::CameraShake(float InputX, float InputY, float DeltaTime)
 	
 		float DeltaZ = AmplitudeCrouching * FMath::Sin(ElapsedTime); //add fraction
 
-		if(FMath::Abs(InputX) > Epsilon || FMath::Abs(InputY) > Epsilon)
+		if(FMath::Abs(InputY) > Epsilon)
 		{
 			Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+		}
+		else if(FMath::Abs(InputX) > Epsilon)
+		{
+			Camera->AddLocalOffset(FVector(0.f, DeltaZ, 0.f));
+		}
+		else if(FMath::Abs(InputX) > Epsilon && FMath::Abs(InputY) > Epsilon)
+		{
+			Camera->AddLocalOffset(FVector(0.f, DeltaZ, DeltaZ));
 		}
 	}
 }
