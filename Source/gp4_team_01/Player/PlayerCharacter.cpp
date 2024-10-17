@@ -109,9 +109,12 @@ void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Lo
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
-
+	if(!bIncrementedMovement)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
+		GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
+	}
+	
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	OriginalCameraPosition = Camera->GetRelativeLocation();
@@ -261,26 +264,29 @@ void APlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 
 void APlayerCharacter::IncrementMovement(const FInputActionValue& Value)
 {
-	FVector2D InputVector = Value.Get<FVector2D>();
-	if(InputVector.X < 0)
+	if(bIncrementedMovement)
 	{
-		CurrentMoveIncrement--;
-		if (CurrentMoveIncrement <= MinMoveIncriment)
+		FVector2D InputVector = Value.Get<FVector2D>();
+		if(InputVector.X < 0)
 		{
-			CurrentMoveIncrement = MinMoveIncriment;
+			CurrentMoveIncrement--;
+			if (CurrentMoveIncrement <= MinMoveIncriment)
+			{
+				CurrentMoveIncrement = MinMoveIncriment;
+			}
+			GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
 		}
-		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
-	}
-	else if(InputVector.X > 0)
-	{
-		CurrentMoveIncrement++;
-		if(CurrentMoveIncrement >= MaxMoveIncrement)
+		else if(InputVector.X > 0)
 		{
-			CurrentMoveIncrement = MaxMoveIncrement;
+			CurrentMoveIncrement++;
+			if(CurrentMoveIncrement >= MaxMoveIncrement)
+			{
+				CurrentMoveIncrement = MaxMoveIncrement;
+			}
+			GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
+			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
 		}
-		GetCharacterMovement()->MaxWalkSpeed = MoveIncrementSpeed * CurrentMoveIncrement;
-		GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchIncrementSpeed * CurrentMoveIncrement;
 	}
 }
 
@@ -344,15 +350,18 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 void APlayerCharacter::CameraShake()
 {
 	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
+	float NormalizedWalkTimeClamped = FMath::Clamp(NormalizedWalkTime, -1.f, 1.f);
 	if(!bIsCrouching)
 	{
-		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTime * TWO_PI);
-		Camera->AddLocalOffset(FVector(0.f, DeltaZ * AmplitudeFractionWalking, DeltaZ));
+		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI);
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionWalking;
+		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
-		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTime * TWO_PI); //add fraction
-		Camera->AddLocalOffset(FVector(0.f, DeltaZ * AmplitudeFractionCrouched, DeltaZ));
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI); //add fraction
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionCrouched;
+		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 }
 
