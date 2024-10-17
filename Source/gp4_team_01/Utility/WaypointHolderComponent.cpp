@@ -27,15 +27,6 @@ void UWaypointHolderComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-#if WITH_EDITOR
-void UWaypointHolderComponent::DrawPath(bool bPersistantLines) {
-	for(int i = 0; i < Waypoints.Num() - 1; i++) {
-		DrawDebugLine(GetWorld(), Waypoints[i]->GetComponentLocation(), Waypoints[i+1]->GetComponentLocation(), DebugLineColor, bPersistantLines, -1, 0, 10);
-	}
-	if(Waypoints.Num() >= 2)
-		DrawDebugLine(GetWorld(), Waypoints[Waypoints.Num() - 1]->GetComponentLocation(), Waypoints[0]->GetComponentLocation(), DebugLineColor, bPersistantLines, -1, 0, 10);
-}
-
 FVector UWaypointHolderComponent::GetNextWaypoint() {
 	CurrentWaypointIndex += 1;
 	if(CurrentWaypointIndex >= Waypoints.Num())
@@ -48,6 +39,16 @@ FVector UWaypointHolderComponent::GetNextWaypoint() {
 		return FVector::Zero();
 	}
 }
+
+#if WITH_EDITOR
+void UWaypointHolderComponent::DrawPath(bool bPersistantLines) {
+	for(int i = 0; i < Waypoints.Num() - 1; i++) {
+		DrawDebugLine(GetWorld(), Waypoints[i]->GetComponentLocation(), Waypoints[i+1]->GetComponentLocation(), DebugLineColor, bPersistantLines, -1, 0, 10);
+	}
+	if(Waypoints.Num() >= 2)
+		DrawDebugLine(GetWorld(), Waypoints[Waypoints.Num() - 1]->GetComponentLocation(), Waypoints[0]->GetComponentLocation(), DebugLineColor, bPersistantLines, -1, 0, 10);
+}
+
 
 void UWaypointHolderComponent::UpdateWaypointArray(const int NewSize, const FString& WaypointNamePrefix) {
 	for(int i = Waypoints.Num(); i < NewSize; i++) {
@@ -70,9 +71,9 @@ void UWaypointHolderComponent::DeleteAllWaypoints() {
 	Waypoints.Empty();
 }
 
-void UWaypointHolderComponent::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
-	Super::PostEditChangeProperty(FPropertyChangedEvent);
-	//GUnrealEd->UpdateFloatingPropertyWindows();
-}
+// void UWaypointHolderComponent::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
+// 	Super::PostEditChangeProperty(FPropertyChangedEvent);
+// 	//GUnrealEd->UpdateFloatingPropertyWindows();
+// }
 #endif
 

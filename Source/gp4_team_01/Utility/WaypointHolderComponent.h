@@ -18,11 +18,12 @@ public:
 
 	FVector GetNextWaypoint();
 
+#if WITH_EDITOR
 	void UpdateWaypointArray(const int NewSize, const FString& WaypointNamePrefix);
 
 	void DeleteAllWaypoints();
-
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) override;
+#endif
+	//virtual void PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) override;
 
 protected:
 	virtual void BeginPlay() override;
