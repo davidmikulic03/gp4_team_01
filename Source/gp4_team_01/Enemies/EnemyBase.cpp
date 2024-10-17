@@ -14,6 +14,7 @@
 #include "Editor/UnrealEdEngine.h"
 #endif
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -108,6 +109,14 @@ void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
 	IPetrifiable::Unpetrify(Target, Player);
 }
 
+void AEnemyBase::SetIsChasing(bool IsChasing)
+{
+	if (IsChasing)
+		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * ChaseSpeedMultiplier;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+}
+
 void AEnemyBase::OnDeath(const AActor* Killer) {
 	//TODO: handle death better
 	Destroy();
@@ -126,6 +135,7 @@ FVector AEnemyBase::GetNextWaypointLocation()
 void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
 	EnemyController = Cast<AEnemyAIController>(Controller);
+ 	BaseSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void AEnemyBase::Tick(float DeltaTime) {
