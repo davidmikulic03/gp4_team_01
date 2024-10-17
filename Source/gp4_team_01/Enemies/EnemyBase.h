@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "EnemyState.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
@@ -62,6 +63,12 @@ public:
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
 	UFUNCTION(BlueprintCallable)
+		void SetSpeedMultiplayer(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; }
+
+	UFUNCTION(BlueprintCallable)
+		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; }
+	
+	UFUNCTION(BlueprintCallable)
 		void OnDeath(const AActor* Killer);
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
@@ -117,6 +124,8 @@ protected:
 		TEnumAsByte<EEnemyState> CurrentState;
 
 	AEnemyAIController* EnemyController;
+
+	float BaseSpeed;
 };
 
 

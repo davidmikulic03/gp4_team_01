@@ -42,8 +42,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
 		if(GetSeverity(Memory[HighestWeightId]) != LastRecordedSeverity) {
-			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
-				Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
+			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
 			UpdateEnemyState(); //TODO: temp just for testing
 		}
 	}
@@ -96,13 +95,18 @@ void UFuzzyBrainComponent::IsValid_Branching(FWeightedSignal WeightedSignal, boo
 
 
 void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal) {
-	for(int i = 0; i < Memory.Num(); i++) {
-		if(Signal.Actor && Memory[i].Signal.Actor == Signal.Actor) {
-			IncrementCompoundingWeight(Memory[i], DeltaTime);
-			Memory[i].Signal.SignalStrength = Signal.SignalStrength;
-			if(i == HighestWeightId)
-				
+	if(Signal.Actor) {
+		if(!ClassPrejudice.ContainsByPredicate([Signal](FWeightedClass c) {
+			return Signal.Actor->IsA(Signal.Actor->GetClass()); }))
 			return;
+		for(int i = 0; i < Memory.Num(); i++) {
+			if(Memory[i].Signal.Actor == Signal.Actor) {
+				IncrementCompoundingWeight(Memory[i], DeltaTime);
+				Memory[i].Signal.SignalStrength = Signal.SignalStrength;
+				//if(i == HighestWeightId)
+				
+				return;
+			}
 		}
 	}
 	Memory.Add(Signal);
@@ -112,6 +116,7 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
+		HighestWeightId = GetSignalIdOfHighestWeight(); //TODO: temp
 		return true;
 	}
 	return false;

@@ -14,6 +14,7 @@
 #include "Editor/UnrealEdEngine.h"
 #endif
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -126,6 +127,7 @@ FVector AEnemyBase::GetNextWaypointLocation()
 void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
 	EnemyController = Cast<AEnemyAIController>(Controller);
+ 	BaseSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void AEnemyBase::Tick(float DeltaTime) {
