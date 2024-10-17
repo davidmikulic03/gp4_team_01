@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "Engine.h"
 #include "DSP/Osc.h"
 #include "gp4_team_01/Player/MagnetComponent.h"
 
@@ -26,7 +27,8 @@ APlayerCharacter::APlayerCharacter()
 	Camera->SetRelativeLocation(FVector(-10.f, 0.f, 60.f));
 	Camera->bUsePawnControlRotation = true;
 	EyeOffset = FVector(0.f);
-	AlphaValue = 12.f;
+	CrouchAlpha = 12.f;
+	PetrifyGunStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Petrify Gun StaticMesh");
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -34,9 +36,18 @@ APlayerCharacter::APlayerCharacter()
 	CurrentMoveIncrement = MinMoveIncriment;
 	ThrowableInventory = CreateDefaultSubobject<UThrowableInventory>(TEXT("ThrowableInventory"));
 	Magnet = CreateDefaultSubobject<UMagnetComponent>("Magnet");
-	CustomCameraShake = CreateDefaultSubobject<UCameraShake>("Custom Camera Shake Component");
+	/*CustomCameraShake = CreateDefaultSubobject<UCameraShake>("Custom Camera Shake Component");*/
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
+	PetrifyGunStaticMesh->SetupAttachment(Camera);
+}
+
+void APlayerCharacter::Die() {
+	if(auto GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
+		//TODO: Put a bunch of stuff that happens when you die here, and probably delay the actually LoseGame call.
+		OnDeath();
+		GameMode->LoseGame();
+	}
 }
 
 bool APlayerCharacter::InputIsPressed(FVector2D Value)
@@ -103,20 +114,24 @@ void APlayerCharacter::BeginPlay()
 
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
+	OriginalCameraPosition = Camera->GetRelativeLocation();
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	float CrouchInterpolateTime = FMath::Min(1.f, AlphaValue * DeltaTime);
+	DeltaValue += DeltaTime;
+	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
-
 	TimeSinceLastMadeNoise += DeltaTime;
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
 		TryGenerateNoise();
+	}
+	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != OriginalCameraPosition)
+	{
+		ResetCameraPosition();
 	}
 }
 
@@ -141,7 +156,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
 		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 	}
-
 }
 
 UThrowableInventory* APlayerCharacter::GetThrowableInventory()
@@ -159,10 +173,8 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.Y);
 		AddMovementInput((GetActorRightVector()), InputVector.X);
-		InputIsPressed(InputVector);
-		UE_LOG(LogTemp, Warning, TEXT("X: %f, Y: %f"), InputVector.X, InputVector.Y);
+		CameraShake();
 	}
-	
 }
 
 /*void APlayerCharacter::MoveForward(const FInputActionValue& Value)
@@ -200,7 +212,6 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(InputVector.X);
 		AddControllerPitchInput(-InputVector.Y);
 	}
-
 }
 
 void APlayerCharacter::Crouch(const FInputActionValue& Value)
@@ -213,12 +224,14 @@ void APlayerCharacter::Crouch(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->bWantsToCrouch = true;
 		GetCharacterMovement()->Crouch();
+		ResetCameraPosition();
 		UE_LOG(LogTemp, Warning, TEXT("Crouched"));
 	}
 	else if(!bIsCrouching)
 	{
 		GetCharacterMovement()->bWantsToCrouch = false;
 		GetCharacterMovement()->UnCrouch();
+		ResetCameraPosition();
 		UE_LOG(LogTemp, Warning, TEXT("Stood up"));
 	}
 }
@@ -328,6 +341,26 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 	ThrowerComponent->HideProjectilePath();
 }
 
+void APlayerCharacter::CameraShake()
+{
+	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
+	if(!bIsCrouching)
+	{
+		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTime * TWO_PI);
+		Camera->AddLocalOffset(FVector(0.f, DeltaZ * AmplitudeFractionWalking, DeltaZ));
+	}
+	else if(bIsCrouching)
+	{
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTime * TWO_PI); //add fraction
+		Camera->AddLocalOffset(FVector(0.f, DeltaZ * AmplitudeFractionCrouched, DeltaZ));
+	}
+}
+
+void APlayerCharacter::ResetCameraPosition()
+{
+	Camera->SetRelativeLocation(OriginalCameraPosition);
+	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
+}
 
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {

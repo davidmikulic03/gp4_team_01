@@ -18,7 +18,6 @@ void UCameraShake::BeginPlay()
 
 		Camera = GetPlayerCamera();
 		OriginalCameraPosition = Camera->GetRelativeLocation();
-		OriginalCameraRotation = Camera->GetRelativeRotation();
 		DebugMessage();
 	}
 }
@@ -26,29 +25,13 @@ void UCameraShake::BeginPlay()
 void UCameraShake::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	DeltaTimeValue += DeltaTime;
 	if(Camera != nullptr)
 		//safety check - TODO: See if Camera stuff can be set from here, or if I need to do a setter function in the PlayerCharacter
 		//TODO: After lunch - test through UE_LOG how the values change and use dummy variables to see if your manual lerps work
 		//when I say manual I mean the included math library
 	{
-		//possible nesting overdrive
-		//this should return camera only if camera is not at original position
-		if(Camera->GetRelativeRotation() != OriginalCameraRotation &&
-			Camera->GetRelativeLocation() != OriginalCameraPosition &&
-			!bCameraShakeOn)
-		{
-			FRotator NewRotation = FMath::Lerp(Camera->GetRelativeRotation(), OriginalCameraRotation, 1.f * DeltaTime);
-			FVector NewPosition = FMath::Lerp(Camera->GetRelativeLocation(), OriginalCameraPosition, 1.f * DeltaTime);
-			Camera->SetRelativeRotation(NewRotation);
-			Camera->SetRelativeLocation(NewPosition);
-			UE_LOG(LogTemp, Warning, TEXT("New Position: %f, %f, %f"), NewPosition.X, NewPosition.Y, NewPosition.Z);
-			UE_LOG(LogTemp, Warning, TEXT("New Rotation: %f, %f, %f"), NewRotation.Vector().X, NewRotation.Vector().Y, NewRotation.Vector().Z);
-		}
-		else if(bCameraShakeOn)
-		{
-			CameraShake(1.f); //TODO remove the magic number. See if it makes any sense for the function to take in anything.
-		}
+		
 		
 	}
 }
@@ -71,8 +54,22 @@ UCameraComponent* UCameraShake::GetPlayerCamera()
 	return nullptr;
 }
 
-void UCameraShake::CameraShake(float InputValue)
+void UCameraShake::CameraShake(float InputValueX, float InputValueY, float DeltaTime)
 {
+	float Epsilon = 0.0001f;
+	float TimeElapsed = 0.0f;
+	TimeElapsed += DeltaTime;
+
+	float DeltaZ = ShakeAmplitude * (FMath::Sin(TimeElapsed) / AmplitudeFraction); //TOOD: Fix the math.
+
+	if(FMath::Abs(InputValueX) > Epsilon || FMath::Abs(InputValueY) > Epsilon)
+	{
+		Camera->AddLocalOffset(FVector(0.f, 0.f, DeltaZ));
+	}
+	else
+	{
+		Camera->AddLocalOffset(OriginalCameraPosition);		
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Camera Shaking, wob wob wob"));
 }
 
@@ -81,5 +78,4 @@ void UCameraShake::DebugMessage()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Camera Assigned"));
 	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), OriginalCameraPosition.X, OriginalCameraPosition.Y, OriginalCameraPosition.Z);
-	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), OriginalCameraRotation.Vector().X, OriginalCameraRotation.Vector().Y, OriginalCameraRotation.Vector().Z);
 }
