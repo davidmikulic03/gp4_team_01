@@ -97,7 +97,7 @@ void UFuzzyBrainComponent::IsValid_Branching(FWeightedSignal WeightedSignal, boo
 void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal) {
 	if(Signal.Actor) {
 		if(!ClassPrejudice.ContainsByPredicate([Signal](FWeightedClass c) {
-			return c.Class == Signal.Actor->GetClass(); }))
+			return Signal.Actor->IsA(Signal.Actor->GetClass()); }))
 			return;
 		for(int i = 0; i < Memory.Num(); i++) {
 			if(Memory[i].Signal.Actor == Signal.Actor) {
