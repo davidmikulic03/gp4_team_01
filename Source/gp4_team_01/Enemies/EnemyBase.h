@@ -82,12 +82,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:	//EDITOR ONLY functions
+#if WITH_EDITOR
 	UFUNCTION(CallInEditor, Category = "Waypoints")
 		void UpdateNavigationArrays() const;
 
 	UFUNCTION(CallInEditor, Category = "Waypoints")
 		void DeleteAllWaypoints() const;
 	virtual bool ShouldTickIfViewportsOnly() const override { return true; };
+#endif
 public:
 	virtual void Tick(float DeltaTime) override;
 
