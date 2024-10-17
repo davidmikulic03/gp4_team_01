@@ -40,6 +40,7 @@ APlayerCharacter::APlayerCharacter()
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
+	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
 }
 
 void APlayerCharacter::Die() {
@@ -114,7 +115,6 @@ void APlayerCharacter::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeedWalk;
 		GetCharacterMovement()->MaxWalkSpeedCrouched = MoveSpeedCrouch;
 	}
-	
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	OriginalCameraPosition = Camera->GetRelativeLocation();
@@ -382,6 +382,7 @@ void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHei
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	EyeOffset.Z += StartBaseEyeHeight - BaseEyeHeight + HalfHeightAdjust;
 	Camera->SetRelativeLocation(FVector(0.f, 0.f, BaseEyeHeight), false);
+	DetectionModifierComponent->SetDetectionSignalModifier(0.1f); //magic number - expose as a UPROPERTY;
 }
 
 void APlayerCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
@@ -394,6 +395,7 @@ void APlayerCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeigh
 	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	EyeOffset.Z += StartBaseEyeHeight - BaseEyeHeight - HalfHeightAdjust;
 	Camera->SetRelativeLocation(FVector(0.f, 0.f, BaseEyeHeight), false);
+	DetectionModifierComponent->SetDetectionSignalModifier(1.f);
 }
 
 void APlayerCharacter::CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult)
