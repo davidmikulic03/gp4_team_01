@@ -63,7 +63,10 @@ public:
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
 	UFUNCTION(BlueprintCallable)
-		void SetIsChasing(bool IsChasing);
+		void SetSpeedMultiplayer(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; }
+
+	UFUNCTION(BlueprintCallable)
+		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; }
 	
 	UFUNCTION(BlueprintCallable)
 		void OnDeath(const AActor* Killer);
@@ -107,9 +110,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
 		UWaypointHolderComponent* SuspiciousWaypointHolder;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)	
-		float ChaseSpeedMultiplier = 1.5f;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -122,9 +122,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 		TEnumAsByte<EEnemyState> CurrentState;
-
-	UPROPERTY(VisibleAnywhere, Category = "Debug")
-		bool bIsChasing;
 
 	AEnemyAIController* EnemyController;
 

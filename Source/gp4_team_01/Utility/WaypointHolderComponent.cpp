@@ -40,8 +40,13 @@ FVector UWaypointHolderComponent::GetNextWaypoint() {
 	CurrentWaypointIndex += 1;
 	if(CurrentWaypointIndex >= Waypoints.Num())
 		CurrentWaypointIndex = 0;
-	
-	return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
+
+	if(Waypoints.Num() > 0)
+		return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
+	else {
+		UE_LOG(LogTemp, Error, TEXT("YOUR WAYPOINT ARRAY IS EMPTY! PLEASE FIX IT!"))
+		return FVector::Zero();
+	}
 }
 
 void UWaypointHolderComponent::UpdateWaypointArray(const int NewSize, const FString& WaypointNamePrefix) {
