@@ -109,14 +109,6 @@ void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
 	IPetrifiable::Unpetrify(Target, Player);
 }
 
-void AEnemyBase::SetIsChasing(bool IsChasing)
-{
-	if (IsChasing)
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * ChaseSpeedMultiplier;
-	else
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-}
-
 void AEnemyBase::OnDeath(const AActor* Killer) {
 	//TODO: handle death better
 	Destroy();
