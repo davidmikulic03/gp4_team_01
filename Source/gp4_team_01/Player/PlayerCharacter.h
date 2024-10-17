@@ -25,6 +25,7 @@
 #include "Kismet/GameplayStaticsTypes.h"
 #include "ThrowableInventory.h"
 #include "CameraShake.h"
+#include "gp4_team_01/Enemies/AI/DetectionModifier.h"
 #include "PlayerCharacter.generated.h"
 
 class UMagnetComponent;
@@ -161,6 +162,8 @@ public:
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UMagnetComponent* Magnet;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UDetectionModifier* DetectionModifierComponent;
 
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")

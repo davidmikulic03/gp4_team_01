@@ -14,6 +14,8 @@ class GP4_TEAM_01_API UDetectionModifier : public UActorComponent {
 public:
 	UDetectionModifier();
 
+	UFUNCTION()
+	void SetDetectionSignalModifier(float Value);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (UIMin = 0.f))
 		float DefaultSignalModifier = 1.0;
 };

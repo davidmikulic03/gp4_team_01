@@ -27,6 +27,19 @@ void UWaypointHolderComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+FVector UWaypointHolderComponent::GetNextWaypoint() {
+	CurrentWaypointIndex += 1;
+	if(CurrentWaypointIndex >= Waypoints.Num())
+		CurrentWaypointIndex = 0;
+
+	if(Waypoints.Num() > 0)
+		return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
+	else {
+		UE_LOG(LogTemp, Error, TEXT("YOUR WAYPOINT ARRAY IS EMPTY! PLEASE FIX IT!"))
+		return FVector::Zero();
+	}
+}
+
 #if WITH_EDITOR
 void UWaypointHolderComponent::DrawPath(bool bPersistantLines) {
 	for(int i = 0; i < Waypoints.Num() - 1; i++) {
@@ -36,16 +49,6 @@ void UWaypointHolderComponent::DrawPath(bool bPersistantLines) {
 		DrawDebugLine(GetWorld(), Waypoints[Waypoints.Num() - 1]->GetComponentLocation(), Waypoints[0]->GetComponentLocation(), DebugLineColor, bPersistantLines, -1, 0, 10);
 }
 
-FVector UWaypointHolderComponent::GetNextWaypoint() {
-	CurrentWaypointIndex += 1;
-	if(CurrentWaypointIndex >= Waypoints.Num())
-		CurrentWaypointIndex = 0;
-
-	if(CurrentWaypointIndex > Waypoints.Num())
-		return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
-	else
-		return FVector::Zero();
-}
 
 void UWaypointHolderComponent::UpdateWaypointArray(const int NewSize, const FString& WaypointNamePrefix) {
 	for(int i = Waypoints.Num(); i < NewSize; i++) {
@@ -68,9 +71,9 @@ void UWaypointHolderComponent::DeleteAllWaypoints() {
 	Waypoints.Empty();
 }
 
-void UWaypointHolderComponent::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
-	Super::PostEditChangeProperty(FPropertyChangedEvent);
-	//GUnrealEd->UpdateFloatingPropertyWindows();
-}
+// void UWaypointHolderComponent::PostEditChangeProperty(FPropertyChangedEvent& FPropertyChangedEvent) {
+// 	Super::PostEditChangeProperty(FPropertyChangedEvent);
+// 	//GUnrealEd->UpdateFloatingPropertyWindows();
+// }
 #endif
 

@@ -5,3 +5,8 @@ UDetectionModifier::UDetectionModifier() {
 
 }
 
+void UDetectionModifier::SetDetectionSignalModifier(float Value)
+{
+	DefaultSignalModifier = Value;
+}
+
