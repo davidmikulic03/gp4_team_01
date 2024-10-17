@@ -29,6 +29,9 @@ public:
 	UFuzzyBrainComponent();
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FWeightedSignal GetCurrentMostInterestingSignal() const { return Memory[HighestWeightId]; };
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
@@ -51,7 +54,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		float GetNormalizedWeight(AActor* Actor) const;
 
-	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; } 
+	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		TArray<FWeightedClass> ClassPrejudice;
