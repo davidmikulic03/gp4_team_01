@@ -14,7 +14,9 @@
 #include "Editor/UnrealEdEngine.h"
 #endif
 
+#include "EnemyManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "gp4_team_01/Systems/MainGameMode.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -95,6 +97,10 @@ bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
 	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
+UFuzzyBrainComponent* AEnemyBase::GetBrain() const {
+	return EnemyController->Brain;
+}
+
 bool AEnemyBase::Petrify(UObject* Target, APlayerCharacter* Player) {
 	bIsPetrified = true;
 	EnemyController->Brain->SetIsThinking(false);
@@ -128,6 +134,11 @@ void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
 	EnemyController = Cast<AEnemyAIController>(Controller);
  	BaseSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	auto GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode && GameMode->GetEnemyManagerRef()) {
+		EnemyManager = GameMode->GetEnemyManagerRef();
+		EnemyManager->Register(this);
+	}
 }
 
 void AEnemyBase::Tick(float DeltaTime) {

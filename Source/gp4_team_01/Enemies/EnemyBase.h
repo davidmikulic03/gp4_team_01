@@ -7,7 +7,8 @@
 #include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
-enum EEnemyState : uint8;
+class UFuzzyBrainComponent;
+class AEnemyManager;
 class UWaypointHolderComponent;
 class AEnemyAIController;
 class APlayerCharacter;
@@ -50,6 +51,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|State")
 		EEnemyState GetCurrentState() const { return CurrentState; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		AEnemyManager* GetEnemyManager() const { return EnemyManager; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		UFuzzyBrainComponent* GetBrain() const;
 
 	UFUNCTION(BlueprintCallable, Category = "AI|State")
 		void SetCurrentState(const TEnumAsByte<EEnemyState> NewState) { CurrentState = NewState; }
@@ -126,6 +133,8 @@ protected:
 		TEnumAsByte<EEnemyState> CurrentState;
 
 	AEnemyAIController* EnemyController;
+	//AMainGameMode* GameMode;
+	AEnemyManager* EnemyManager;
 
 	float BaseSpeed;
 };

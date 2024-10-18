@@ -35,6 +35,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetLastSeverity() const noexcept { return LastRecordedSeverity; };
 
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverityFromWeight(float Weight) const noexcept;
