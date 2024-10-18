@@ -41,7 +41,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
 	FVector MuzzleOffset;
 	FVector MuzzlePosition;
-	UPROPERTY(EditAnywhereAnywhere, BlueprintReadWrite, Category = "Gun")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
 	float TimeSinceLastShot; //Time that has passed since the player last shot (in Seconds)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun")
 	float ShotCooldown = 5.f; //Mumber of seconds that need to pass between each shot 
