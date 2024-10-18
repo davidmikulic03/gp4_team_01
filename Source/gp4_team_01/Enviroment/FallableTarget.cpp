@@ -13,7 +13,7 @@ AFallableTarget::AFallableTarget() {
 void AFallableTarget::BeginPlay() {
 	Super::BeginPlay();
 
-	bIsMoving = false;
+	bIsOpening = false;
 }
 
 void AFallableTarget::OnInteract() {
@@ -30,7 +30,7 @@ void AFallableTarget::Tick(float DeltaTime) {
 void AFallableTarget::OnBreak() {
 	UE_LOG(LogTemp, Warning, TEXT("Fallable broke!"));
 
-	bIsMoving = false;
+	bIsOpening = false;
 
 	if(bKillsEnemyOnFall)
 		EnemyToKill->OnDeath(this);

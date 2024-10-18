@@ -21,15 +21,26 @@ public:
 
 	virtual void OnUnInteract() override;
 
+private:
+	void Move(float DeltaTime);
+	void FadeOpen(float DeltaTime);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Interaction Target")
+	bool bFadesOutOnInteraction = false;
+
+	UPROPERTY(EditAnywhere, Category = "Interaction Target", meta = (EditCondition = "bFadesOutOnInteraction", EditConditionHides))
+	float TimeToFadeOpen = 1.f ;
+	
+	UPROPERTY(EditAnywhere, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
 	USceneComponent* Target = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Fallable")
+	UPROPERTY(EditAnywhere, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
 	float Speed = 5.f;
 
-	bool bIsMoving = false;
+	bool bIsOpening = false;
+
+	bool bIsClosing = false;
 	
 	FVector StartingPosition;
 

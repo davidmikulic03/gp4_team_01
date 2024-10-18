@@ -23,20 +23,37 @@ void AInteractableTargetDoor::BeginPlay() {
 void AInteractableTargetDoor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if(!bIsMoving)
+	if(!bIsOpening && !bIsClosing)
 		return;
 
-	SetActorLocation(UKismetMathLibrary::VInterpTo_Constant(GetActorLocation(), TargetVector, DeltaTime, Speed));
-
-	if(GetActorLocation() == TargetVector)
-		bIsMoving = false;
+	if(bFadesOutOnInteraction)
+		FadeOpen(DeltaTime);
+	else
+		Move(DeltaTime);
 }
 
 void AInteractableTargetDoor::OnInteract() {
-	bIsMoving = true;
+	bIsOpening = true;
 }
 
 void AInteractableTargetDoor::OnUnInteract() {
-	SetActorLocation(StartingPosition);
+	bIsClosing = true;
+}
+
+void AInteractableTargetDoor::Move(float DeltaTime)
+{
+	SetActorLocation(UKismetMathLibrary::VInterpTo_Constant(GetActorLocation(), bIsOpening ? TargetVector : StartingPosition, DeltaTime, Speed));
+ 
+	if(bIsOpening) {
+		if(GetActorLocation() == TargetVector)
+			bIsOpening = false;
+	} else if (bIsClosing) {
+		if(GetActorLocation() == StartingPosition)
+			bIsClosing = false;
+	}
+}
+
+void AInteractableTargetDoor::FadeOpen(float DeltaTime)
+{
 }
 
