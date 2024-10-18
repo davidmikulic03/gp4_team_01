@@ -22,6 +22,7 @@ void UPetrifyGunComponent::BeginPlay()
 	TimeSinceLastShot = 0.f;
 	
 	Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 
@@ -58,9 +59,9 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
 		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
 
-		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlash, this, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true );
 		NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetComponentLocation());
-		
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlash, this, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true );
+
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
 			StartLocation,
