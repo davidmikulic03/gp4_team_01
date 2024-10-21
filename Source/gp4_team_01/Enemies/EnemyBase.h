@@ -70,10 +70,13 @@ public:
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
 	UFUNCTION(BlueprintCallable)
-		void SetSpeedMultiplier(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; }
-
+		void SetSpeedMultiplier(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; OnSpeedChanged(BaseSpeed * Multiplier);}
+	
 	UFUNCTION(BlueprintCallable)
-		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; }
+		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; OnSpeedChanged(BaseSpeed);}
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnSpeedChanged(float speed);
 	
 	UFUNCTION(BlueprintCallable)
 		void OnDeath(const AActor* Killer);
