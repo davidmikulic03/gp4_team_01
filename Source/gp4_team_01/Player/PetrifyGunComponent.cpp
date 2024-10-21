@@ -12,7 +12,6 @@ UPetrifyGunComponent::UPetrifyGunComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComp");
 	TimeSinceLastShot = ShotCooldown;	
 }
 
@@ -23,6 +22,7 @@ void UPetrifyGunComponent::BeginPlay()
 	TimeSinceLastShot = 0.f;
 	
 	Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 
@@ -58,10 +58,13 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
 		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
-		
+
+		NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetComponentLocation());
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlash, this, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true );
+
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
-			StartLocation + MuzzleOffset, 
+			StartLocation,
 			EndLocation,
 			ECC_WorldDynamic, 
 			CollisionParams);

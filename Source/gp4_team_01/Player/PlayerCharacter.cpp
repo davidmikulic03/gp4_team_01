@@ -41,6 +41,7 @@ APlayerCharacter::APlayerCharacter()
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
 	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
+	PetrifyGun->SetupAttachment(RootComponent);
 }
 
 void APlayerCharacter::Die() {
