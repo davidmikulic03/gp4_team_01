@@ -121,6 +121,8 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
+		if(static_cast<int>(HighestWeightId) < Memory.Num() && HighestWeightId != INDEX_NONE && Memory[HighestWeightId].Signal == Signal)
+			LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 		HighestWeightId = INDEX_NONE; //TODO: temp
 		return true;
 	}
@@ -144,6 +146,13 @@ float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
 		return Result < 1.f ? Result : 1.f;
 	}
 	return 0;
+}
+
+void UFuzzyBrainComponent::Reset() {
+	Memory.Empty();
+	HighestWeightId = INDEX_NONE;
+	LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+	bIsThinking = true;
 }
 
 void UFuzzyBrainComponent::See(double DeltaTime) {
