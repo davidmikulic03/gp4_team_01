@@ -11,22 +11,24 @@ AEnemyManager::AEnemyManager() {
 
 void AEnemyManager::Tick(float DeltaSeconds) {
 	auto Highest = GetHighestSeverity();
-	if(Highest != LastHighestSeverity) {
-		float asFloat;
-		switch (Highest) {
-		case ESignalSeverity::Weak:
-			asFloat = 2.f;
-			break;
-		case ESignalSeverity::Medium:
-			asFloat = 2.f;
-			break;
-		case ESignalSeverity::Strong:
-			asFloat = 3.f;
-			break;
-		default: asFloat = 1.f; break;
-		}
-		UFMODBlueprintStatics::SetGlobalParameterByName(FName(FString(TEXT("Suspicion"))), asFloat);
+
+	float asFloat;
+	switch (Highest) {
+	case ESignalSeverity::Weak:
+		asFloat = 1.f;
+		break;
+	case ESignalSeverity::Medium:
+		asFloat = 1.f;
+		break;
+	case ESignalSeverity::Strong:
+		asFloat = 2.f;
+		break;
+	default:
+		asFloat = 0.f;
+		break; 
 	}
+	UFMODBlueprintStatics::SetGlobalParameterByName(FName(FString(TEXT("Suspicion"))), asFloat);
+	
 	LastHighestSeverity = Highest;
 }
 
