@@ -23,6 +23,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void RegisterListener(UHearingComponent* Listener) { Listeners.Add(Listener); };
+	void UnregisterListener(UHearingComponent* Listener) { Listeners.Remove(Listener); };
 
 	UFUNCTION(BlueprintCallable)
 	void RegisterNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location);
