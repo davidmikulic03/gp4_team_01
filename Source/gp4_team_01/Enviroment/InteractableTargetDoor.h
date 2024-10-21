@@ -4,6 +4,8 @@
 #include "InteractableTargetBase.h"
 #include "InteractableTargetDoor.generated.h"
 
+class UNoiseDataAsset;
+
 UCLASS()
 class GP4_TEAM_01_API AInteractableTargetDoor : public AInteractableTargetBase {
 	GENERATED_BODY()
@@ -21,17 +23,36 @@ public:
 
 	virtual void OnUnInteract() override;
 
+private:
+	void Move(float DeltaTime);
+	void FadeOpen(float DeltaTime);
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Interaction Target")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Interaction Target")
+	bool bFadesOutOnInteraction = false;
+
+	//The shader has to use this, bIsOpening and bIsClosed as parameters for the fadein/out
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target", meta = (EditCondition = "bFadesOutOnInteraction", EditConditionHides))
+	float TimeToFadeOpen = 1.f ;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
 	USceneComponent* Target = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Fallable")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
 	float Speed = 5.f;
 
-	bool bIsMoving = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Interaction Target")
+	bool bIsOpening = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction Target")
+	bool bIsClosing = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction Target")
+		UNoiseDataAsset* NoiseOnBreak;
 	
 	FVector StartingPosition;
 
 	FVector TargetVector;
+
+	float CurrentFadeTimer = .0f;
 };
