@@ -4,6 +4,8 @@
 #include "InteractableTargetBase.h"
 #include "InteractableTargetDoor.generated.h"
 
+class UNoiseDataAsset;
+
 UCLASS()
 class GP4_TEAM_01_API AInteractableTargetDoor : public AInteractableTargetBase {
 	GENERATED_BODY()
@@ -44,6 +46,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction Target")
 	bool bIsClosing = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction Target")
+		UNoiseDataAsset* NoiseOnBreak;
 	
 	FVector StartingPosition;
 
