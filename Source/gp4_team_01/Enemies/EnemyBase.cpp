@@ -17,6 +17,7 @@
 #include "EnemyManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Systems/MainGameMode.h"
+#include "gp4_team_01/Systems/NoiseSystem.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -120,6 +121,9 @@ void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
 
 void AEnemyBase::OnDeath(const AActor* Killer) {
 	//TODO: handle death better
+	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		if(auto n = g->GetNoiseSystemRef())
+			n->UnregisterListener(HearingComponent);
 	Destroy();
 }
 
