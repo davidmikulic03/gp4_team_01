@@ -26,23 +26,28 @@ private:
 	void FadeOpen(float DeltaTime);
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Interaction Target")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Interaction Target")
 	bool bFadesOutOnInteraction = false;
 
-	UPROPERTY(EditAnywhere, Category = "Interaction Target", meta = (EditCondition = "bFadesOutOnInteraction", EditConditionHides))
+	//The shader has to use this, bIsOpening and bIsClosed as parameters for the fadein/out
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target", meta = (EditCondition = "bFadesOutOnInteraction", EditConditionHides))
 	float TimeToFadeOpen = 1.f ;
 	
-	UPROPERTY(EditAnywhere, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
 	USceneComponent* Target = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target", meta = (EditCondition = "!bFadesOutOnInteraction", EditConditionHides))
 	float Speed = 5.f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Interaction Target")
 	bool bIsOpening = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction Target")
 	bool bIsClosing = false;
 	
 	FVector StartingPosition;
 
 	FVector TargetVector;
+
+	float CurrentFadeTimer = .0f;
 };

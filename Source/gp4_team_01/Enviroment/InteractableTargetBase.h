@@ -23,4 +23,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void OnUnInteract() PURE_VIRTUAL(AInteractableTargetBase::OnUnInteract, ;);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetHasBeenInteractedWith() { return bHasBeenInteractedWith; };
+
+
+protected:
+	bool bHasBeenInteractedWith = false;
 };

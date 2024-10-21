@@ -17,6 +17,7 @@ void AInteractableTargetDoor::BeginPlay() {
 
 	StartingPosition = GetActorLocation();
 	TargetVector = Target->GetComponentLocation();
+	CurrentFadeTimer = .0f;
 }
 
 // Called every frame
@@ -33,11 +34,17 @@ void AInteractableTargetDoor::Tick(float DeltaTime) {
 }
 
 void AInteractableTargetDoor::OnInteract() {
-	bIsOpening = true;
+	if(!bIsOpening && !bIsClosing) {
+		bIsOpening = true;
+		bHasBeenInteractedWith = true;
+	}
 }
 
 void AInteractableTargetDoor::OnUnInteract() {
-	bIsClosing = true;
+	if(!bIsOpening && !bIsClosing) {
+		bIsClosing = true;
+		bHasBeenInteractedWith = false;
+	}
 }
 
 void AInteractableTargetDoor::Move(float DeltaTime)
@@ -55,5 +62,18 @@ void AInteractableTargetDoor::Move(float DeltaTime)
 
 void AInteractableTargetDoor::FadeOpen(float DeltaTime)
 {
+	CurrentFadeTimer += DeltaTime;
+
+	if(CurrentFadeTimer >= TimeToFadeOpen) {
+		
+		CurrentFadeTimer = 0;
+		if(bIsOpening) {
+			SetActorEnableCollision(false);
+			bIsOpening = false;
+		} else if (bIsClosing) {
+			SetActorEnableCollision(true);
+			bIsClosing = false;
+		}
+	}
 }
 
