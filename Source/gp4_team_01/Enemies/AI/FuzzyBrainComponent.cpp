@@ -121,7 +121,7 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
-		if(!Memory.IsEmpty() && HighestWeightId != INDEX_NONE && Memory[HighestWeightId].Signal == Signal)
+		if(static_cast<int>(HighestWeightId) < Memory.Num() && HighestWeightId != INDEX_NONE && Memory[HighestWeightId].Signal == Signal)
 			LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 		HighestWeightId = INDEX_NONE; //TODO: temp
 		return true;
