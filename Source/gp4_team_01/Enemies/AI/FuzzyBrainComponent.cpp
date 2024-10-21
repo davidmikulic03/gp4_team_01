@@ -125,8 +125,11 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 			LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 		HighestWeightId = INDEX_NONE; //TODO: temp
 		return true;
+	} else {
+		AEnemyAIController* AiController = Cast<AEnemyAIController>(GetOwner());
+		AiController->OnInterestChanged(Signal);
+		return false;
 	}
-	return false;
 }
 
 bool UFuzzyBrainComponent::IsResolvable(FPerceptionSignal Signal, FWeightedSignal& InMemory) const {
