@@ -148,6 +148,13 @@ float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
 	return 0;
 }
 
+void UFuzzyBrainComponent::Reset() {
+	Memory.Empty();
+	HighestWeightId = INDEX_NONE;
+	LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+	bIsThinking = true;
+}
+
 void UFuzzyBrainComponent::See(double DeltaTime) {
 	if(!Controller)
 		return;

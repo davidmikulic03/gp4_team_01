@@ -56,6 +56,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		float GetNormalizedWeight(AActor* Actor) const;
 
+	UFUNCTION(BlueprintCallable)
+		void Reset();
+	
 	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
