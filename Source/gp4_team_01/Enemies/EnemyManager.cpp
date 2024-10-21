@@ -32,6 +32,12 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 	LastHighestSeverity = Highest;
 }
 
+void AEnemyManager::ResetEnemyStates() {
+	for(int i = 0; i < Enemies.Num(); i++) {
+		Brains[i]->Reset();
+	}
+}
+
 void AEnemyManager::Register(AEnemyBase* Self) {
 	if(auto Controller = Cast<AEnemyAIController>(Self->GetController())) {
 		Brains.Add(Controller->Brain);
@@ -46,9 +52,6 @@ void AEnemyManager::RegisterSeverityChange(ESignalSeverity Severity) {
 	//	GlobalLowestSeverity = Severity;
 }
 
-void AEnemyManager::ResetEnemyStates() {
-	
-}
 
 ESignalSeverity AEnemyManager::GetHighestSeverity() {
 	ESignalSeverity Result = ESignalSeverity::Nonperceptible;

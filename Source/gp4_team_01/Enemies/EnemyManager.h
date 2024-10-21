@@ -16,9 +16,12 @@ public:
 	
 	virtual void Tick(float DeltaSeconds) override;
 	
+	UFUNCTION(BlueprintCallable)
+		void ResetEnemyStates();
+	
 	void Register(AEnemyBase* Self);
 	void RegisterSeverityChange(ESignalSeverity Severity);
-	void ResetEnemyStates();
+	
 private:
 	ESignalSeverity GetHighestSeverity();
 	
