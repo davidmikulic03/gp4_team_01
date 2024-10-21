@@ -15,7 +15,7 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 	float asFloat;
 	switch (Highest) {
 	case ESignalSeverity::Weak:
-		asFloat = 0.f;
+		asFloat = 1.f;
 		break;
 	case ESignalSeverity::Medium:
 		asFloat = 1.f;
