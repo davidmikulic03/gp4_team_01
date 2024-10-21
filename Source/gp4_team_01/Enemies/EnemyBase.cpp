@@ -98,7 +98,10 @@ bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
 }
 
 UFuzzyBrainComponent* AEnemyBase::GetBrain() const {
-	return EnemyController->Brain;
+	if(EnemyController)
+		return EnemyController->Brain;
+	else
+		return nullptr;
 }
 
 bool AEnemyBase::Petrify(UObject* Target, APlayerCharacter* Player) {
