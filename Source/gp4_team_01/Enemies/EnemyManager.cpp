@@ -35,11 +35,15 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 void AEnemyManager::LoadEnemyStates() {
 	for(int i = 0; i < Enemies.Num(); i++) {
 		Brains[i]->Reset();
+		Enemies[i]->LoadState();
 	}
 }
 
-void AEnemyManager::SaveEnemyStates() {
-	
+bool AEnemyManager::SaveEnemyStates() {
+	if(GetHighestSeverity() == ESignalSeverity::Strong)
+		return false;
+	else 
+		return true;
 }
 
 void AEnemyManager::Register(AEnemyBase* Self) {
