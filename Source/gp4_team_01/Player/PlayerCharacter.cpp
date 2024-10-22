@@ -29,6 +29,7 @@ APlayerCharacter::APlayerCharacter()
 	EyeOffset = FVector(0.f);
 	CrouchAlpha = 12.f;
 	PetrifyGunStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Petrify Gun StaticMesh");
+	MagnetStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Magnet StaticMesh");
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -40,6 +41,7 @@ APlayerCharacter::APlayerCharacter()
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
+	MagnetStaticMesh->SetupAttachment(Camera);
 	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
 	PetrifyGun->SetupAttachment(RootComponent);
 }

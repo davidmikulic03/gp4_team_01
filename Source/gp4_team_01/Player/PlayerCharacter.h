@@ -148,8 +148,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PredictTrajectoryAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
 	UStaticMeshComponent* PetrifyGunStaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* MagnetStaticMesh;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float CrouchAlpha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
