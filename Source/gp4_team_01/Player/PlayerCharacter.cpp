@@ -415,9 +415,8 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 
 void APlayerCharacter::CameraShake()
 {
-	float NormalizedWalkTimeZ = StepCounter - FMath::Floor(StepCounter);
+	float NormalizedWalkTimeZ = StepCounter;
 	float NormalizedWalkTimeY = StepCounter / 2;
-	NormalizedWalkTimeY = NormalizedWalkTimeY - FMath::Floor(NormalizedWalkTimeY);
 	
 	if(!bIsCrouching)
 	{
