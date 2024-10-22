@@ -445,7 +445,8 @@ void APlayerCharacter::CameraShake()
 
 void APlayerCharacter::ResetCameraPosition()
 {
-	Camera->SetRelativeLocation(OriginalCameraPosition);
+	FVector NewCameraPosition = FMath::Lerp(Camera->GetRelativeLocation(), OriginalCameraPosition, CameraResetLerpTime);
+	Camera->SetRelativeLocation(NewCameraPosition);
 	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
 }
 

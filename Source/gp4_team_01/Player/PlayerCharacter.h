@@ -231,6 +231,8 @@ public:
 	float ShakeSpeedWalking = 1.0f; //how fast the camera moves up and down
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Shake")
+	float CameraResetLerpTime = 0.5f; //keep this in 0 to 1 range.
 	float DeltaValue;
 	FVector OriginalCameraPosition;
 
