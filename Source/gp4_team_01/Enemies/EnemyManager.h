@@ -19,7 +19,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void LoadEnemyStates();
 	UFUNCTION(BlueprintCallable)
-		void SaveEnemyStates();
+		bool SaveEnemyStates();
 	
 	void Register(AEnemyBase* Self);
 	void RegisterSeverityChange(ESignalSeverity Severity);
