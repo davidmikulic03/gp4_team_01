@@ -53,6 +53,7 @@ void AInteractableButton::ActivateTarget() const {
 }
 
 void AInteractableButton::DeactivateTarget() const {
-	InteractionTarget->OnUnInteract();
+	if(InteractionTarget)
+		InteractionTarget->OnUnInteract();
 }
 

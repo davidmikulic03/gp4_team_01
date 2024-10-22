@@ -17,6 +17,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInteract(AActor* Caller);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(EditCondition="bUseToolTip"))
+	FText Tooltip;
+
 protected:
 	virtual void BeginPlay() override;
 

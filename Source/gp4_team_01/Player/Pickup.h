@@ -21,6 +21,7 @@ public:
 	
 	virtual void Interact(AActor* Caller) override;
 	inline ItemType GetItemType() const { return ItemType; };
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -29,4 +30,5 @@ private:
 	int AmountToAdd = 5;
 	UPROPERTY(EditAnywhere, Category="Pickup")
 	ItemType ItemType;
+
 };
