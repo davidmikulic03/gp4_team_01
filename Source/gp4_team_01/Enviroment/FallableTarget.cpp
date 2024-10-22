@@ -37,7 +37,7 @@ void AFallableTarget::OnBreak() {
 	bIsOpening = false;
 
 	if(bKillsEnemyOnFall)
-		EnemyToKill->OnDeath(this);
+		EnemyToKill->Die(this);
 
 	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
 		g->GetNoiseSystemRef()->RegisterNoiseEvent(NoiseOnBreak, TargetVector);

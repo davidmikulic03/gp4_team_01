@@ -89,7 +89,9 @@ public:
 		void OnSpeedChanged(float speed);
 	
 	UFUNCTION(BlueprintCallable)
-		void OnDeath(const AActor* Killer);
+		void Die(const AActor* Killer);
+	UFUNCTION(BlueprintNativeEvent)
+		void OnDeath();
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
 
