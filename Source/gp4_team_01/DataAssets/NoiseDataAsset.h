@@ -29,5 +29,7 @@ public:
 	bool bSpecifyCustomRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Noise", meta = (EditCondition = "bSpecifyCustomRadius", EditConditionHides))
-	float Radius;
+	float Radius = 100.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Noise", meta = (EditCondition = "bSpecifyCustomRadius", EditConditionHides))
+	float FalloffPower = 1.f;
 };

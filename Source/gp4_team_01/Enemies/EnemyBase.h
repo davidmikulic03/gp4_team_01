@@ -7,7 +7,8 @@
 #include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
-enum EEnemyState : uint8;
+class UFuzzyBrainComponent;
+class AEnemyManager;
 class UWaypointHolderComponent;
 class AEnemyAIController;
 class APlayerCharacter;
@@ -50,6 +51,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|State")
 		EEnemyState GetCurrentState() const { return CurrentState; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		AEnemyManager* GetEnemyManager() const { return EnemyManager; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		UFuzzyBrainComponent* GetBrain() const;
 
 	UFUNCTION(BlueprintCallable, Category = "AI|State")
 		void SetCurrentState(const TEnumAsByte<EEnemyState> NewState) { CurrentState = NewState; }
@@ -63,7 +70,10 @@ public:
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
 	UFUNCTION(BlueprintCallable)
-		void SetIsChasing(bool IsChasing);
+		void SetSpeedMultiplayer(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; }
+
+	UFUNCTION(BlueprintCallable)
+		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; }
 	
 	UFUNCTION(BlueprintCallable)
 		void OnDeath(const AActor* Killer);
@@ -79,12 +89,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:	//EDITOR ONLY functions
+#if WITH_EDITOR
 	UFUNCTION(CallInEditor, Category = "Waypoints")
 		void UpdateNavigationArrays() const;
 
 	UFUNCTION(CallInEditor, Category = "Waypoints")
 		void DeleteAllWaypoints() const;
 	virtual bool ShouldTickIfViewportsOnly() const override { return true; };
+#endif
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -107,9 +119,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
 		UWaypointHolderComponent* SuspiciousWaypointHolder;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)	
-		float ChaseSpeedMultiplier = 1.5f;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -123,10 +132,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 		TEnumAsByte<EEnemyState> CurrentState;
 
-	UPROPERTY(VisibleAnywhere, Category = "Debug")
-		bool bIsChasing;
-
 	AEnemyAIController* EnemyController;
+	//AMainGameMode* GameMode;
+	AEnemyManager* EnemyManager;
 
 	float BaseSpeed;
 };

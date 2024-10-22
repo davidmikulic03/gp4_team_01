@@ -35,6 +35,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetLastSeverity() const noexcept { return LastRecordedSeverity; };
 
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverityFromWeight(float Weight) const noexcept;
@@ -54,6 +56,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		float GetNormalizedWeight(AActor* Actor) const;
 
+	UFUNCTION(BlueprintCallable)
+		void Reset();
+	
 	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
