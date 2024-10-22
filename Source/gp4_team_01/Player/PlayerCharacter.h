@@ -223,6 +223,35 @@ public:
 	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
 	float DeltaValue;
 	FVector OriginalCameraPosition;
+
+	//deactivate meshes variables and functions
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasGun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasMagnet;
+	UFUNCTION(BlueprintCallable)
+	void ActivateGun();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateGun();
+	UFUNCTION(BlueprintCallable)
+	void ActivateMagnet();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateMagnet();
+
+	//inventory counters - for saving - is it persistent?
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedThrowablesCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedSmokeBombCount;
+
+	UFUNCTION()
+	void SaveRockCount();
+	UFUNCTION()
+	void SaveGrenadeCount();
+	UFUNCTION()
+	void LoadRockCount();
+	UFUNCTION()
+	void LoadGrenadeCount();
 protected:
 	
 };
