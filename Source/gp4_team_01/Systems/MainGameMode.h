@@ -8,6 +8,7 @@
 
 #include "MainGameMode.generated.h"
 
+class AEnemyManager;
 class ANoiseSystem;
 
 enum class GameState : uint8
@@ -57,6 +58,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; };
+	UFUNCTION(BlueprintCallable)
+	AEnemyManager* GetEnemyManagerRef() const { return EnemyManagerRef; };
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
@@ -78,6 +81,7 @@ private:
 	
 	enum GameState CurrentGameState;
 	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
+	inline static AEnemyManager* EnemyManagerRef = nullptr;
 
 private:
 	UUserWidget* WinScreenInstance;

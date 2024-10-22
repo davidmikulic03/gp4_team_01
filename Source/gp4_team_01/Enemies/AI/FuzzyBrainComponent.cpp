@@ -2,7 +2,11 @@
 
 #include "DetectionModifier.h"
 #include "EnemyAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "gp4_team_01/Enemies/EnemyBase.h"
+#include "../EnemyManager.h"
 
 UFuzzyBrainComponent::UFuzzyBrainComponent() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -20,6 +24,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		HighestWeightId = NewHighestId;
 		if(auto Owner = Cast<AEnemyAIController>(GetOwner()))
 			Owner->OnInterestChanged(Memory[NewHighestId]);
+			UpdateEnemyState();
 		}
 
 	See(DeltaTime); 
@@ -34,10 +39,23 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		WeightedSignal.bPositiveSlopeSign = false;
 	}
 
+	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
+		if(GetSeverity(Memory[HighestWeightId]) != LastRecordedSeverity) {
+			if(Controller && Body) {
+				Controller->OnSignalSeverityChanged(Memory[NewHighestId]);
+				Body->GetEnemyManager()->RegisterSeverityChange(GetSeverity(Memory[HighestWeightId]));
+			}
+			UpdateEnemyState(); //TODO: temp just for testing
+		}
+	}
+
 	for (uint64 i = 0; i < Memory.Num(); i++) {
-		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
+		GEngine->AddOnScreenDebugMessage(i+GetUniqueID(), DeltaTime, FColor::Emerald,
 			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
 	}
+
+	if(HighestWeightId < static_cast<uint32>(Memory.Num()))
+		LastRecordedSeverity = GetSeverity(Memory[HighestWeightId]);
 }
 
 void UFuzzyBrainComponent::BeginPlay() {
@@ -48,19 +66,24 @@ void UFuzzyBrainComponent::BeginPlay() {
 }
 
 ESignalSeverity UFuzzyBrainComponent::GetSeverity(FWeightedSignal WeightedSignal) const noexcept {
-	if(WeightedSignal.Weight < SignalWeightThresholds.WeakSignalThreshold)
-		return ESignalSeverity::Nonperceptible;
-	else if(WeightedSignal.Weight < SignalWeightThresholds.MediumSignalThreshold)
-		return ESignalSeverity::Weak;
-	else if(WeightedSignal.Weight < SignalWeightThresholds.StrongSignalThreshold)
-		return ESignalSeverity::Medium;
-	else
-		return ESignalSeverity::Strong;
+	return GetSeverityFromWeight(WeightedSignal.Weight);
 	
 }
 
+ESignalSeverity UFuzzyBrainComponent::GetSeverityFromWeight(float Weight) const noexcept {
+	if(Weight < SignalWeightThresholds.WeakSignalThreshold)
+		return ESignalSeverity::Nonperceptible;
+	else if(Weight < SignalWeightThresholds.MediumSignalThreshold)
+		return ESignalSeverity::Weak;
+	else if(Weight < SignalWeightThresholds.StrongSignalThreshold)
+		return ESignalSeverity::Medium;
+	else
+		return ESignalSeverity::Strong;
+}
+
+
 void UFuzzyBrainComponent::GetSeverity_Branching(FWeightedSignal WeightedSignal,
-	ESignalSeverity& Branches) {
+                                                 ESignalSeverity& Branches) {
 	Branches = GetSeverity(WeightedSignal);
 }
 
@@ -74,11 +97,21 @@ void UFuzzyBrainComponent::IsValid_Branching(FWeightedSignal WeightedSignal, boo
 
 
 void UFuzzyBrainComponent::RegisterSignalToMemory(double DeltaTime, FPerceptionSignal Signal) {
-	for(int i = 0; i < Memory.Num(); i++) {
-		if(Signal.Actor && Memory[i].Signal.Actor == Signal.Actor) {
-			IncrementCompoundingWeight(Memory[i], DeltaTime);
-			Memory[i].Signal.SignalStrength = Signal.SignalStrength;
+	if(Signal.Actor) {
+		//for (auto WeightedClass : ClassPrejudice) {
+		//	if(Signal.Actor->IsA(WeightedClass.Class))
+		//}
+		if(!ClassPrejudice.ContainsByPredicate([Signal](FWeightedClass c)
+			{ return Signal.Actor->IsA(c.Class); }))
 			return;
+		for(int i = 0; i < Memory.Num(); i++) {
+			if(Memory[i].Signal.Actor == Signal.Actor) {
+				IncrementCompoundingWeight(Memory[i], DeltaTime);
+				Memory[i].Signal.SignalStrength = Signal.SignalStrength;
+				//if(i == HighestWeightId)
+				
+				return;
+			}
 		}
 	}
 	Memory.Add(Signal);
@@ -88,9 +121,15 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
+		if(static_cast<int>(HighestWeightId) < Memory.Num() && HighestWeightId != INDEX_NONE && Memory[HighestWeightId].Signal == Signal)
+			LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+		HighestWeightId = INDEX_NONE; //TODO: temp
 		return true;
+	} else {
+		AEnemyAIController* AiController = Cast<AEnemyAIController>(GetOwner());
+		AiController->OnInterestChanged(Signal);
+		return false;
 	}
-	return false;
 }
 
 bool UFuzzyBrainComponent::IsResolvable(FPerceptionSignal Signal, FWeightedSignal& InMemory) const {
@@ -110,6 +149,13 @@ float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
 		return Result < 1.f ? Result : 1.f;
 	}
 	return 0;
+}
+
+void UFuzzyBrainComponent::Reset() {
+	Memory.Empty();
+	HighestWeightId = INDEX_NONE;
+	LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+	bIsThinking = true;
 }
 
 void UFuzzyBrainComponent::See(double DeltaTime) {
@@ -133,8 +179,13 @@ void UFuzzyBrainComponent::Hear(double DeltaTime) {
 
 void UFuzzyBrainComponent::UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime) {
 	auto Actor = WeightedSignal.Signal.Actor;
-	if(Actor && WeightedSignal.GetWeight() > SignalWeightThresholds.StrongSignalThreshold)
+	if(Actor && WeightedSignal.GetWeight() > SignalWeightThresholds.StrongSignalThreshold) {
 		WeightedSignal.Signal.SignalOrigin = Actor->GetActorLocation();
+
+		AEnemyAIController* AiController = Cast<AEnemyAIController>(GetOwner());
+		if(Controller)  // BUG THIS HAPPENS FOR ALL SIGNALS
+			AiController->OnSignalOriginChanged(WeightedSignal.Signal.SignalOrigin);
+	}
 }
 
 void UFuzzyBrainComponent::ForgetUnimportant() {
@@ -157,6 +208,20 @@ uint32 UFuzzyBrainComponent::GetSignalIdOfHighestWeight() {
 			Result = Id;
 	}
 	return Result;
+}
+
+void UFuzzyBrainComponent::UpdateEnemyState() const {
+	//TODO:this sucks, do it in the controller instead?
+	AEnemyBase* const EnemyPawn = Cast<AEnemyBase>(Cast<AEnemyAIController>(GetOwner())->GetPawn());
+	if(!EnemyPawn)
+		return;
+
+	const ESignalSeverity Severity = GetSeverity(Memory[HighestWeightId]);
+	
+	if(Severity == ESignalSeverity::Medium && EnemyPawn->GetCurrentState() == EEnemyState::Idle)
+		EnemyPawn->SetCurrentState(EEnemyState::Suspicious);
+	else if(Severity == ESignalSeverity::Strong && EnemyPawn->GetCurrentState() == EEnemyState::Suspicious)
+		EnemyPawn->SetCurrentState(EEnemyState::Agitated);
 }
 
 void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedSignal, double DeltaTime) {

@@ -31,10 +31,16 @@ void AInteractableButton::Interact(AActor* Caller) {
 		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("%s tried to interact with me!"), *Caller->GetName());
-	ActivateTarget();
+
+	if(InteractionTarget->GetHasBeenInteractedWith())
+		DeactivateTarget();
+	else
+		ActivateTarget();
 	
 	if(bDoesResetAfterCooldown)
 		bIsPressed = true;
+
+	OnInteract(Caller);
 }
 
 void AInteractableButton::Break() {

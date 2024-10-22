@@ -3,6 +3,7 @@
 #include "gp4_team_01/DataAssets/NoiseDataAsset.h"
 #include "gp4_team_01/Enemies/AI/HearingComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "FMODBlueprintStatics.h"
 
 
 ANoiseSystem::ANoiseSystem() {
@@ -20,7 +21,7 @@ void ANoiseSystem::Tick(float DeltaTime) {
 
 void ANoiseSystem::RegisterNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location) {
 	PlaySFX(NoiseDataAsset, Location);
-	if(NoiseDataAsset->bCanAlertAI)
+	if(NoiseDataAsset && NoiseDataAsset->bCanAlertAI)
 			DispatchNoiseEvent(NoiseDataAsset, Location);
 }
 
@@ -30,12 +31,12 @@ void ANoiseSystem::DispatchNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, con
 	}
 }
 
-void ANoiseSystem::PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location) const {
-	if(!NoiseDataAsset->Sound) {
+void ANoiseSystem::PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location, bool bPickRandom) const {
+	
+	if(!NoiseDataAsset || !NoiseDataAsset->Sound) {
 		UE_LOG(LogTemp, Error, TEXT("ERROR: Couldn't play sound, missing ref in NoiseDataAsset"));
 		return;
 	}
-	
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), NoiseDataAsset->Sound, Location);
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), NoiseDataAsset->Sound, FTransform(FRotator::ZeroRotator, Location, FVector::OneVector), true);
 }
 

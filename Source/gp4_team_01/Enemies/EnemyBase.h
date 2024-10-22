@@ -1,10 +1,14 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyState.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Enviroment/Petrifiable.h"
 #include "EnemyBase.generated.h"
 
+class UFuzzyBrainComponent;
+class AEnemyManager;
 class UWaypointHolderComponent;
 class AEnemyAIController;
 class APlayerCharacter;
@@ -12,6 +16,11 @@ class UWaypointComponent;
 class UHearingComponent;
 class USightComponent;
 struct FPropertyChangedEvent;
+
+struct FCheckpointSave {
+	FTransform Transform;
+	TEnumAsByte<EEnemyState> State;
+};
 
 UCLASS(Abstract)
 class GP4_TEAM_01_API AEnemyBase : public ACharacter, public IPetrifiable
@@ -46,6 +55,23 @@ public:
 		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
 
 	UFUNCTION(BlueprintCallable)
+		void SaveState();
+	UFUNCTION(BlueprintCallable)
+		void LoadState();
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|State")
+		EEnemyState GetCurrentState() const { return CurrentState; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		AEnemyManager* GetEnemyManager() const { return EnemyManager; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		UFuzzyBrainComponent* GetBrain() const;
+
+	UFUNCTION(BlueprintCallable, Category = "AI|State")
+		void SetCurrentState(const TEnumAsByte<EEnemyState> NewState) { CurrentState = NewState; }
+	
+	UFUNCTION(BlueprintCallable)
 		bool Petrify(UObject* Target, APlayerCharacter* Player) override;
 	UFUNCTION(BlueprintCallable)
 		void Unpetrify(UObject* Target, APlayerCharacter* Player) override;
@@ -53,6 +79,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
+	UFUNCTION(BlueprintCallable)
+		void SetSpeedMultiplier(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; OnSpeedChanged(BaseSpeed * Multiplier);}
+	
+	UFUNCTION(BlueprintCallable)
+		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; OnSpeedChanged(BaseSpeed);}
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnSpeedChanged(float speed);
+	
 	UFUNCTION(BlueprintCallable)
 		void OnDeath(const AActor* Killer);
 	
@@ -67,12 +102,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:	//EDITOR ONLY functions
+#if WITH_EDITOR
 	UFUNCTION(CallInEditor, Category = "Waypoints")
 		void UpdateNavigationArrays() const;
 
 	UFUNCTION(CallInEditor, Category = "Waypoints")
 		void DeleteAllWaypoints() const;
 	virtual bool ShouldTickIfViewportsOnly() const override { return true; };
+#endif
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -91,10 +128,10 @@ protected:
 		UWaypointHolderComponent* IdleWaypointHolder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
-		int NumberOfAlertWaypoints;
+		int NumberOfSuspiciousWaypoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
-		UWaypointHolderComponent* AlertWaypointHolder;
+		UWaypointHolderComponent* SuspiciousWaypointHolder;
 	
 	UPROPERTY()
 		TArray<USightComponent*> SightComponents;
@@ -105,7 +142,16 @@ protected:
 	UPROPERTY(EditInstanceOnly)
 		AActor* DebugActor;
 
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+		TEnumAsByte<EEnemyState> CurrentState;
+
 	AEnemyAIController* EnemyController;
+	//AMainGameMode* GameMode;
+	AEnemyManager* EnemyManager;
+
+	float BaseSpeed;
+
+	FCheckpointSave Save;
 };
 
 

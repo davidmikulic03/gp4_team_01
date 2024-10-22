@@ -20,6 +20,7 @@ void UThrowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	
 	for(int i = 0; i < PredictionFrequency * PredictionTime; i++) {
 		auto NewComponent = Cast<USplineMeshComponent>(GetOwner()->AddComponentByClass(USplineMeshComponent::StaticClass(), true, FTransform::Identity, false));
@@ -54,10 +55,10 @@ void UThrowerComponent::Launch()
 
 			auto Projectile = World->SpawnActor<AThrowableProjectile>(Throwable, SpawnLocation, SpawnRotation, SpawnParams);
 			Projectile->GetProjectileMovement()->InitialSpeed = ThrowSpeed;
-			/*PredictPath
-			(
+
+			if(NoiseSystem)
+				NoiseSystem->RegisterNoiseEvent(Noise, GetComponentLocation());
 			
-			);*/
 			UE_LOG(LogTemp, Warning, TEXT("Throwable spawned and thrown"));
 		}
 	}

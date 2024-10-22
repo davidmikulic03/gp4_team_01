@@ -14,6 +14,10 @@
 #include "Editor/UnrealEdEngine.h"
 #endif
 
+#include "EnemyManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "gp4_team_01/Systems/MainGameMode.h"
+#include "gp4_team_01/Systems/NoiseSystem.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -22,7 +26,7 @@ AEnemyBase::AEnemyBase() {
 	PrimaryActorTick.bCanEverTick = true;
 	
 	IdleWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Idle Waypoint Holder");
-	AlertWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Alert Waypoint Holder");
+	SuspiciousWaypointHolder = CreateDefaultSubobject<UWaypointHolderComponent>("Alert Waypoint Holder");
 }
 
 bool AEnemyBase::IsActorInView(AEnemyBase* Target, AActor* Actor, float& SignalStrength) {
@@ -94,6 +98,24 @@ bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
 	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
+void AEnemyBase::SaveState() {
+	TEnumAsByte<EEnemyState> State = CurrentState != static_cast<TEnumAsByte<EEnemyState>>(Agitated)
+		? CurrentState : static_cast<TEnumAsByte<EEnemyState>>(Suspicious);
+	Save = FCheckpointSave{ GetActorTransform(), State };
+}
+
+void AEnemyBase::LoadState() {
+	SetActorTransform(Save.Transform);
+	SetCurrentState(Save.State);
+}
+
+UFuzzyBrainComponent* AEnemyBase::GetBrain() const {
+	if(EnemyController)
+		return EnemyController->Brain;
+	else
+		return nullptr;
+}
+
 bool AEnemyBase::Petrify(UObject* Target, APlayerCharacter* Player) {
 	bIsPetrified = true;
 	EnemyController->Brain->SetIsThinking(false);
@@ -110,18 +132,31 @@ void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
 
 void AEnemyBase::OnDeath(const AActor* Killer) {
 	//TODO: handle death better
+	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		if(auto n = g->GetNoiseSystemRef())
+			n->UnregisterListener(HearingComponent);
 	Destroy();
 }
 
 FVector AEnemyBase::GetNextWaypointLocation()
 {
-	//TODO: Logic to return the correct waypoints based on enemy state
-	return IdleWaypointHolder->GetNextWaypoint();
+	if(CurrentState == EEnemyState::Idle)
+		return IdleWaypointHolder->GetNextWaypoint();
+	else if(CurrentState == EEnemyState::Suspicious)
+		return SuspiciousWaypointHolder->GetNextWaypoint();
+
+	return FVector::Zero();
 }
 
 void AEnemyBase::BeginPlay() {
 	Super::BeginPlay();
 	EnemyController = Cast<AEnemyAIController>(Controller);
+ 	BaseSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	auto GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode && GameMode->GetEnemyManagerRef()) {
+		EnemyManager = GameMode->GetEnemyManagerRef();
+		EnemyManager->Register(this);
+	}
 }
 
 void AEnemyBase::Tick(float DeltaTime) {
@@ -129,7 +164,7 @@ void AEnemyBase::Tick(float DeltaTime) {
 
 #if WITH_EDITOR
 	IdleWaypointHolder->DrawPath(false);
-	AlertWaypointHolder->DrawPath(false);
+	SuspiciousWaypointHolder->DrawPath(false);
 #endif
 	
 	//TArray<FActorSignalPair> a = GetVisibleActors();
@@ -145,11 +180,11 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 #if WITH_EDITOR
 void AEnemyBase::UpdateNavigationArrays() const {
 	IdleWaypointHolder->UpdateWaypointArray(NumberOfIdleWaypoints, "Idle");
-	AlertWaypointHolder->UpdateWaypointArray(NumberOfAlertWaypoints, "Alert");
+	SuspiciousWaypointHolder->UpdateWaypointArray(NumberOfSuspiciousWaypoints, "Alert");
 }
 
 void AEnemyBase::DeleteAllWaypoints() const {
 	IdleWaypointHolder->DeleteAllWaypoints();
-	AlertWaypointHolder->DeleteAllWaypoints();
+	SuspiciousWaypointHolder->DeleteAllWaypoints();
 }
 #endif

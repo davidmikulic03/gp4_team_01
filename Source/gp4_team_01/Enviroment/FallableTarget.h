@@ -34,8 +34,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Fallable")
 	bool bKillsEnemyOnFall = false;
 
-	UPROPERTY(EditAnywhere, Category = "Fallable", meta = (EditCondition = "bKillsEnemyOnFall", EditConditionHides))
+	UPROPERTY(EditInstanceOnly, Category = "Fallable", meta = (EditCondition = "bKillsEnemyOnFall", EditConditionHides))
 	AEnemyBase* EnemyToKill = nullptr;
 
-	FVector FallingTargetVector;
 };

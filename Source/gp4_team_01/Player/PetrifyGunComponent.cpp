@@ -12,18 +12,17 @@ UPetrifyGunComponent::UPetrifyGunComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComp");
-	
+	TimeSinceLastShot = ShotCooldown;	
 }
-
 
 // Called when the game starts
 void UPetrifyGunComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	TimeSinceLastShot = 1000.f;
-	// ...
+	TimeSinceLastShot = 0.f;
+	
 	Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 
@@ -32,17 +31,20 @@ void UPetrifyGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	TimeSinceLastShot += DeltaTime;
-
+	TimeSinceLastShot -= DeltaTime;
+	if(TimeSinceLastShot <= 0.f)
+	{
+		TimeSinceLastShot = 0.f;		
+	}
 }
 
 void UPetrifyGunComponent::TryFirePetrifyGun()
 {
-	if(TimeSinceLastShot < ShotCooldown)
+	/*if(TimeSinceLastShot >= ShotCooldown)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Cannot fire gun. Cooldown in progress"))
-	}
-	else if(TimeSinceLastShot >= ShotCooldown)
+		UE_LOG(LogTemp, Warning, TEXT("Cannot fire gun. Cooldown in progress")) //this never fires off. Doesn't matter?
+	}*/
+	if(TimeSinceLastShot <= 0.f)
 	{
 		//fire
 		//linetrace
@@ -56,11 +58,13 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
 		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
-		
+
+		NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetComponentLocation());
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlash, this, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true );
 
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
-			StartLocation + MuzzleOffset, 
+			StartLocation,
 			EndLocation,
 			ECC_WorldDynamic, 
 			CollisionParams);
@@ -85,8 +89,11 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		}
 
 ;		UE_LOG(LogTemp, Warning, TEXT("PetrifyGun Fired"));
-		TimeSinceLastShot = 0.f;
+		TimeSinceLastShot = ShotCooldown;
 	}
-
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't fire. Cooling down"));
+	}
 }
 

@@ -24,6 +24,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 #include "ThrowableInventory.h"
+#include "CameraShake.h"
+#include "gp4_team_01/Enemies/AI/DetectionModifier.h"
 #include "PlayerCharacter.generated.h"
 
 class UMagnetComponent;
@@ -42,6 +44,7 @@ class UAIPerceptionStimuliSourceComponent;
 class AInteractable;
 class UThrowableInventory;
 class ANoiseSystem;
+class UCameraShake;
 struct FInputActionValue;
 
 UCLASS()
@@ -75,6 +78,15 @@ public:
 	void OnStartMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnFinishMagnetTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDeath();
+
+	UFUNCTION(BlueprintCallable)
+		void Die();
+
+
+	UFUNCTION()
+	bool InputIsPressed(FVector2D Value);
 	
 	void Landed(const FHitResult& Hit) override;
 	//noise calculations
@@ -83,9 +95,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-private:	
-	void MoveForward(const FInputActionValue& Value);
-	void MoveRight(const FInputActionValue& Value);
+private:
+	void Move(const FInputActionValue& Value);
+	/*void MoveForward(const FInputActionValue& Value);
+	void MoveRight(const FInputActionValue& Value);*/
 	void Look(const FInputActionValue& Value);
 	void Crouch(const FInputActionValue& Value);
 	void Throw(const FInputActionValue& Value);
@@ -96,6 +109,9 @@ private:
 	void PredictTrajectory(const FInputActionValue& Value);
 	void StopPredictingTrajectory(const FInputActionValue& Value);
 	//variables and methods
+
+	void CameraShake();
+	void ResetCameraPosition();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeedWalk = 300.f;
@@ -109,10 +125,12 @@ protected:
 	UThrowableInventory* ThrowableInventory;
 public:
 	//actions
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveForwardAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveRightAction;
+	UInputAction* MoveRightAction;*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -130,9 +148,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PredictTrajectoryAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* PetrifyGunStaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* MagnetStaticMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float AlphaValue;
+	float CrouchAlpha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	FVector EyeOffset;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -143,6 +166,8 @@ public:
 	UAIPerceptionStimuliSourceComponent* AIStimuliSource;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UMagnetComponent* Magnet;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UDetectionModifier* DetectionModifierComponent;
 
 	//experimental
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -180,6 +205,53 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	ANoiseSystem* NoiseSystem;
 	void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location);
+
+	//camera shake
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	UCameraShake* CustomCameraShake; //*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeWalking = 1.0f; //the amplitude of the SIN function. Recommended balue is 0.25 and the recommended range is 0 to 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeCrouching = .5f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeFractionWalking = 1.0f; //the amount that the final result is divided by;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float AmplitudeFractionCrouched = .5f; //the amount that the final result is divided by. Recommended amount is two times the size of the walking Fraction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float ShakeSpeedWalking = 1.0f; //how fast the camera moves up and down
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
+	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
+	float DeltaValue;
+	FVector OriginalCameraPosition;
+
+	//deactivate meshes variables and functions
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasGun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasMagnet;
+	UFUNCTION(BlueprintCallable)
+	void ActivateGun();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateGun();
+	UFUNCTION(BlueprintCallable)
+	void ActivateMagnet();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateMagnet();
+
+	//inventory counters - for saving - is it persistent?
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedThrowablesCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedSmokeBombCount;
+
+	UFUNCTION()
+	void SaveRockCount();
+	UFUNCTION()
+	void SaveGrenadeCount();
+	UFUNCTION()
+	void LoadRockCount();
+	UFUNCTION()
+	void LoadGrenadeCount();
 protected:
 	
 };

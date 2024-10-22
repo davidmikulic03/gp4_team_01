@@ -23,13 +23,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void RegisterListener(UHearingComponent* Listener) { Listeners.Add(Listener); };
+	void UnregisterListener(UHearingComponent* Listener) { Listeners.Remove(Listener); };
 
 	UFUNCTION(BlueprintCallable)
 	void RegisterNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location);
 	
 private:
 	void DispatchNoiseEvent(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location);
-	void PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location) const;
+	void PlaySFX(const UNoiseDataAsset* NoiseDataAsset, const FVector& Location, bool bPickRandom = true) const;
 	
 private:
 	UPROPERTY()

@@ -29,9 +29,18 @@ public:
 	UFuzzyBrainComponent();
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FWeightedSignal GetCurrentMostInterestingSignal() const { return Memory[HighestWeightId]; };
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetLastSeverity() const noexcept { return LastRecordedSeverity; };
+
+	UFUNCTION(BlueprintCallable)
+		ESignalSeverity GetSeverityFromWeight(float Weight) const noexcept;
+	
 	UFUNCTION(BlueprintCallable, DisplayName="Get Severity (Branching)", meta=(ExpandEnumAsExecs="Branches"))
 		void GetSeverity_Branching(FWeightedSignal WeightedSignal, ESignalSeverity& Branches);
 	UFUNCTION(BlueprintCallable)
@@ -47,7 +56,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		float GetNormalizedWeight(AActor* Actor) const;
 
-	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; } 
+	UFUNCTION(BlueprintCallable)
+		void Reset();
+	
+	FORCEINLINE void SetIsThinking(bool Value) noexcept { bIsThinking = Value; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brain")
 		TArray<FWeightedClass> ClassPrejudice;
@@ -74,6 +86,7 @@ protected:
 	void UpdateSignal(FWeightedSignal& WeightedSignal, double DeltaTime);
 	FORCEINLINE void ForgetUnimportant();
 	uint32 GetSignalIdOfHighestWeight();
+	void UpdateEnemyState() const;
 	
 
 	uint32 HighestWeightId = INDEX_NONE;
@@ -82,5 +95,6 @@ protected:
 	AEnemyAIController* Controller;
 	AEnemyBase* Body;
 
+	ESignalSeverity LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 	bool bIsThinking = true;
 };

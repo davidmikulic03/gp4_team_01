@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "NoiseDataAsset.generated.h"
 
+class UFMODEvent;
+
 UCLASS()
 class GP4_TEAM_01_API UNoiseDataAsset : public UPrimaryDataAsset {
 	GENERATED_BODY()
@@ -13,9 +15,8 @@ class GP4_TEAM_01_API UNoiseDataAsset : public UPrimaryDataAsset {
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "General")
 	FName Name = "Noise Event";
-
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
-	TObjectPtr<USoundBase> Sound = nullptr;
+	UFMODEvent* Sound;
 	//TODO: add more seetings for sound (volume, attenuation that maybe is proportional to intensity, etc)
 	UPROPERTY(EditDefaultsOnly, Category = "Noise")
 	bool bCanAlertAI = false;
@@ -28,5 +29,7 @@ public:
 	bool bSpecifyCustomRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Noise", meta = (EditCondition = "bSpecifyCustomRadius", EditConditionHides))
-	float Radius;
+	float Radius = 100.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Noise", meta = (EditCondition = "bSpecifyCustomRadius", EditConditionHides))
+	float FalloffPower = 1.f;
 };
