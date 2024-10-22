@@ -148,8 +148,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PredictTrajectoryAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
 	UStaticMeshComponent* PetrifyGunStaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* MagnetStaticMesh;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float CrouchAlpha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -208,7 +212,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float AmplitudeWalking = 1.0f; //the amplitude of the SIN function. Recommended balue is 0.25 and the recommended range is 0 to 1;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
-	float AmplitudeCrouching = 1.0f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
+	float AmplitudeCrouching = .5f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float AmplitudeFractionWalking = 1.0f; //the amount that the final result is divided by;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
@@ -219,6 +223,35 @@ public:
 	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
 	float DeltaValue;
 	FVector OriginalCameraPosition;
+
+	//deactivate meshes variables and functions
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasGun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasMagnet;
+	UFUNCTION(BlueprintCallable)
+	void ActivateGun();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateGun();
+	UFUNCTION(BlueprintCallable)
+	void ActivateMagnet();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateMagnet();
+
+	//inventory counters - for saving - is it persistent?
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedThrowablesCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedSmokeBombCount;
+
+	UFUNCTION()
+	void SaveRockCount();
+	UFUNCTION()
+	void SaveGrenadeCount();
+	UFUNCTION()
+	void LoadRockCount();
+	UFUNCTION()
+	void LoadGrenadeCount();
 protected:
 	
 };
