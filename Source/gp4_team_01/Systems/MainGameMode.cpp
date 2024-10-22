@@ -6,6 +6,7 @@
 #include "NoiseSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "gp4_team_01/Enemies/EnemyManager.h"
 
 void AMainGameMode::InitGameState() {
 	Super::InitGameState();
@@ -14,6 +15,8 @@ void AMainGameMode::InitGameState() {
 		NoiseSystemRef = GetWorld()->SpawnActor<ANoiseSystem>(NoiseSystemClass);
 	else
 		UE_LOG(LogTemp, Error, TEXT("ERROR: Missing NoiseSystemClass, plug it in the editor!"));
+
+	EnemyManagerRef = GetWorld()->SpawnActor<AEnemyManager>();
 
 	if(!NoiseSystemRef)
 		UE_LOG(LogTemp, Error, TEXT("ERROR: Failed to create NoiseSystem"));

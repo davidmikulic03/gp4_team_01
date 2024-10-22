@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "gp4_team_01/Enemies/EnemyBase.h"
+#include "../EnemyManager.h"
 
 UFuzzyBrainComponent::UFuzzyBrainComponent() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -29,8 +30,6 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	See(DeltaTime); 
 	Hear(DeltaTime);
 	ForgetUnimportant();
-
-	
 	
 	for(auto& WeightedSignal : Memory) {
 		UpdateSignal(WeightedSignal, DeltaTime);
@@ -42,13 +41,16 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
 		if(GetSeverity(Memory[HighestWeightId]) != LastRecordedSeverity) {
-			if(auto Owner = Cast<AEnemyAIController>(GetOwner()))Owner->OnSignalSeverityChanged(Memory[NewHighestId]);
+			if(Controller && Body) {
+				Controller->OnSignalSeverityChanged(Memory[NewHighestId]);
+				Body->GetEnemyManager()->RegisterSeverityChange(GetSeverity(Memory[HighestWeightId]));
+			}
 			UpdateEnemyState(); //TODO: temp just for testing
 		}
 	}
 
 	for (uint64 i = 0; i < Memory.Num(); i++) {
-		GEngine->AddOnScreenDebugMessage(i+200, DeltaTime, FColor::Emerald,
+		GEngine->AddOnScreenDebugMessage(i+GetUniqueID(), DeltaTime, FColor::Emerald,
 			FString::Printf(TEXT("%f"), Memory[i].GetWeight()));
 	}
 
@@ -119,10 +121,15 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
-		HighestWeightId = GetSignalIdOfHighestWeight(); //TODO: temp
+		if(static_cast<int>(HighestWeightId) < Memory.Num() && HighestWeightId != INDEX_NONE && Memory[HighestWeightId].Signal == Signal)
+			LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+		HighestWeightId = INDEX_NONE; //TODO: temp
 		return true;
+	} else {
+		AEnemyAIController* AiController = Cast<AEnemyAIController>(GetOwner());
+		AiController->OnInterestChanged(Signal);
+		return false;
 	}
-	return false;
 }
 
 bool UFuzzyBrainComponent::IsResolvable(FPerceptionSignal Signal, FWeightedSignal& InMemory) const {
@@ -142,6 +149,13 @@ float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
 		return Result < 1.f ? Result : 1.f;
 	}
 	return 0;
+}
+
+void UFuzzyBrainComponent::Reset() {
+	Memory.Empty();
+	HighestWeightId = INDEX_NONE;
+	LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+	bIsThinking = true;
 }
 
 void UFuzzyBrainComponent::See(double DeltaTime) {

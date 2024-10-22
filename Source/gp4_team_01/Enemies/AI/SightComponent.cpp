@@ -1,6 +1,7 @@
 ﻿#include "SightComponent.h"
 #include "../EnemyBase.h"
 #include "DetectionModifier.h"
+#include "Components/CapsuleComponent.h"
 #include "kismet/KismetSystemLibrary.h"
 
 USightComponent::USightComponent()
@@ -19,8 +20,12 @@ bool USightComponent::IsActorVisible(AActor* Actor, float& SignalStrength) const
 		return false;
 	//if(!IsLocationInVisionCone(Actor->GetActorLocation()))
 	//	return false;
-
-	FHitResult Hit = TraceTo(Actor->GetActorLocation());
+	FVector ViewTarget = Actor->GetActorLocation();
+	if(auto a = Cast<ACharacter>(Actor))
+		ViewTarget += FVector::UpVector * a->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() / 2;
+	FHitResult Hit = TraceTo(ViewTarget);
+	
+		
 	if(Hit.GetActor()) {
 		FColor DebugDrawColor = FColor::Red;
 		if (Hit.GetActor() == Actor) {
