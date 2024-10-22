@@ -159,7 +159,7 @@ bool APlayerCharacter::TraceInteract(FHitResult& HitResult) {
 	FVector StartLocation;
 
 	GetController()->GetPlayerViewPoint(StartLocation, StartRotation);
-	FVector EndLocation = StartLocation + StartRotation.Vector() * 150.f;
+	FVector EndLocation = StartLocation + StartRotation.Vector() * 210.f;
 
 	return GetWorld()->LineTraceSingleByChannel
 	(
@@ -224,9 +224,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 	auto a = Cast<AInteractable>(Hit.GetActor());
 	bool bNewValue = a != nullptr;
 	if(bNewValue && !bCanInteract)
-		OnCanInteract();
+		OnCanInteract(a);
 	else if(!bNewValue && bCanInteract)
-		OnCannotInteract();
+		OnCannotInteract(a);
 	bCanInteract = bNewValue;
 }
 
