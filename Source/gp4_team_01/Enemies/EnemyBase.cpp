@@ -98,6 +98,17 @@ bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
 	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
+void AEnemyBase::SaveState() {
+	TEnumAsByte<EEnemyState> State = CurrentState != static_cast<TEnumAsByte<EEnemyState>>(Agitated)
+		? CurrentState : static_cast<TEnumAsByte<EEnemyState>>(Suspicious);
+	Save = FCheckpointSave{ GetActorTransform(), State };
+}
+
+void AEnemyBase::LoadState() {
+	SetActorTransform(Save.Transform);
+	SetCurrentState(Save.State);
+}
+
 UFuzzyBrainComponent* AEnemyBase::GetBrain() const {
 	if(EnemyController)
 		return EnemyController->Brain;

@@ -29,6 +29,7 @@ APlayerCharacter::APlayerCharacter()
 	EyeOffset = FVector(0.f);
 	CrouchAlpha = 12.f;
 	PetrifyGunStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Petrify Gun StaticMesh");
+	MagnetStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Magnet StaticMesh");
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -40,7 +41,9 @@ APlayerCharacter::APlayerCharacter()
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
+	MagnetStaticMesh->SetupAttachment(Camera);
 	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
+	PetrifyGun->SetupAttachment(RootComponent);
 }
 
 void APlayerCharacter::Die() {
@@ -106,6 +109,64 @@ void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Lo
 	UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
 }
 
+void APlayerCharacter::ActivateGun()
+{
+	bHasGun = !bHasGun;
+	if(bHasGun)
+	{
+		PetrifyGunStaticMesh->SetVisibility(bHasGun);
+		
+	}
+}
+
+void APlayerCharacter::DeactivateGun()
+{
+	bHasGun = !bHasGun;
+	if(!bHasGun)
+	{
+		PetrifyGunStaticMesh->SetVisibility(bHasGun);
+	}
+}
+
+void APlayerCharacter::ActivateMagnet()
+{
+	bHasMagnet = !bHasMagnet;
+	if(bHasMagnet)
+	{
+		MagnetStaticMesh->SetVisibility(bHasMagnet);
+	}
+}
+
+void APlayerCharacter::DeactivateMagnet()
+{
+	bHasMagnet = !bHasMagnet;
+	if(!bHasMagnet)
+	{
+		MagnetStaticMesh->SetVisibility(bHasMagnet);
+		
+	}
+}
+
+void APlayerCharacter::SaveRockCount()
+{
+	SavedThrowablesCount = ThrowableInventory->CurrentThrowables;
+}
+
+void APlayerCharacter::SaveGrenadeCount()
+{
+	SavedSmokeBombCount = ThrowableInventory->CurrentSmokeBombs;
+}
+
+void APlayerCharacter::LoadRockCount()
+{
+	ThrowableInventory->CurrentThrowables = SavedThrowablesCount;
+}
+
+void APlayerCharacter::LoadGrenadeCount()
+{
+	ThrowableInventory->CurrentSmokeBombs = SavedSmokeBombCount;
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -118,6 +179,17 @@ void APlayerCharacter::BeginPlay()
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	OriginalCameraPosition = Camera->GetRelativeLocation();
+	bHasGun = false;
+	bHasMagnet = false;
+	//crouches
+	bIsCrouching = true;
+	//bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
+	bHasGun = true;
+	bHasMagnet = true;
+	DeactivateGun();
+	DeactivateMagnet();
+	GetCharacterMovement()->bWantsToCrouch = true;
+	GetCharacterMovement()->Crouch();
 }
 
 // Called every frame
@@ -259,7 +331,11 @@ void APlayerCharacter::Throw(const FInputActionValue& Value)
 
 void APlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 {
-	PetrifyGun->TryFirePetrifyGun();
+	if(bHasGun && !Magnet->IsTraversing())
+	{
+		PetrifyGun->TryFirePetrifyGun();
+	}
+
 }
 
 void APlayerCharacter::IncrementMovement(const FInputActionValue& Value)
