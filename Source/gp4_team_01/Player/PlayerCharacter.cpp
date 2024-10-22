@@ -167,6 +167,26 @@ void APlayerCharacter::LoadGrenadeCount()
 	ThrowableInventory->CurrentSmokeBombs = SavedSmokeBombCount;
 }
 
+bool APlayerCharacter::TraceInteract(FHitResult& HitResult) {
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	
+	FRotator StartRotation;
+	FVector StartLocation;
+
+	GetController()->GetPlayerViewPoint(StartLocation, StartRotation);
+	FVector EndLocation = StartLocation + StartRotation.Vector() * 150.f;
+
+	return GetWorld()->LineTraceSingleByChannel
+	(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECC_Visibility,
+		QueryParams
+	);
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -208,6 +228,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		ResetCameraPosition();
 	}
+	// For displaying ui stuff.
+	FHitResult Hit;
+	TraceInteract(Hit);
+	auto a = Cast<AInteractable>(Hit.GetActor());
+	bool bNewValue = a != nullptr;
+	if(bNewValue && !bCanInteract)
+		OnCanInteract();
+	else if(!bNewValue && bCanInteract)
+		OnCannotInteract();
+	bCanInteract = bNewValue;
 }
 
 // Called to bind functionality to input
@@ -378,23 +408,7 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 	if(Magnet->IsTraversing() || Magnet->Use())
 		return;
 	FHitResult HitResult;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-	
-	FRotator StartRotation;
-	FVector StartLocation;
-
-	GetController()->GetPlayerViewPoint(StartLocation, StartRotation);
-	FVector EndLocation = StartLocation + StartRotation.Vector() * 500.f;
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel
-	(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ECC_Visibility,
-		QueryParams
-	);
+	bool bHit = TraceInteract(HitResult); 
 
 	if(bHit)
 	{
@@ -410,7 +424,7 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 		}
 		
 	}
-	DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
+	//DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
 
 void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)

@@ -80,7 +80,10 @@ public:
 	void OnFinishMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDeath();
-
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCanInteract();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCannotInteract();
 	UFUNCTION(BlueprintCallable)
 		void Die();
 
@@ -252,6 +255,7 @@ public:
 	void LoadRockCount();
 	UFUNCTION()
 	void LoadGrenadeCount();
-protected:
-	
+private:
+	bool TraceInteract(FHitResult& HitResult);
+	bool bCanInteract = false;
 };
