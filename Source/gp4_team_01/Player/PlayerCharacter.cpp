@@ -210,6 +210,8 @@ void APlayerCharacter::BeginPlay()
 	DeactivateMagnet();
 	GetCharacterMovement()->bWantsToCrouch = true;
 	GetCharacterMovement()->Crouch();
+
+	EquippedItem = ItemType::None;
 }
 
 // Called every frame
@@ -258,8 +260,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
-		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
-		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimThrowable);
+		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimSmokeBomb);
+		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 	}
 }
 
@@ -281,33 +285,6 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		CameraShake();
 	}
 }
-
-/*void APlayerCharacter::MoveForward(const FInputActionValue& Value)
-{
-	if(Magnet->IsTraversing())
-		return;
-	FVector2D InputVector = Value.Get<FVector2D>();
-	//redo increment movement
-	if(Controller != nullptr)//bad choice. I can't check this every frame the button is held.
-	{
-		AddMovementInput(GetActorForwardVector(), InputVector.X);
-		InputIsPressed(InputVector);
-	}
-
-}
-
-void APlayerCharacter::MoveRight(const FInputActionValue& Value)
-{
-	if(Magnet->IsTraversing())
-		return;
-	//redo increment movement
-	FVector2D InputVector = Value.Get<FVector2D>();
-	if(Controller != nullptr)
-	{
-		AddMovementInput(GetActorRightVector(), InputVector.X);
-		InputIsPressed(InputVector);
-	}
-}*/
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
@@ -343,17 +320,17 @@ void APlayerCharacter::Crouch(const FInputActionValue& Value)
 
 void APlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0 && !ThrowerComponent->IsOnCooldown())
+	if(ThrowableInventory->GetCurrentCount(EquippedItem) > 0 && !ThrowerComponent->IsOnCooldown())
 	{
-		ThrowerComponent->Launch();
-		ThrowableInventory->RemoveItem(ItemType::Throwable);
+		ThrowerComponent->Launch(EquippedItem);
+		ThrowableInventory->RemoveItem(EquippedItem);
 		ThrowerComponent->ResetCooldown();
 	}
 	else if(ThrowerComponent->IsOnCooldown())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
 	}
-	else if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) <= 0)
+	else if(ThrowableInventory->GetCurrentCount(EquippedItem) <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
 	}
@@ -427,14 +404,25 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 	//DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
 
-void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
+void APlayerCharacter::AimThrowable(const FInputActionValue& Value) {
+	PredictTrajectory(Value, ItemType::Throwable);
+	EquippedItem = ItemType::Throwable;
+}
+
+void APlayerCharacter::AimSmokeBomb(const FInputActionValue& Value) {
+	PredictTrajectory(Value, ItemType::SmokeBomb);
+	EquippedItem = ItemType::SmokeBomb;
+}
+
+void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value, ItemType ItemType)
 {
 	FPredictProjectilePathResult Result = ThrowerComponent->PredictTrajectory();
-	ThrowerComponent->DrawProjectilePath(Result, ItemType::Throwable);
+	ThrowerComponent->DrawProjectilePath(Result, ItemType);
 }
 
 void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) {
 	ThrowerComponent->HideProjectilePath();
+	EquippedItem = ItemType::None;
 }
 
 void APlayerCharacter::CameraShake()

@@ -29,7 +29,7 @@ public:
 	UThrowerComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UFUNCTION()
-	void Launch();
+	void Launch(ItemType ItemType);
 	UFUNCTION()
 	void ResetCooldown();
 	UFUNCTION()
@@ -53,16 +53,21 @@ public:
 	float ThrowCooldown = 3.f; //magic number - hardcoded for testing purposes
 protected:
 	TObjectPtr<APlayerCharacter> PlayerCharacter;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Thrower")
-	TSubclassOf<AThrowableProjectile> Throwable;
-	UPROPERTY(EditAnywhere, Category = "Thrower")
+	TSubclassOf<AThrowableProjectile> ThrowableActor;
+	UPROPERTY(EditDefaultsOnly, Category = "Thrower")
+	TSubclassOf<AThrowableProjectile> SmokeBombActor;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Thrower")
 	float ThrowSpeed = 1500.f;
-	UPROPERTY(EditAnywhere, Category = "Thrower")
+	UPROPERTY(EditDefaultsOnly, Category = "Thrower")
 	float ProjectileRadius = 5.f;
-	UPROPERTY(EditAnywhere, Category = "Thrower")
+	UPROPERTY(EditDefaultsOnly, Category = "Thrower")
 	float PredictionTime = 5.f;
-	UPROPERTY(EditAnywhere, Category = "Thrower")
+	UPROPERTY(EditDefaultsOnly, Category = "Thrower")
 	float PredictionFrequency = 20.f;
+	
 	UPROPERTY(EditDefaultsOnly)
 	USplineComponent* Spline;
 	UPROPERTY(EditDefaultsOnly)

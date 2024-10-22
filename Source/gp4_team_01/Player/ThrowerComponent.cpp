@@ -40,9 +40,9 @@ void UThrowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	TimeSinceLastThrown += DeltaTime;
 }
 
-void UThrowerComponent::Launch()
+void UThrowerComponent::Launch(ItemType ItemType)
 {
-	if(Throwable != nullptr && TimeSinceLastThrown >= ThrowCooldown)
+	if(ThrowableActor && SmokeBombActor != nullptr && TimeSinceLastThrown >= ThrowCooldown)
 	{
 		UWorld* const World = GetWorld();
 		if(World !=nullptr)
@@ -53,7 +53,12 @@ void UThrowerComponent::Launch()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-			auto Projectile = World->SpawnActor<AThrowableProjectile>(Throwable, SpawnLocation, SpawnRotation, SpawnParams);
+			AThrowableProjectile* Projectile = nullptr; 
+			if(ItemType == ItemType::Throwable)
+				Projectile = World->SpawnActor<AThrowableProjectile>(ThrowableActor, SpawnLocation, SpawnRotation, SpawnParams);
+			else if (ItemType == ItemType::SmokeBomb)
+				Projectile = World->SpawnActor<AThrowableProjectile>(SmokeBombActor, SpawnLocation, SpawnRotation, SpawnParams);
+			
 			Projectile->GetProjectileMovement()->InitialSpeed = ThrowSpeed;
 
 			if(NoiseSystem)
