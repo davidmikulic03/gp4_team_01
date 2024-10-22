@@ -4,6 +4,8 @@
 #include "ThrowableProjectile.h"
 #include <Kismet/GameplayStatics.h>
 
+#include "ThrowableInventory.h"
+
 // Sets default values
 AThrowableProjectile::AThrowableProjectile()
 {
@@ -31,6 +33,10 @@ AThrowableProjectile::AThrowableProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
+	
+	ThrowableMesh = CreateDefaultSubobject<UStaticMeshComponent>("Throwable Mesh");
+	ThrowableMesh->SetupAttachment(CollisionComp);
+	
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
 }

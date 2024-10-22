@@ -130,13 +130,16 @@ void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
 	IPetrifiable::Unpetrify(Target, Player);
 }
 
-void AEnemyBase::OnDeath(const AActor* Killer) {
+void AEnemyBase::Die(const AActor* Killer) {
 	//TODO: handle death better
 	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
 		if(auto n = g->GetNoiseSystemRef())
 			n->UnregisterListener(HearingComponent);
-	Destroy();
+	OnDeath();
+	
 }
+
+void AEnemyBase::OnDeath_Implementation() { Destroy(); }
 
 FVector AEnemyBase::GetNextWaypointLocation()
 {

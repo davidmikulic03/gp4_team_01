@@ -69,38 +69,22 @@ bool APlayerCharacter::InputIsPressed(FVector2D Value)
 void APlayerCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
-	{
-		GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
-		TimeSinceLastMadeNoise = 0;
-		UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
-	}
+	GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
+	UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
 }
 
 void APlayerCharacter::TryGenerateNoise()
 {
-	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
-	{
-		if(GetMovementComponent()->IsCrouching())
-		{
-			if(CrouchedNoiseDataAsset != nullptr) //add more checks in necessary.
-			{
-				GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
-			}
-			TimeSinceLastMadeNoise = 0.f;
+	if(GetMovementComponent()->IsCrouching()) {
+		if(CrouchedNoiseDataAsset != nullptr) {
+			GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
 		}
-		else if(!GetMovementComponent()->IsCrouching())
-		{
-			if(WalkingNoiseDataAsset != nullptr)
-			{
-				GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
-			}
-			TimeSinceLastMadeNoise = 0.f;
-		}
-		/*else
-		HasSwitchedMovementMode();*/
 	}
-	else return;
+	else {
+		if(WalkingNoiseDataAsset != nullptr) {
+			GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
+		}
+	}
 }
 
 void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location)
@@ -210,6 +194,8 @@ void APlayerCharacter::BeginPlay()
 	DeactivateMagnet();
 	GetCharacterMovement()->bWantsToCrouch = true;
 	GetCharacterMovement()->Crouch();
+
+	EquippedItem = ItemType::None;
 }
 
 // Called every frame
@@ -219,10 +205,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 	DeltaValue += DeltaTime;
 	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
-	TimeSinceLastMadeNoise += DeltaTime;
+	
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
-		TryGenerateNoise();
+		float temp = StepCounter;
+		StepCounter += DeltaTime * MakeNoiseFrequency;
+		if(FMath::Floor(temp) < FMath::Floor(StepCounter)) {
+			TryGenerateNoise();
+		}
 	}
 	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != OriginalCameraPosition)
 	{
@@ -258,8 +248,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
-		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
-		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimThrowable);
+		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimSmokeBomb);
+		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 	}
 }
 
@@ -281,33 +273,6 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		CameraShake();
 	}
 }
-
-/*void APlayerCharacter::MoveForward(const FInputActionValue& Value)
-{
-	if(Magnet->IsTraversing())
-		return;
-	FVector2D InputVector = Value.Get<FVector2D>();
-	//redo increment movement
-	if(Controller != nullptr)//bad choice. I can't check this every frame the button is held.
-	{
-		AddMovementInput(GetActorForwardVector(), InputVector.X);
-		InputIsPressed(InputVector);
-	}
-
-}
-
-void APlayerCharacter::MoveRight(const FInputActionValue& Value)
-{
-	if(Magnet->IsTraversing())
-		return;
-	//redo increment movement
-	FVector2D InputVector = Value.Get<FVector2D>();
-	if(Controller != nullptr)
-	{
-		AddMovementInput(GetActorRightVector(), InputVector.X);
-		InputIsPressed(InputVector);
-	}
-}*/
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
@@ -343,17 +308,17 @@ void APlayerCharacter::Crouch(const FInputActionValue& Value)
 
 void APlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0 && !ThrowerComponent->IsOnCooldown())
+	if(ThrowableInventory->GetCurrentCount(EquippedItem) > 0 && !ThrowerComponent->IsOnCooldown())
 	{
-		ThrowerComponent->Launch();
-		ThrowableInventory->RemoveItem(ItemType::Throwable);
+		ThrowerComponent->Launch(EquippedItem);
+		ThrowableInventory->RemoveItem(EquippedItem);
 		ThrowerComponent->ResetCooldown();
 	}
 	else if(ThrowerComponent->IsOnCooldown())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
 	}
-	else if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) <= 0)
+	else if(ThrowableInventory->GetCurrentCount(EquippedItem) <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
 	}
@@ -427,37 +392,51 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 	//DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
 
-void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
+void APlayerCharacter::AimThrowable(const FInputActionValue& Value) {
+	PredictTrajectory(Value, ItemType::Throwable);
+	EquippedItem = ItemType::Throwable;
+}
+
+void APlayerCharacter::AimSmokeBomb(const FInputActionValue& Value) {
+	PredictTrajectory(Value, ItemType::SmokeBomb);
+	EquippedItem = ItemType::SmokeBomb;
+}
+
+void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value, ItemType ItemType)
 {
 	FPredictProjectilePathResult Result = ThrowerComponent->PredictTrajectory();
-	ThrowerComponent->DrawProjectilePath(Result);
+	ThrowerComponent->DrawProjectilePath(Result, ItemType);
 }
 
 void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) {
 	ThrowerComponent->HideProjectilePath();
+	EquippedItem = ItemType::None;
 }
 
 void APlayerCharacter::CameraShake()
 {
-	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
-	float NormalizedWalkTimeClamped = FMath::Clamp(NormalizedWalkTime, -1.f, 1.f);
+	float NormalizedWalkTimeZ = StepCounter - FMath::Floor(StepCounter);
+	float NormalizedWalkTimeY = StepCounter / 2;
+	NormalizedWalkTimeY = NormalizedWalkTimeY - FMath::Floor(NormalizedWalkTimeY);
+	
 	if(!bIsCrouching)
 	{
-		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI);
-		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionWalking;
+		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeZ * TWO_PI);
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeY * TWO_PI) * AmplitudeFractionWalking;
 		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
-		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI); //add fraction
-		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionCrouched;
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeZ * TWO_PI); //add fraction
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeY * TWO_PI) * AmplitudeFractionCrouched;
 		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 }
 
 void APlayerCharacter::ResetCameraPosition()
 {
-	Camera->SetRelativeLocation(OriginalCameraPosition);
+	FVector NewCameraPosition = FMath::Lerp(Camera->GetRelativeLocation(), OriginalCameraPosition, CameraResetLerpTime);
+	Camera->SetRelativeLocation(NewCameraPosition);
 	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
 }
 

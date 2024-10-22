@@ -84,6 +84,7 @@ public:
 	void OnCanInteract();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCannotInteract();
+
 	UFUNCTION(BlueprintCallable)
 		void Die();
 
@@ -109,8 +110,12 @@ private:
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
-	void PredictTrajectory(const FInputActionValue& Value);
+	void AimThrowable(const FInputActionValue& Value);
+	void AimSmokeBomb(const FInputActionValue& Value);
+	
 	void StopPredictingTrajectory(const FInputActionValue& Value);
+
+	void PredictTrajectory(const FInputActionValue& Value, ItemType ItemType);
 	//variables and methods
 
 	void CameraShake();
@@ -132,24 +137,26 @@ public:
 	UInputAction* MoveForwardAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveRightAction;*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PetrifyGunAction;	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* IncrementSpeedAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* PredictTrajectoryAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AimThrowableAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AimSmokeBombAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
 	UStaticMeshComponent* PetrifyGunStaticMesh;
@@ -196,7 +203,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float CrouchedFraction = 0.5f; //added to the calculation when crouched
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
-	float TimeSinceLastMadeNoise;
+	float StepCounter = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float MakeNoiseFrequency = .75f; //test value. Edit later in the Blueprint.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
@@ -224,6 +231,8 @@ public:
 	float ShakeSpeedWalking = 1.0f; //how fast the camera moves up and down
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Shake")
+	float CameraResetLerpTime = 0.5f; //keep this in 0 to 1 range.
 	float DeltaValue;
 	FVector OriginalCameraPosition;
 
@@ -255,7 +264,9 @@ public:
 	void LoadRockCount();
 	UFUNCTION()
 	void LoadGrenadeCount();
-private:
+protected:
 	bool TraceInteract(FHitResult& HitResult);
 	bool bCanInteract = false;
+
+	ItemType EquippedItem = ItemType::None;
 };
