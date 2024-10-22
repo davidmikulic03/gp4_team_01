@@ -4,6 +4,7 @@
 #include "UObject/Object.h"
 #include "EnemyManager.generated.h"
 
+class AFMODAmbientSound;
 enum class ESignalSeverity : uint8;
 class UFuzzyBrainComponent;
 class AEnemyBase;
@@ -23,7 +24,9 @@ public:
 	
 	void Register(AEnemyBase* Self);
 	void RegisterSeverityChange(ESignalSeverity Severity);
-	
+
+	UPROPERTY(EditInstanceOnly)
+		AFMODAmbientSound* MusicActor;
 private:
 	ESignalSeverity GetHighestSeverity();
 	

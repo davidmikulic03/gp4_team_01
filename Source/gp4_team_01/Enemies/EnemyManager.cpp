@@ -1,6 +1,7 @@
 ﻿#include "EnemyManager.h"
 
 #include "EnemyBase.h"
+#include "FMODAmbientSound.h"
 #include "FMODBlueprintStatics.h"
 #include "AI/EnemyAIController.h"
 #include "AI/FuzzyBrainComponent.h"
@@ -37,6 +38,9 @@ void AEnemyManager::LoadEnemyStates() {
 		Brains[i]->Reset();
 		Enemies[i]->LoadState();
 	}
+	if(MusicActor)
+		MusicActor->Reset();
+	LastHighestSeverity = ESignalSeverity::Nonperceptible;
 }
 
 bool AEnemyManager::SaveEnemyStates() {
