@@ -36,7 +36,7 @@ public:
 	bool IsOnCooldown();
 	FPredictProjectilePathResult PredictTrajectory();
 	UFUNCTION()
-	void DrawProjectilePath(FPredictProjectilePathResult PathResult);
+	void DrawProjectilePath(FPredictProjectilePathResult PathResult, ItemType Type);
 	void HideProjectilePath();
 	float GetThrowSpeed() { return ThrowSpeed; }
 	

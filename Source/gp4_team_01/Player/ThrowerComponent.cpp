@@ -104,8 +104,15 @@ FPredictProjectilePathResult UThrowerComponent::PredictTrajectory()
 	return PredictResult;
 }
 
-void UThrowerComponent::DrawProjectilePath(FPredictProjectilePathResult PathResult) {
-	if(!SplineMesh) return;
+void UThrowerComponent::DrawProjectilePath(FPredictProjectilePathResult PathResult, ItemType Type) {
+	if(PlayerCharacter) {
+		if(Type == ItemType::Throwable && PlayerCharacter->GetThrowableInventory()->CurrentThrowables == 0) 
+			return;
+		else if(Type == ItemType::SmokeBomb && PlayerCharacter->GetThrowableInventory()->CurrentSmokeBombs == 0) 
+			return;
+	}
+		
+	
 	for (int i = 0; i < FMath::Max(PathResult.PathData.Num() - 1, SplineMeshes.Num()); i++) {
 		if(i + 1 < PathResult.PathData.Num()) {
 			SplineMeshes[i]->SetVisibility(true);
