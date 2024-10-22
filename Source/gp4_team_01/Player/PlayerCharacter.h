@@ -80,10 +80,11 @@ public:
 	void OnFinishMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDeath();
+	
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnCanInteract();
+	void OnCanInteract(AInteractable* Actor);
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnCannotInteract();
+	void OnCannotInteract(AInteractable* Actor);
 
 	UFUNCTION(BlueprintCallable)
 		void Die();

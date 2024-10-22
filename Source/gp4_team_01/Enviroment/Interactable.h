@@ -11,11 +11,14 @@ class GP4_TEAM_01_API AInteractable : public AActor {
 public:
 	AInteractable();
 
-	virtual void Interact(AActor* Caller) PURE_VIRTUAL(AInteractableTargetBase::OnInteract, ;);
+	virtual void Interact(AActor* Caller) { OnInteract(Caller); };
 	virtual void Break() { bIsBroken = true; } ;
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInteract(AActor* Caller);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(EditCondition="bUseToolTip"))
+	FText Tooltip;
 
 protected:
 	virtual void BeginPlay() override;

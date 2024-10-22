@@ -47,7 +47,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction Target")
 	bool bIsClosing = false;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction Target")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction Target")
 		UNoiseDataAsset* NoiseOnBreak;
 	
 	FVector StartingPosition;
