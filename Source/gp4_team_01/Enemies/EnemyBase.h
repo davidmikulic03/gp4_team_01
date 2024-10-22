@@ -17,6 +17,11 @@ class UHearingComponent;
 class USightComponent;
 struct FPropertyChangedEvent;
 
+struct FCheckpointSave {
+	FTransform Transform;
+	TEnumAsByte<EEnemyState> State;
+};
+
 UCLASS(Abstract)
 class GP4_TEAM_01_API AEnemyBase : public ACharacter, public IPetrifiable
 {
@@ -49,6 +54,11 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
 		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
 
+	UFUNCTION(BlueprintCallable)
+		void SaveState();
+	UFUNCTION(BlueprintCallable)
+		void LoadState();
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|State")
 		EEnemyState GetCurrentState() const { return CurrentState; }
 	
@@ -137,6 +147,8 @@ protected:
 	AEnemyManager* EnemyManager;
 
 	float BaseSpeed;
+
+	FCheckpointSave Save;
 };
 
 
