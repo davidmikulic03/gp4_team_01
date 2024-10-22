@@ -54,5 +54,6 @@ protected:
 
 	FVector TargetVector;
 
+	UPROPERTY(BlueprintReadOnly)
 	float CurrentFadeTimer = .0f;
 };
