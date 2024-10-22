@@ -69,38 +69,22 @@ bool APlayerCharacter::InputIsPressed(FVector2D Value)
 void APlayerCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
-	{
-		GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
-		TimeSinceLastMadeNoise = 0;
-		UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
-	}
+	GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
+	UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
 }
 
 void APlayerCharacter::TryGenerateNoise()
 {
-	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
-	{
-		if(GetMovementComponent()->IsCrouching())
-		{
-			if(CrouchedNoiseDataAsset != nullptr) //add more checks in necessary.
-			{
-				GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
-			}
-			TimeSinceLastMadeNoise = 0.f;
+	if(GetMovementComponent()->IsCrouching()) {
+		if(CrouchedNoiseDataAsset != nullptr) {
+			GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
 		}
-		else if(!GetMovementComponent()->IsCrouching())
-		{
-			if(WalkingNoiseDataAsset != nullptr)
-			{
-				GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
-			}
-			TimeSinceLastMadeNoise = 0.f;
-		}
-		/*else
-		HasSwitchedMovementMode();*/
 	}
-	else return;
+	else {
+		if(WalkingNoiseDataAsset != nullptr) {
+			GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
+		}
+	}
 }
 
 void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location)
@@ -221,10 +205,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 	DeltaValue += DeltaTime;
 	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
-	TimeSinceLastMadeNoise += DeltaTime;
+	
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
-		TryGenerateNoise();
+		float temp = StepCounter;
+		StepCounter += DeltaTime * MakeNoiseFrequency;
+		if(FMath::Floor(temp) < FMath::Floor(StepCounter)) {
+			TryGenerateNoise();
+		}
 	}
 	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != OriginalCameraPosition)
 	{
@@ -427,18 +415,20 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 
 void APlayerCharacter::CameraShake()
 {
-	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
-	float NormalizedWalkTimeClamped = FMath::Clamp(NormalizedWalkTime, -1.f, 1.f);
+	float NormalizedWalkTimeZ = StepCounter - FMath::Floor(StepCounter);
+	float NormalizedWalkTimeY = StepCounter / 2;
+	NormalizedWalkTimeY = NormalizedWalkTimeY - FMath::Floor(NormalizedWalkTimeY);
+	
 	if(!bIsCrouching)
 	{
-		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI);
-		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionWalking;
+		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeZ * TWO_PI);
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeY * TWO_PI) * AmplitudeFractionWalking;
 		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
-		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI); //add fraction
-		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionCrouched;
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeZ * TWO_PI); //add fraction
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeY * TWO_PI) * AmplitudeFractionCrouched;
 		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 }

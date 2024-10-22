@@ -203,7 +203,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float CrouchedFraction = 0.5f; //added to the calculation when crouched
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
-	float TimeSinceLastMadeNoise;
+	float StepCounter = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float MakeNoiseFrequency = .75f; //test value. Edit later in the Blueprint.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
