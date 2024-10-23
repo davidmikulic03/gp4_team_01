@@ -32,6 +32,7 @@ private:
 	
 	TArray<AEnemyBase*> Enemies;
 	TArray<UFuzzyBrainComponent*> Brains;
+	TArray<FTransform> EnemyTransforms;
 
 	ESignalSeverity LastHighestSeverity;
 };

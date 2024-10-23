@@ -267,6 +267,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
 	float SavedSmokeBombCount;
 
+	UFUNCTION(BlueprintCallable)
+		void SavePlayerState() { SaveRockCount(); SaveGrenadeCount(); }
+	UFUNCTION(BlueprintCallable)
+		void LoadPlayerState() { LoadRockCount(); LoadGrenadeCount(); }
 	UFUNCTION()
 	void SaveRockCount();
 	UFUNCTION()

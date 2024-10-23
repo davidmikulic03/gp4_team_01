@@ -105,7 +105,7 @@ void AEnemyBase::SaveState() {
 }
 
 void AEnemyBase::LoadState() {
-	SetActorTransform(Save.Transform);
+	//SetActorTransform(Save.Transform);
 	SetCurrentState(Save.State);
 }
 

@@ -17,7 +17,9 @@ class UHearingComponent;
 class USightComponent;
 struct FPropertyChangedEvent;
 
+USTRUCT()
 struct FCheckpointSave {
+	GENERATED_BODY()
 	FTransform Transform;
 	TEnumAsByte<EEnemyState> State;
 };
@@ -153,6 +155,7 @@ protected:
 
 	float BaseSpeed;
 
+	UPROPERTY()
 	FCheckpointSave Save;
 };
 

@@ -20,6 +20,8 @@ public:
 	void Register(APickup* Pickup);
 	
 private:
+	UPROPERTY()
 	TArray<APickup*> Pickups;
+	UPROPERTY()
 	TArray<bool> PickupStates;
 };
