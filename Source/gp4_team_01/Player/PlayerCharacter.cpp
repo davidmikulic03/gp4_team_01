@@ -43,7 +43,7 @@ APlayerCharacter::APlayerCharacter()
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
 	MagnetStaticMesh->SetupAttachment(Camera);
 	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
-	PetrifyGun->SetupAttachment(RootComponent);
+	PetrifyGun->SetupAttachment(PetrifyGunStaticMesh);
 }
 
 void APlayerCharacter::Die() {
@@ -190,8 +190,6 @@ void APlayerCharacter::BeginPlay()
 	//bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
 	bHasGun = true;
 	bHasMagnet = true;
-	DeactivateGun();
-	DeactivateMagnet();
 	GetCharacterMovement()->bWantsToCrouch = true;
 	GetCharacterMovement()->Crouch();
 

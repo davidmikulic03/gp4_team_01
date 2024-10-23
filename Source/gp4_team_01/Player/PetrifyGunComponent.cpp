@@ -58,9 +58,18 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
 		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
-
+		
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			MuzzleFlash,
+			this,
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::Type::KeepRelativeOffset,
+			true );
+		NiagaraComponent->Activate();
 		NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetComponentLocation());
-		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlash, this, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true );
+		
 
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
