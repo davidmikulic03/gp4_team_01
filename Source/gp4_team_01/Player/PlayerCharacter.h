@@ -275,9 +275,9 @@ public:
 	void LoadRockCount();
 	UFUNCTION()
 	void LoadGrenadeCount();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool GetCameraShakeOn();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void SetCameraShakeOn(bool Value);
 protected:
 	bool TraceInteract(FHitResult& HitResult);
