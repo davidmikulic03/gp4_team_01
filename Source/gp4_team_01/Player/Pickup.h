@@ -24,9 +24,7 @@ public:
 
 	void SetEnabled(bool Value);
 	bool GetEnabled() { return bEnabled; }
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pickup")
-	FText TextOnPickup;
+
 protected:
 	virtual void BeginPlay() override;
 	
