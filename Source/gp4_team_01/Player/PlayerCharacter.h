@@ -270,4 +270,6 @@ protected:
 	bool bCanInteract = false;
 
 	ItemType EquippedItem = ItemType::None;
+
+	AInteractable* CurrentlyInteractableActor = nullptr;
 };

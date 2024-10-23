@@ -226,6 +226,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 	else if(!bNewValue && bCanInteract)
 		OnCannotInteract(a);
 	bCanInteract = bNewValue;
+	if(a != CurrentlyInteractableActor) {
+		if(CurrentlyInteractableActor)
+			CurrentlyInteractableActor->OnNotInteractable();
+		if(a) {
+			a->OnInteractable();
+		}
+	}
+	CurrentlyInteractableActor = a;
 }
 
 // Called to bind functionality to input
