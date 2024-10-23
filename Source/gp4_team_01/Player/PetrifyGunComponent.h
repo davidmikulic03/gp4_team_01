@@ -60,6 +60,16 @@ public:
 	//niagara SFX
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem* MuzzleFlash;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem* LaserBeam;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	float XRotationOffset = -15.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	float YRotationOffset = -15.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	float ZRotationOffset = -15.f;
+
 private:
 protected:
 	
