@@ -60,7 +60,8 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 			FVector::ZeroVector,
 			FRotator::ZeroRotator,
 			EAttachLocation::Type::KeepRelativeOffset,
-			true );
+			true
+			);
 		UNiagaraComponent* LaserBeamComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 			LaserBeam,
 			this,
