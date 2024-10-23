@@ -21,6 +21,9 @@ public:
 	
 	virtual void Interact(AActor* Caller) override;
 	inline ItemType GetItemType() const { return ItemType; };
+
+	void SetEnabled(bool Value);
+	bool GetEnabled() { return bEnabled; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -31,4 +34,5 @@ private:
 	UPROPERTY(EditAnywhere, Category="Pickup")
 	ItemType ItemType;
 
+	bool bEnabled = true;
 };
