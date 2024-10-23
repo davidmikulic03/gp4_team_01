@@ -17,6 +17,11 @@ class UHearingComponent;
 class USightComponent;
 struct FPropertyChangedEvent;
 
+struct FCheckpointSave {
+	FTransform Transform;
+	TEnumAsByte<EEnemyState> State;
+};
+
 UCLASS(Abstract)
 class GP4_TEAM_01_API AEnemyBase : public ACharacter, public IPetrifiable
 {
@@ -49,6 +54,11 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DefaultToSelf=Target), Category = "AI|Perception") 
 		static bool HasNewSignalBeenHeard(AEnemyBase* Target);
 
+	UFUNCTION(BlueprintCallable)
+		void SaveState();
+	UFUNCTION(BlueprintCallable)
+		void LoadState();
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI|State")
 		EEnemyState GetCurrentState() const { return CurrentState; }
 	
@@ -70,13 +80,18 @@ public:
 		FORCEINLINE bool GetIsPetrified() const noexcept { return bIsPetrified; }
 
 	UFUNCTION(BlueprintCallable)
-		void SetSpeedMultiplayer(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; }
-
-	UFUNCTION(BlueprintCallable)
-		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; }
+		void SetSpeedMultiplier(float Multiplier) { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * Multiplier; OnSpeedChanged(BaseSpeed * Multiplier);}
 	
 	UFUNCTION(BlueprintCallable)
-		void OnDeath(const AActor* Killer);
+		void ResetToBaseSpeed() { GetCharacterMovement()->MaxWalkSpeed = BaseSpeed; OnSpeedChanged(BaseSpeed);}
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnSpeedChanged(float speed);
+	
+	UFUNCTION(BlueprintCallable)
+		void Die(const AActor* Killer);
+	UFUNCTION(BlueprintNativeEvent)
+		void OnDeath();
 	
 	UHearingComponent* GetHearingComponent() const { return HearingComponent; };
 
@@ -137,6 +152,8 @@ protected:
 	AEnemyManager* EnemyManager;
 
 	float BaseSpeed;
+
+	FCheckpointSave Save;
 };
 
 

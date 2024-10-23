@@ -2,6 +2,7 @@
 
 #include "DetectionModifier.h"
 #include "EnemyAIController.h"
+#include "IndexTypes.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
@@ -121,10 +122,15 @@ bool UFuzzyBrainComponent::TryResolvePointOfInterest(FPerceptionSignal Signal) {
 	FWeightedSignal InArray;
 	if(IsResolvable(Signal, InArray)) {
 		Memory.Remove(InArray);
+		if(static_cast<int>(HighestWeightId) < Memory.Num() && HighestWeightId != INDEX_NONE && Memory[HighestWeightId].Signal == Signal)
+			LastRecordedSeverity = ESignalSeverity::Nonperceptible;
 		HighestWeightId = INDEX_NONE; //TODO: temp
 		return true;
+	} else {
+		AEnemyAIController* AiController = Cast<AEnemyAIController>(GetOwner());
+		AiController->OnInterestChanged(Signal);
+		return false;
 	}
-	return false;
 }
 
 bool UFuzzyBrainComponent::IsResolvable(FPerceptionSignal Signal, FWeightedSignal& InMemory) const {
@@ -137,13 +143,20 @@ bool UFuzzyBrainComponent::IsResolvable(FPerceptionSignal Signal, FWeightedSigna
 }
 
 float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
-	if(auto inMemory = Memory.FindByPredicate([this, Actor](FWeightedSignal WeightedSignal) {
+	if(auto inMemory = Memory.FindByPredicate([Actor](FWeightedSignal WeightedSignal) {
 			return WeightedSignal.Signal.Actor == Actor;
 		})) {
 		float Result = inMemory->GetWeight() / MaxInterest;
 		return Result < 1.f ? Result : 1.f;
 	}
 	return 0;
+}
+
+void UFuzzyBrainComponent::Reset() {
+	Memory.Empty();
+	HighestWeightId = INDEX_NONE;
+	LastRecordedSeverity = ESignalSeverity::Nonperceptible;
+	bIsThinking = true;
 }
 
 void UFuzzyBrainComponent::See(double DeltaTime) {
@@ -190,9 +203,11 @@ void UFuzzyBrainComponent::ForgetUnimportant() {
 }
 
 uint32 UFuzzyBrainComponent::GetSignalIdOfHighestWeight() {
-	uint32 Result = INDEX_NONE;
+	uint32 Result = 0;
+	if(Memory.IsEmpty())
+		return INDEX_NONE;
 	for (int Id = 0; Id < Memory.Num(); Id++) {
-		if(Result == INDEX_NONE || Memory[Id].GetWeight() > Memory[Result].GetWeight())
+		if(static_cast<int>(Result) < Memory.Num() && Memory[Id].Weight > Memory[Result].Weight)
 			Result = Id;
 	}
 	return Result;

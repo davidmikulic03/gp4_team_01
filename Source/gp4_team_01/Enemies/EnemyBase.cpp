@@ -17,6 +17,7 @@
 #include "EnemyManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "gp4_team_01/Systems/MainGameMode.h"
+#include "gp4_team_01/Systems/NoiseSystem.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -97,8 +98,22 @@ bool AEnemyBase::HasNewSignalBeenHeard(AEnemyBase* Target) {
 	return Target && Target->GetHearingComponent() && Target->GetHearingComponent()->HasNewSignalBeenHeard();
 }
 
+void AEnemyBase::SaveState() {
+	TEnumAsByte<EEnemyState> State = CurrentState != static_cast<TEnumAsByte<EEnemyState>>(Agitated)
+		? CurrentState : static_cast<TEnumAsByte<EEnemyState>>(Suspicious);
+	Save = FCheckpointSave{ GetActorTransform(), State };
+}
+
+void AEnemyBase::LoadState() {
+	SetActorTransform(Save.Transform);
+	SetCurrentState(Save.State);
+}
+
 UFuzzyBrainComponent* AEnemyBase::GetBrain() const {
-	return EnemyController->Brain;
+	if(EnemyController)
+		return EnemyController->Brain;
+	else
+		return nullptr;
 }
 
 bool AEnemyBase::Petrify(UObject* Target, APlayerCharacter* Player) {
@@ -115,10 +130,16 @@ void AEnemyBase::Unpetrify(UObject* Target, APlayerCharacter* Player) {
 	IPetrifiable::Unpetrify(Target, Player);
 }
 
-void AEnemyBase::OnDeath(const AActor* Killer) {
+void AEnemyBase::Die(const AActor* Killer) {
 	//TODO: handle death better
-	Destroy();
+	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		if(auto n = g->GetNoiseSystemRef())
+			n->UnregisterListener(HearingComponent);
+	OnDeath();
+	
 }
+
+void AEnemyBase::OnDeath_Implementation() { Destroy(); }
 
 FVector AEnemyBase::GetNextWaypointLocation()
 {

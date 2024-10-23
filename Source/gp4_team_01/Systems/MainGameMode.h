@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; };
 	UFUNCTION(BlueprintCallable)
-	AEnemyManager* GetEnemyManagerRef() { return EnemyManagerRef; };
+	AEnemyManager* GetEnemyManagerRef() const { return EnemyManagerRef; };
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")

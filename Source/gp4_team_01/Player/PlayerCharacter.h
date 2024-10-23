@@ -80,6 +80,11 @@ public:
 	void OnFinishMagnetTraversal();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDeath();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCanInteract(AInteractable* Actor);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCannotInteract(AInteractable* Actor);
 
 	UFUNCTION(BlueprintCallable)
 		void Die();
@@ -106,8 +111,12 @@ private:
 	void IncrementMovement(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
-	void PredictTrajectory(const FInputActionValue& Value);
+	void AimThrowable(const FInputActionValue& Value);
+	void AimSmokeBomb(const FInputActionValue& Value);
+	
 	void StopPredictingTrajectory(const FInputActionValue& Value);
+
+	void PredictTrajectory(const FInputActionValue& Value, ItemType ItemType);
 	//variables and methods
 
 	void CameraShake();
@@ -129,27 +138,33 @@ public:
 	UInputAction* MoveForwardAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveRightAction;*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PetrifyGunAction;	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* IncrementSpeedAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* PredictTrajectoryAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AimThrowableAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AimSmokeBombAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Static Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
 	UStaticMeshComponent* PetrifyGunStaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* MagnetStaticMesh;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float CrouchAlpha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -189,7 +204,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float CrouchedFraction = 0.5f; //added to the calculation when crouched
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
-	float TimeSinceLastMadeNoise;
+	float StepCounter = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
 	float MakeNoiseFrequency = .75f; //test value. Edit later in the Blueprint.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement/Noise")
@@ -208,7 +223,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float AmplitudeWalking = 1.0f; //the amplitude of the SIN function. Recommended balue is 0.25 and the recommended range is 0 to 1;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
-	float AmplitudeCrouching = 1.0f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
+	float AmplitudeCrouching = .5f; //the amplitude of the SIN function whem crouched. Recommended value is half of walking.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float AmplitudeFractionWalking = 1.0f; //the amount that the final result is divided by;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
@@ -217,8 +232,42 @@ public:
 	float ShakeSpeedWalking = 1.0f; //how fast the camera moves up and down
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera Shake")
 	float ShakeSpeedCrouched = .5f; //how fast the camera moves up and down. Recommended value is one half of what ShakeSpeedWalking is
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Shake")
+	float CameraResetLerpTime = 0.5f; //keep this in 0 to 1 range.
 	float DeltaValue;
 	FVector OriginalCameraPosition;
+
+	//deactivate meshes variables and functions
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasGun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
+	bool bHasMagnet;
+	UFUNCTION(BlueprintCallable)
+	void ActivateGun();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateGun();
+	UFUNCTION(BlueprintCallable)
+	void ActivateMagnet();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateMagnet();
+
+	//inventory counters - for saving - is it persistent?
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedThrowablesCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
+	float SavedSmokeBombCount;
+
+	UFUNCTION()
+	void SaveRockCount();
+	UFUNCTION()
+	void SaveGrenadeCount();
+	UFUNCTION()
+	void LoadRockCount();
+	UFUNCTION()
+	void LoadGrenadeCount();
 protected:
-	
+	bool TraceInteract(FHitResult& HitResult);
+	bool bCanInteract = false;
+
+	ItemType EquippedItem = ItemType::None;
 };
