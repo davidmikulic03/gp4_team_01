@@ -251,6 +251,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimSmokeBomb);
 		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &APlayerCharacter::OnPause);
 	}
 }
 
@@ -420,6 +421,11 @@ void APlayerCharacter::AimSmokeBomb(const FInputActionValue& Value) {
 		
 		EquippedItem = ItemType::SmokeBomb;
 	}
+}
+
+void APlayerCharacter::OnPause() {
+	if(AMainGameMode* const GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		GameMode->PauseGame();
 }
 
 void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value, ItemType ItemType)
