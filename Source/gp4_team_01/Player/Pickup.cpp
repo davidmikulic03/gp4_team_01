@@ -2,7 +2,7 @@
 
 
 #include "Pickup.h"
-
+#include "gp4_team_01/Systems/PickupManager.h"
 
 // Sets default values
 APickup::APickup()
@@ -15,7 +15,11 @@ APickup::APickup()
 void APickup::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
+		if(auto p = g->GetPickupManagerRef())
+			p->Register(this);
+	}
 }
 
 // Called every frame
@@ -26,13 +30,21 @@ void APickup::Tick(float DeltaTime)
 
 void APickup::Interact(AActor* Caller)
 {
+	if(!bEnabled)
+		return;
+	
 	APlayerCharacter* CallerActor = Cast<APlayerCharacter>(Caller);
 	if(CallerActor)
 	{
 		if(CallerActor->GetThrowableInventory()->CanFitMoreItemOfType(ItemType)) {
 			CallerActor->GetThrowableInventory()->AddAmountToInventory(ItemType, AmountToAdd);
-			Destroy();
+			SetEnabled(false);
 		}
 	}
+}
+
+void APickup::SetEnabled(bool Value) {
+	bEnabled = Value;
+	RootComponent->SetHiddenInGame(Value, true);
 }
 
