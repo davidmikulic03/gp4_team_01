@@ -164,6 +164,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
 	UStaticMeshComponent* MagnetStaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* ThrowableStaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
+	UStaticMeshComponent* SmokeBombStaticMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float CrouchAlpha;
