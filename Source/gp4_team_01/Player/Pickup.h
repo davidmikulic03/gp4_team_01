@@ -34,5 +34,6 @@ private:
 	UPROPERTY(EditAnywhere, Category="Pickup")
 	ItemType ItemType;
 
+	UPROPERTY()
 	bool bEnabled = true;
 };
