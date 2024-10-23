@@ -69,8 +69,6 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 			GetComponentRotation(),
 			FVector::OneVector
 			);
-		MuzzleFlashComponent->Activate();
-		LaserBeamComponent->Activate();
 		NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetComponentLocation());
 
 		FHitResult HitResult;
