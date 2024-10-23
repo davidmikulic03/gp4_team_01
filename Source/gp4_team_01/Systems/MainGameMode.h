@@ -8,6 +8,7 @@
 
 #include "MainGameMode.generated.h"
 
+class UPickupManager;
 class AEnemyManager;
 class ANoiseSystem;
 
@@ -60,6 +61,8 @@ public:
 	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; };
 	UFUNCTION(BlueprintCallable)
 	AEnemyManager* GetEnemyManagerRef() const { return EnemyManagerRef; };
+	UFUNCTION(BlueprintCallable)
+	UPickupManager* GetPickupManagerRef() const { return PickupManagerRef; };
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
@@ -82,6 +85,7 @@ private:
 	enum GameState CurrentGameState;
 	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
 	inline static AEnemyManager* EnemyManagerRef = nullptr;
+	inline static UPickupManager* PickupManagerRef = nullptr;
 
 private:
 	UUserWidget* WinScreenInstance;
