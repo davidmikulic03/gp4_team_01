@@ -63,19 +63,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem* LaserBeam;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	float XRotationOffset = -15.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	float YRotationOffset = -15.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	float ZRotationOffset = -15.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	//float XRotationOffset = -15.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	//float YRotationOffset = -15.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	//float ZRotationOffset = -15.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	float XPositionOffset = -15.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	float YPositionOffset = -15.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	float ZPositionOffset = -15.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	//float XPositionOffset = -15.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	//float YPositionOffset = -15.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	//float ZPositionOffset = -15.f;
 	
 private:
 protected:

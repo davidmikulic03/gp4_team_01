@@ -62,14 +62,12 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 			EAttachLocation::Type::KeepRelativeOffset,
 			true
 			);
-		UNiagaraComponent* LaserBeamComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+		UNiagaraComponent* LaserBeamComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
 			LaserBeam,
-			this,
-			NAME_None,
-			this->GetRelativeLocation() + FVector(XPositionOffset, YPositionOffset, ZPositionOffset),
-			this->GetRelativeRotation() + FRotator(XRotationOffset, YRotationOffset, ZRotationOffset),
-			EAttachLocation::Type::KeepRelativeOffset,
-			true
+			GetComponentLocation(),
+			GetComponentRotation(),
+			FVector::OneVector
 			);
 		MuzzleFlashComponent->Activate();
 		LaserBeamComponent->Activate();
