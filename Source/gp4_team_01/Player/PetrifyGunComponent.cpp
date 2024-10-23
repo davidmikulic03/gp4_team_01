@@ -65,7 +65,7 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 			LaserBeam,
 			this,
 			NAME_None,
-			this->GetRelativeLocation(),
+			this->GetRelativeLocation() + FVector(XPositionOffset, YPositionOffset, ZPositionOffset),
 			this->GetRelativeRotation() + FRotator(XRotationOffset, YRotationOffset, ZRotationOffset),
 			EAttachLocation::Type::KeepRelativeOffset,
 			true
