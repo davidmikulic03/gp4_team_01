@@ -95,40 +95,26 @@ void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Lo
 
 void APlayerCharacter::ActivateGun()
 {
-	bHasGun = !bHasGun;
-	if(bHasGun)
-	{
-		PetrifyGunStaticMesh->SetVisibility(bHasGun);
-		
-	}
+	bHasGun = true;
+	PetrifyGunStaticMesh->SetVisibility(true);
 }
 
 void APlayerCharacter::DeactivateGun()
 {
-	bHasGun = !bHasGun;
-	if(!bHasGun)
-	{
-		PetrifyGunStaticMesh->SetVisibility(bHasGun);
-	}
+	bHasGun = false;
+	PetrifyGunStaticMesh->SetVisibility(false);
 }
 
 void APlayerCharacter::ActivateMagnet()
 {
-	bHasMagnet = !bHasMagnet;
-	if(bHasMagnet)
-	{
-		MagnetStaticMesh->SetVisibility(bHasMagnet);
-	}
+	bHasMagnet = true;
+	MagnetStaticMesh->SetVisibility(true);
 }
 
 void APlayerCharacter::DeactivateMagnet()
 {
-	bHasMagnet = !bHasMagnet;
-	if(!bHasMagnet)
-	{
-		MagnetStaticMesh->SetVisibility(bHasMagnet);
-		
-	}
+	bHasMagnet = false;
+	MagnetStaticMesh->SetVisibility(false);
 }
 
 void APlayerCharacter::SaveRockCount()
