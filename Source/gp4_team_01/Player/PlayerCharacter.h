@@ -279,6 +279,10 @@ public:
 	void LoadRockCount();
 	UFUNCTION()
 	void LoadGrenadeCount();
+	UFUNCTION(BlueprintCallable)
+	bool GetCameraShakeOn();
+	UFUNCTION(BlueprintCallable)
+	void SetCameraShakeOn(bool Value);
 protected:
 	bool TraceInteract(FHitResult& HitResult);
 	bool bCanInteract = false;
@@ -286,4 +290,6 @@ protected:
 	ItemType EquippedItem = ItemType::None;
 
 	AInteractable* CurrentlyInteractableActor = nullptr;
+private:
+	bool bCameraShakeOn = true;
 };

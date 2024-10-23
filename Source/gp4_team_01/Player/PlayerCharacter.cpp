@@ -144,6 +144,16 @@ void APlayerCharacter::LoadGrenadeCount()
 	ThrowableInventory->CurrentSmokeBombs = SavedSmokeBombCount;
 }
 
+bool APlayerCharacter::GetCameraShakeOn()
+{
+	return bCameraShakeOn;
+}
+
+void APlayerCharacter::SetCameraShakeOn(bool Value)
+{
+	bCameraShakeOn = Value;
+}
+
 bool APlayerCharacter::TraceInteract(FHitResult& HitResult) {
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
@@ -264,13 +274,17 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	if(Magnet->IsTraversing())
 		return;
+	
 	const FVector2D InputVector = Value.Get<FVector2D>();
 
 	if(Controller != nullptr)
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.Y);
 		AddMovementInput((GetActorRightVector()), InputVector.X);
-		CameraShake();
+		if(bCameraShakeOn)
+		{
+			CameraShake();
+		}
 	}
 }
 
