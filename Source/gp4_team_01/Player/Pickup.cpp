@@ -41,10 +41,12 @@ void APickup::Interact(AActor* Caller)
 			SetEnabled(false);
 		}
 	}
+
+	Super::Interact(Caller);
 }
 
 void APickup::SetEnabled(bool Value) {
 	bEnabled = Value;
-	RootComponent->SetHiddenInGame(Value, true);
+	RootComponent->SetHiddenInGame(!Value, true);
 }
 
