@@ -15,6 +15,8 @@ bool UMagnetComponent::Use() {
 	bIsTraversing = true;
 	if(Player)
 		Player->OnStartMagnetTraversal();
+	if(InteractableMagnets[0])
+		InteractableMagnets[0]->OnBeginTraversal();
 	return true;
 }
 
@@ -69,6 +71,7 @@ void UMagnetComponent::Traverse(double DeltaTime) {
 		if(Player) {
 			Player->GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::Zero());
 			Player->OnFinishMagnetTraversal();
+			InteractableMagnets[0]->OnFinishTraversal();
 		}
 	}
 }

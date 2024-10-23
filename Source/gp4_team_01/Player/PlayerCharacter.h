@@ -113,6 +113,8 @@ private:
 	void Interact(const FInputActionValue& Value);
 	void AimThrowable(const FInputActionValue& Value);
 	void AimSmokeBomb(const FInputActionValue& Value);
+
+	void OnPause();
 	
 	void StopPredictingTrajectory(const FInputActionValue& Value);
 
@@ -158,6 +160,8 @@ public:
 	UInputAction* AimThrowableAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AimSmokeBombAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PauseAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Static Mesh")
 	UStaticMeshComponent* PetrifyGunStaticMesh;
