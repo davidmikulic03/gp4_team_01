@@ -144,7 +144,12 @@ void APlayerCharacter::LoadGrenadeCount()
 	ThrowableInventory->CurrentSmokeBombs = SavedSmokeBombCount;
 }
 
-void APlayerCharacter::SetCameraShake(bool Value)
+bool APlayerCharacter::GetCameraShakeOn()
+{
+	return bCameraShakeOn;
+}
+
+void APlayerCharacter::SetCameraShakeOn(bool Value)
 {
 	bCameraShakeOn = Value;
 }
@@ -269,6 +274,7 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	if(Magnet->IsTraversing())
 		return;
+	
 	const FVector2D InputVector = Value.Get<FVector2D>();
 
 	if(Controller != nullptr)

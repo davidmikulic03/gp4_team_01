@@ -276,7 +276,9 @@ public:
 	UFUNCTION()
 	void LoadGrenadeCount();
 	UFUNCTION()
-	void SetCameraShake(bool Value);
+	bool GetCameraShakeOn();
+	UFUNCTION()
+	void SetCameraShakeOn(bool Value);
 protected:
 	bool TraceInteract(FHitResult& HitResult);
 	bool bCanInteract = false;
