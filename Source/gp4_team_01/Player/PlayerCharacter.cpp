@@ -30,6 +30,8 @@ APlayerCharacter::APlayerCharacter()
 	CrouchAlpha = 12.f;
 	PetrifyGunStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Petrify Gun StaticMesh");
 	MagnetStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Magnet StaticMesh");
+	ThrowableStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Throwable Mesh");
+	SmokeBombStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Smoke Bomb Mesh");
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -43,7 +45,12 @@ APlayerCharacter::APlayerCharacter()
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
 	MagnetStaticMesh->SetupAttachment(Camera);
 	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
-	PetrifyGun->SetupAttachment(RootComponent);
+	PetrifyGun->SetupAttachment(PetrifyGunStaticMesh);
+
+	ThrowableStaticMesh->SetupAttachment(MagnetStaticMesh);
+	SmokeBombStaticMesh->SetupAttachment(MagnetStaticMesh);
+	ThrowableStaticMesh->SetVisibility(false);
+	SmokeBombStaticMesh->SetVisibility(false);
 }
 
 void APlayerCharacter::Die() {
@@ -95,40 +102,26 @@ void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Lo
 
 void APlayerCharacter::ActivateGun()
 {
-	bHasGun = !bHasGun;
-	if(bHasGun)
-	{
-		PetrifyGunStaticMesh->SetVisibility(bHasGun);
-		
-	}
+	bHasGun = true;
+	PetrifyGunStaticMesh->SetVisibility(true);
 }
 
 void APlayerCharacter::DeactivateGun()
 {
-	bHasGun = !bHasGun;
-	if(!bHasGun)
-	{
-		PetrifyGunStaticMesh->SetVisibility(bHasGun);
-	}
+	bHasGun = false;
+	PetrifyGunStaticMesh->SetVisibility(false);
 }
 
 void APlayerCharacter::ActivateMagnet()
 {
-	bHasMagnet = !bHasMagnet;
-	if(bHasMagnet)
-	{
-		MagnetStaticMesh->SetVisibility(bHasMagnet);
-	}
+	bHasMagnet = true;
+	MagnetStaticMesh->SetVisibility(true);
 }
 
 void APlayerCharacter::DeactivateMagnet()
 {
-	bHasMagnet = !bHasMagnet;
-	if(!bHasMagnet)
-	{
-		MagnetStaticMesh->SetVisibility(bHasMagnet);
-		
-	}
+	bHasMagnet = false;
+	MagnetStaticMesh->SetVisibility(false);
 }
 
 void APlayerCharacter::SaveRockCount()
@@ -190,8 +183,6 @@ void APlayerCharacter::BeginPlay()
 	//bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
 	bHasGun = true;
 	bHasMagnet = true;
-	DeactivateGun();
-	DeactivateMagnet();
 	GetCharacterMovement()->bWantsToCrouch = true;
 	GetCharacterMovement()->Crouch();
 
@@ -228,6 +219,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 	else if(!bNewValue && bCanInteract)
 		OnCannotInteract(a);
 	bCanInteract = bNewValue;
+	if(a != CurrentlyInteractableActor) {
+		if(CurrentlyInteractableActor)
+			CurrentlyInteractableActor->OnNotInteractable();
+		if(a) {
+			a->OnInteractable();
+		}
+	}
+	CurrentlyInteractableActor = a;
 }
 
 // Called to bind functionality to input
@@ -252,6 +251,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimSmokeBomb);
 		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
 		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &APlayerCharacter::OnPause);
 	}
 }
 
@@ -313,6 +313,9 @@ void APlayerCharacter::Throw(const FInputActionValue& Value)
 		ThrowerComponent->Launch(EquippedItem);
 		ThrowableInventory->RemoveItem(EquippedItem);
 		ThrowerComponent->ResetCooldown();
+
+		if(ThrowableInventory->GetCurrentCount(EquippedItem) == 0)
+			StopPredictingTrajectory(Value);
 	}
 	else if(ThrowerComponent->IsOnCooldown())
 	{
@@ -393,13 +396,36 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 }
 
 void APlayerCharacter::AimThrowable(const FInputActionValue& Value) {
-	PredictTrajectory(Value, ItemType::Throwable);
-	EquippedItem = ItemType::Throwable;
+	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0) {
+		PredictTrajectory(Value, ItemType::Throwable);
+		DeactivateMagnet();
+		
+		if(!ThrowerComponent->IsOnCooldown())
+			ThrowableStaticMesh->SetVisibility(true);
+		else
+			ThrowableStaticMesh->SetVisibility(false);
+		
+		EquippedItem = ItemType::Throwable;
+	}
 }
 
 void APlayerCharacter::AimSmokeBomb(const FInputActionValue& Value) {
-	PredictTrajectory(Value, ItemType::SmokeBomb);
-	EquippedItem = ItemType::SmokeBomb;
+	if(ThrowableInventory->GetCurrentCount(ItemType::SmokeBomb) > 0) {
+		PredictTrajectory(Value, ItemType::SmokeBomb);
+		DeactivateMagnet();
+		
+		if(!ThrowerComponent->IsOnCooldown())
+			SmokeBombStaticMesh->SetVisibility(true);
+		else
+			SmokeBombStaticMesh->SetVisibility(false);
+		
+		EquippedItem = ItemType::SmokeBomb;
+	}
+}
+
+void APlayerCharacter::OnPause() {
+	if(AMainGameMode* const GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		GameMode->PauseGame();
 }
 
 void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value, ItemType ItemType)
@@ -410,6 +436,11 @@ void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value, ItemTyp
 
 void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) {
 	ThrowerComponent->HideProjectilePath();
+
+	SmokeBombStaticMesh->SetVisibility(false);
+	ThrowableStaticMesh->SetVisibility(false);
+	ActivateMagnet();
+	
 	EquippedItem = ItemType::None;
 }
 
