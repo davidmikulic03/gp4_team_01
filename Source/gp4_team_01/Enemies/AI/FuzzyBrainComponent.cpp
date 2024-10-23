@@ -238,8 +238,7 @@ void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedS
 		}
 		float Increment = Weight * DeltaTime;
 		auto a = WeightedSignal.Signal.Actor;
-		if(a && WeightedSignal.Weight < MaxInterest) { if(auto DetectionModifier = Cast<UDetectionModifier>(a->GetComponentByClass(UDetectionModifier::StaticClass())))
-			Increment *= DetectionModifier->DefaultSignalModifier; }
+		
 		WeightedSignal.Weight += Increment * WeightedSignal.Signal.SignalStrength;
 		WeightedSignal.bPositiveSlopeSign = true;
 		if(WeightedSignal.Weight > MaxInterest) 
