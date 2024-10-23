@@ -38,6 +38,7 @@ void AInteractableTargetDoor::OnInteract() {
 		bIsOpening = true;
 		bHasBeenInteractedWith = true;
 	}
+	OnInteractEvent();
 }
 
 void AInteractableTargetDoor::OnUnInteract() {
@@ -45,6 +46,7 @@ void AInteractableTargetDoor::OnUnInteract() {
 		bIsClosing = true;
 		bHasBeenInteractedWith = false;
 	}
+	OnUnInteractEvent();
 }
 
 void AInteractableTargetDoor::Move(float DeltaTime)
