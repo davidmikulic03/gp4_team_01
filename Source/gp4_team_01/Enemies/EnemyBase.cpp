@@ -20,6 +20,8 @@
 #include "gp4_team_01/Systems/NoiseSystem.h"
 #include "gp4_team_01/Utility/WaypointHolderComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 
 AEnemyBase::AEnemyBase() {
@@ -107,6 +109,11 @@ void AEnemyBase::SaveState() {
 void AEnemyBase::LoadState() {
 	//SetActorTransform(Save.Transform);
 	SetCurrentState(Save.State);
+	SetActorTransform(Save.Transform);
+	GetNextWaypointLocation();
+	EnemyController->GetBlackboardComponent()->Deactivate();
+	EnemyController->GetBlackboardComponent()->Activate();
+	EnemyController->Reset();
 }
 
 UFuzzyBrainComponent* AEnemyBase::GetBrain() const {
@@ -160,6 +167,7 @@ void AEnemyBase::BeginPlay() {
 		EnemyManager = GameMode->GetEnemyManagerRef();
 		EnemyManager->Register(this);
 	}
+	SaveState();
 }
 
 void AEnemyBase::Tick(float DeltaTime) {

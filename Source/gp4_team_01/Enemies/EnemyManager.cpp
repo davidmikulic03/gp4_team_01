@@ -47,9 +47,9 @@ bool AEnemyManager::SaveEnemyStates() {
 	if(GetHighestSeverity() == ESignalSeverity::Strong)
 		return false;
 	else {
-		for(int i = 0; i < Enemies.Num(); i++) {
-			Enemies[i]->SaveState();
-		}
+		//for(int i = 0; i < Enemies.Num(); i++) {
+		//	Enemies[i]->SaveState();
+		//}
 		return true;
 	}
 }
