@@ -10,7 +10,6 @@
 // Sets default values for this component's properties
 UThrowerComponent::UThrowerComponent()
 {
-	Spline = CreateDefaultSubobject<USplineComponent>("Prediction Spline");
 	PrimaryComponentTick.bCanEverTick = true;
 }
 

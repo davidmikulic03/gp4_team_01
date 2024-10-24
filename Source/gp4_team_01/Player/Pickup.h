@@ -28,10 +28,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-private:
+protected:
 	UPROPERTY(EditAnywhere, Category="Pickup")
 	int AmountToAdd = 5;
-	UPROPERTY(EditAnywhere, Category="Pickup")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pickup")
 	ItemType ItemType;
 
 	UPROPERTY()

@@ -69,9 +69,9 @@ protected:
 	float PredictionFrequency = 20.f;
 	
 	UPROPERTY(EditDefaultsOnly)
-	USplineComponent* Spline;
-	UPROPERTY(EditDefaultsOnly)
 	UNoiseDataAsset* Noise;
+	UPROPERTY(EditDefaultsOnly)
+	UMaterialInterface* PredictionMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMesh* SplineMesh;
