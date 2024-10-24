@@ -35,8 +35,10 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 
 void AEnemyManager::LoadEnemyStates() {
 	for(int i = 0; i < Enemies.Num(); i++) {
-		Brains[i]->Reset();
-		Enemies[i]->LoadState();
+		if(Brains[i])
+			Brains[i]->Reset();
+		if(Enemies[i])
+			Enemies[i]->LoadState();
 	}
 	if(MusicActor)
 		MusicActor->Reset();
