@@ -270,7 +270,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SavePlayerState() { SaveRockCount(); SaveGrenadeCount(); }
 	UFUNCTION(BlueprintCallable)
-		void LoadPlayerState() { LoadRockCount(); LoadGrenadeCount(); }
+		void LoadPlayerState()
+	{
+		LoadRockCount();
+		LoadGrenadeCount();
+		Crouch(FInputActionValue());
+	}
 	UFUNCTION()
 	void SaveRockCount();
 	UFUNCTION()
