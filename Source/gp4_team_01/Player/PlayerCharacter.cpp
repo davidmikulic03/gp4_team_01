@@ -190,9 +190,9 @@ void APlayerCharacter::BeginPlay()
 	bHasMagnet = false;
 	//crouches
 	bIsCrouching = true;
-	//bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
-	bHasGun = true;
-	bHasMagnet = true;
+	////bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
+	//bHasGun = true;
+	//bHasMagnet = true;
 	GetCharacterMovement()->bWantsToCrouch = true;
 	GetCharacterMovement()->Crouch();
 
