@@ -17,7 +17,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	UFUNCTION(BlueprintCallable)
-		void ResetEnemyStates();
+		void LoadEnemyStates();
+	UFUNCTION(BlueprintCallable)
+		void SaveEnemyStates();
 	
 	void Register(AEnemyBase* Self);
 	void RegisterSeverityChange(ESignalSeverity Severity);

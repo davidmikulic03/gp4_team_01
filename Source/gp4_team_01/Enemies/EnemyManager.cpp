@@ -32,10 +32,14 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 	LastHighestSeverity = Highest;
 }
 
-void AEnemyManager::ResetEnemyStates() {
+void AEnemyManager::LoadEnemyStates() {
 	for(int i = 0; i < Enemies.Num(); i++) {
 		Brains[i]->Reset();
 	}
+}
+
+void AEnemyManager::SaveEnemyStates() {
+	
 }
 
 void AEnemyManager::Register(AEnemyBase* Self) {
