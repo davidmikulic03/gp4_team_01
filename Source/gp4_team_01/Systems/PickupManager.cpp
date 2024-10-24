@@ -9,7 +9,10 @@ void UPickupManager::SavePickupStates() {
 			PickupStates.Add(Pickups[i]->GetEnabled());
 		else if(i > PickupStates.Num())
 			break;
-		else PickupStates[i] = Pickups[i]->GetEnabled();
+		else  {
+			if(PickupStates[i] && Pickups[i])
+				PickupStates[i] = Pickups[i]->GetEnabled();
+		}	
 	}
 }
 
