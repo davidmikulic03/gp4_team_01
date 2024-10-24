@@ -42,7 +42,8 @@ void AFallableTarget::OnBreak() {
 	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
 		g->GetNoiseSystemRef()->RegisterNoiseEvent(NoiseOnBreak, TargetVector);
 	}
-
+	
+	FallableBreakEvent();
 	//TODO: handle graphics for the break
 	Destroy();
 }

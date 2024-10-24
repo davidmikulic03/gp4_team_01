@@ -23,11 +23,15 @@ protected:
 	virtual void OnInteract() override;
 	virtual void OnUnInteract() override { UE_LOG(LogTemp, Error, TEXT("This is a fallable, it should NOT have OnUnInteract called on it")); };
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void FallableBreakEvent();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	
 	virtual void OnBreak();
 
 private:
