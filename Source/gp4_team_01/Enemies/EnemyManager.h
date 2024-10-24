@@ -4,6 +4,7 @@
 #include "UObject/Object.h"
 #include "EnemyManager.generated.h"
 
+class AFMODAmbientSound;
 enum class ESignalSeverity : uint8;
 class UFuzzyBrainComponent;
 class AEnemyBase;
@@ -19,16 +20,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void LoadEnemyStates();
 	UFUNCTION(BlueprintCallable)
-		void SaveEnemyStates();
+		bool SaveEnemyStates();
 	
 	void Register(AEnemyBase* Self);
 	void RegisterSeverityChange(ESignalSeverity Severity);
-	
+
+	UPROPERTY(EditInstanceOnly)
+		AFMODAmbientSound* MusicActor;
 private:
 	ESignalSeverity GetHighestSeverity();
 	
 	TArray<AEnemyBase*> Enemies;
 	TArray<UFuzzyBrainComponent*> Brains;
+	TArray<FTransform> EnemyTransforms;
 
 	ESignalSeverity LastHighestSeverity;
 };

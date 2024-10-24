@@ -10,7 +10,6 @@
 // Sets default values for this component's properties
 UThrowerComponent::UThrowerComponent()
 {
-	Spline = CreateDefaultSubobject<USplineComponent>("Prediction Spline");
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
@@ -40,9 +39,9 @@ void UThrowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	TimeSinceLastThrown += DeltaTime;
 }
 
-void UThrowerComponent::Launch()
+void UThrowerComponent::Launch(ItemType ItemType)
 {
-	if(Throwable != nullptr && TimeSinceLastThrown >= ThrowCooldown)
+	if(ThrowableActor && SmokeBombActor != nullptr && TimeSinceLastThrown >= ThrowCooldown)
 	{
 		UWorld* const World = GetWorld();
 		if(World !=nullptr)
@@ -53,7 +52,12 @@ void UThrowerComponent::Launch()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-			auto Projectile = World->SpawnActor<AThrowableProjectile>(Throwable, SpawnLocation, SpawnRotation, SpawnParams);
+			AThrowableProjectile* Projectile = nullptr; 
+			if(ItemType == ItemType::Throwable)
+				Projectile = World->SpawnActor<AThrowableProjectile>(ThrowableActor, SpawnLocation, SpawnRotation, SpawnParams);
+			else if (ItemType == ItemType::SmokeBomb)
+				Projectile = World->SpawnActor<AThrowableProjectile>(SmokeBombActor, SpawnLocation, SpawnRotation, SpawnParams);
+			
 			Projectile->GetProjectileMovement()->InitialSpeed = ThrowSpeed;
 
 			if(NoiseSystem)
@@ -104,8 +108,15 @@ FPredictProjectilePathResult UThrowerComponent::PredictTrajectory()
 	return PredictResult;
 }
 
-void UThrowerComponent::DrawProjectilePath(FPredictProjectilePathResult PathResult) {
-	if(!SplineMesh) return;
+void UThrowerComponent::DrawProjectilePath(FPredictProjectilePathResult PathResult, ItemType Type) {
+	if(PlayerCharacter) {
+		if(Type == ItemType::Throwable && PlayerCharacter->GetThrowableInventory()->CurrentThrowables == 0) 
+			return;
+		else if(Type == ItemType::SmokeBomb && PlayerCharacter->GetThrowableInventory()->CurrentSmokeBombs == 0) 
+			return;
+	}
+		
+	
 	for (int i = 0; i < FMath::Max(PathResult.PathData.Num() - 1, SplineMeshes.Num()); i++) {
 		if(i + 1 < PathResult.PathData.Num()) {
 			SplineMeshes[i]->SetVisibility(true);

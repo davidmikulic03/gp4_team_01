@@ -21,12 +21,19 @@ public:
 	
 	virtual void Interact(AActor* Caller) override;
 	inline ItemType GetItemType() const { return ItemType; };
+
+	void SetEnabled(bool Value);
+	bool GetEnabled() { return bEnabled; }
+
 protected:
 	virtual void BeginPlay() override;
 	
-private:
+protected:
 	UPROPERTY(EditAnywhere, Category="Pickup")
 	int AmountToAdd = 5;
-	UPROPERTY(EditAnywhere, Category="Pickup")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pickup")
 	ItemType ItemType;
+
+	UPROPERTY()
+	bool bEnabled = true;
 };

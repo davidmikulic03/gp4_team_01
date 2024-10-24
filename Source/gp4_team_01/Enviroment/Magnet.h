@@ -18,11 +18,15 @@ public:
 		void OnInteractable();
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnNotInteractable();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnBeginTraversal();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnFinishTraversal();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		USceneComponent* TraversalTarget;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		USceneComponent* AimTarget;
 protected:
 	virtual void BeginPlay() override;

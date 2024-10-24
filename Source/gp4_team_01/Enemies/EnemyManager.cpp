@@ -1,6 +1,7 @@
 ﻿#include "EnemyManager.h"
 
 #include "EnemyBase.h"
+#include "FMODAmbientSound.h"
 #include "FMODBlueprintStatics.h"
 #include "AI/EnemyAIController.h"
 #include "AI/FuzzyBrainComponent.h"
@@ -35,11 +36,22 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 void AEnemyManager::LoadEnemyStates() {
 	for(int i = 0; i < Enemies.Num(); i++) {
 		Brains[i]->Reset();
+		Enemies[i]->LoadState();
 	}
+	if(MusicActor)
+		MusicActor->Reset();
+	LastHighestSeverity = ESignalSeverity::Nonperceptible;
 }
 
-void AEnemyManager::SaveEnemyStates() {
-	
+bool AEnemyManager::SaveEnemyStates() {
+	if(GetHighestSeverity() == ESignalSeverity::Strong)
+		return false;
+	else {
+		//for(int i = 0; i < Enemies.Num(); i++) {
+		//	Enemies[i]->SaveState();
+		//}
+		return true;
+	}
 }
 
 void AEnemyManager::Register(AEnemyBase* Self) {

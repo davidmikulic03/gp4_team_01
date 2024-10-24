@@ -33,16 +33,17 @@ void AFallableTarget::Tick(float DeltaTime) {
 
 void AFallableTarget::OnBreak() {
 	UE_LOG(LogTemp, Warning, TEXT("Fallable broke!"));
-
+	
 	bIsOpening = false;
 
 	if(bKillsEnemyOnFall)
-		EnemyToKill->OnDeath(this);
+		EnemyToKill->Die(this);
 
 	if(auto g = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))) {
 		g->GetNoiseSystemRef()->RegisterNoiseEvent(NoiseOnBreak, TargetVector);
 	}
-
+	
+	FallableBreakEvent();
 	//TODO: handle graphics for the break
 	Destroy();
 }

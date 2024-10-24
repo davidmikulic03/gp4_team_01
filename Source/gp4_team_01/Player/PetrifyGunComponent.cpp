@@ -12,7 +12,6 @@ UPetrifyGunComponent::UPetrifyGunComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComp");
 	TimeSinceLastShot = ShotCooldown;	
 }
 
@@ -21,8 +20,8 @@ void UPetrifyGunComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	TimeSinceLastShot = 0.f;
-	
 	Controller = Cast<APlayerCharacterController>(GetWorld()->GetFirstPlayerController());
+	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 }
 
 
@@ -54,19 +53,39 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 
 		Controller->GetPlayerViewPoint(StartLocation, StartRotation);
 		
+		UNiagaraComponent* MuzzleFlashComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			MuzzleFlash,
+			this,
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::Type::KeepRelativeOffset,
+			true
+			);
+		UNiagaraComponent* LaserBeamComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			LaserBeam,
+			GetComponentLocation(),
+			GetComponentRotation(),
+			FVector::OneVector
+			);
+		NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, GetComponentLocation());
+
 		FHitResult HitResult;
+
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Controller->GetPawn());
 		FVector EndLocation = StartLocation + (StartRotation.Vector() * TraceLength);
-		
+
 		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
-			StartLocation + MuzzleOffset, 
+			StartLocation,
 			EndLocation,
 			ECC_WorldDynamic, 
 			CollisionParams);
 		if (bTraceHit)
 		{
+
 			if (HitResult.GetActor() && HitResult.GetActor()->Implements<UPetrifiable>())
 			{
 				auto asPetrifiable = Cast<IPetrifiable>(HitResult.GetActor());
@@ -85,7 +104,10 @@ void UPetrifyGunComponent::TryFirePetrifyGun()
 			UE_LOG(LogTemp, Warning, TEXT("Hit nothing"));
 		}
 
-;		UE_LOG(LogTemp, Warning, TEXT("PetrifyGun Fired"));
+		;		UE_LOG(LogTemp, Warning, TEXT("PetrifyGun Fired"));
+		
+
+
 		TimeSinceLastShot = ShotCooldown;
 	}
 	else

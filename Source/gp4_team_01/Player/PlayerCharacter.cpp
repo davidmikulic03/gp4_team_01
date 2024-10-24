@@ -29,6 +29,9 @@ APlayerCharacter::APlayerCharacter()
 	EyeOffset = FVector(0.f);
 	CrouchAlpha = 12.f;
 	PetrifyGunStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Petrify Gun StaticMesh");
+	MagnetStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Magnet StaticMesh");
+	ThrowableStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Throwable Mesh");
+	SmokeBombStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Smoke Bomb Mesh");
 	ThrowerComponent = CreateDefaultSubobject<UThrowerComponent>(TEXT("Thrower"));
 	ThrowerComponent->SetupAttachment(Camera);
 	PetrifyGun = CreateDefaultSubobject<UPetrifyGunComponent>(TEXT("Petrify Gun"));
@@ -40,7 +43,14 @@ APlayerCharacter::APlayerCharacter()
 	OnActorBeginOverlap.AddDynamic(Magnet, &UMagnetComponent::BeginOverlap);
 	OnActorEndOverlap.AddDynamic(Magnet, &UMagnetComponent::EndOverlap);
 	PetrifyGunStaticMesh->SetupAttachment(Camera);
+	MagnetStaticMesh->SetupAttachment(Camera);
 	DetectionModifierComponent = CreateDefaultSubobject<UDetectionModifier>(TEXT("Detection Modifier Comp"));
+	PetrifyGun->SetupAttachment(PetrifyGunStaticMesh);
+
+	ThrowableStaticMesh->SetupAttachment(MagnetStaticMesh);
+	SmokeBombStaticMesh->SetupAttachment(MagnetStaticMesh);
+	ThrowableStaticMesh->SetVisibility(false);
+	SmokeBombStaticMesh->SetVisibility(false);
 }
 
 void APlayerCharacter::Die() {
@@ -66,44 +76,102 @@ bool APlayerCharacter::InputIsPressed(FVector2D Value)
 void APlayerCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
-	{
-		GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
-		TimeSinceLastMadeNoise = 0;
-		UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
-	}
+	GenerateNoise(LandingNoiseDataAsset, GetActorLocation());
+	UE_LOG(LogTemp, Warning, TEXT("Landed and made noise"));
 }
 
 void APlayerCharacter::TryGenerateNoise()
 {
-	if(TimeSinceLastMadeNoise >= MakeNoiseFrequency)
-	{
-		if(GetMovementComponent()->IsCrouching())
-		{
-			if(CrouchedNoiseDataAsset != nullptr) //add more checks in necessary.
-			{
-				GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
-			}
-			TimeSinceLastMadeNoise = 0.f;
+	if(GetMovementComponent()->IsCrouching()) {
+		if(CrouchedNoiseDataAsset != nullptr) {
+			GenerateNoise(CrouchedNoiseDataAsset, GetActorLocation());
 		}
-		else if(!GetMovementComponent()->IsCrouching())
-		{
-			if(WalkingNoiseDataAsset != nullptr)
-			{
-				GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
-			}
-			TimeSinceLastMadeNoise = 0.f;
-		}
-		/*else
-		HasSwitchedMovementMode();*/
 	}
-	else return;
+	else {
+		if(WalkingNoiseDataAsset != nullptr) {
+			GenerateNoise(WalkingNoiseDataAsset, GetActorLocation());
+		}
+	}
 }
 
 void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location)
 {
 	NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, Location);
 	UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
+}
+
+void APlayerCharacter::ActivateGun()
+{
+	bHasGun = true;
+	PetrifyGunStaticMesh->SetVisibility(true);
+}
+
+void APlayerCharacter::DeactivateGun()
+{
+	bHasGun = false;
+	PetrifyGunStaticMesh->SetVisibility(false);
+}
+
+void APlayerCharacter::ActivateMagnet()
+{
+	bHasMagnet = true;
+	MagnetStaticMesh->SetVisibility(true);
+}
+
+void APlayerCharacter::DeactivateMagnet()
+{
+	bHasMagnet = false;
+	MagnetStaticMesh->SetVisibility(false);
+}
+
+void APlayerCharacter::SaveRockCount()
+{
+	SavedThrowablesCount = ThrowableInventory->CurrentThrowables;
+}
+
+void APlayerCharacter::SaveGrenadeCount()
+{
+	SavedSmokeBombCount = ThrowableInventory->CurrentSmokeBombs;
+}
+
+void APlayerCharacter::LoadRockCount()
+{
+	ThrowableInventory->CurrentThrowables = SavedThrowablesCount;
+}
+
+void APlayerCharacter::LoadGrenadeCount()
+{
+	ThrowableInventory->CurrentSmokeBombs = SavedSmokeBombCount;
+}
+
+bool APlayerCharacter::GetCameraShakeOn()
+{
+	return bCameraShakeOn;
+}
+
+void APlayerCharacter::SetCameraShakeOn(bool Value)
+{
+	bCameraShakeOn = Value;
+}
+
+bool APlayerCharacter::TraceInteract(FHitResult& HitResult) {
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	
+	FRotator StartRotation;
+	FVector StartLocation;
+
+	GetController()->GetPlayerViewPoint(StartLocation, StartRotation);
+	FVector EndLocation = StartLocation + StartRotation.Vector() * 210.f;
+
+	return GetWorld()->LineTraceSingleByChannel
+	(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECC_Visibility,
+		QueryParams
+	);
 }
 
 // Called when the game starts or when spawned
@@ -118,6 +186,17 @@ void APlayerCharacter::BeginPlay()
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	OriginalCameraPosition = Camera->GetRelativeLocation();
+	bHasGun = false;
+	bHasMagnet = false;
+	//crouches
+	bIsCrouching = true;
+	////bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
+	//bHasGun = true;
+	//bHasMagnet = true;
+	GetCharacterMovement()->bWantsToCrouch = true;
+	GetCharacterMovement()->Crouch();
+
+	EquippedItem = ItemType::None;
 }
 
 // Called every frame
@@ -127,15 +206,37 @@ void APlayerCharacter::Tick(float DeltaTime)
 	DeltaValue += DeltaTime;
 	float CrouchInterpolateTime = FMath::Min(1.f, CrouchAlpha * DeltaTime);
 	EyeOffset = (1.0f - CrouchInterpolateTime) * EyeOffset;
-	TimeSinceLastMadeNoise += DeltaTime;
+	
 	if(GetMovementComponent()->IsMovingOnGround() && GetMovementComponent()->Velocity.Length() > 0.2f) //TODO: remove magic numbers 
 	{
-		TryGenerateNoise();
+		float temp = StepCounter;
+		StepCounter += DeltaTime * MakeNoiseFrequency;
+		if(FMath::Floor(temp) < FMath::Floor(StepCounter)) {
+			TryGenerateNoise();
+		}
 	}
 	if(FMath::IsNearlyZero((GetCharacterMovement()->Velocity.Length())) && Camera->GetRelativeLocation() != OriginalCameraPosition)
 	{
 		ResetCameraPosition();
 	}
+	// For displaying ui stuff.
+	FHitResult Hit;
+	TraceInteract(Hit);
+	auto a = Cast<AInteractable>(Hit.GetActor());
+	bool bNewValue = a != nullptr;
+	if(bNewValue && !bCanInteract)
+		OnCanInteract(a);
+	else if(!bNewValue && bCanInteract)
+		OnCannotInteract(a);
+	bCanInteract = bNewValue;
+	if(a != CurrentlyInteractableActor) {
+		if(CurrentlyInteractableActor)
+			CurrentlyInteractableActor->OnNotInteractable();
+		if(a) {
+			a->OnInteractable();
+		}
+	}
+	CurrentlyInteractableActor = a;
 }
 
 // Called to bind functionality to input
@@ -156,8 +257,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(IncrementSpeedAction, ETriggerEvent::Triggered, this, &APlayerCharacter::IncrementMovement);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
-		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PredictTrajectory);
-		EnhancedInputComponent->BindAction(PredictTrajectoryAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimThrowable);
+		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimSmokeBomb);
+		EnhancedInputComponent->BindAction(AimThrowableAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(AimSmokeBombAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopPredictingTrajectory);
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &APlayerCharacter::OnPause);
 	}
 }
 
@@ -170,42 +274,19 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	if(Magnet->IsTraversing())
 		return;
+	
 	const FVector2D InputVector = Value.Get<FVector2D>();
 
 	if(Controller != nullptr)
 	{
 		AddMovementInput(GetActorForwardVector(), InputVector.Y);
 		AddMovementInput((GetActorRightVector()), InputVector.X);
-		CameraShake();
+		if(bCameraShakeOn)
+		{
+			CameraShake();
+		}
 	}
 }
-
-/*void APlayerCharacter::MoveForward(const FInputActionValue& Value)
-{
-	if(Magnet->IsTraversing())
-		return;
-	FVector2D InputVector = Value.Get<FVector2D>();
-	//redo increment movement
-	if(Controller != nullptr)//bad choice. I can't check this every frame the button is held.
-	{
-		AddMovementInput(GetActorForwardVector(), InputVector.X);
-		InputIsPressed(InputVector);
-	}
-
-}
-
-void APlayerCharacter::MoveRight(const FInputActionValue& Value)
-{
-	if(Magnet->IsTraversing())
-		return;
-	//redo increment movement
-	FVector2D InputVector = Value.Get<FVector2D>();
-	if(Controller != nullptr)
-	{
-		AddMovementInput(GetActorRightVector(), InputVector.X);
-		InputIsPressed(InputVector);
-	}
-}*/
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
@@ -241,17 +322,20 @@ void APlayerCharacter::Crouch(const FInputActionValue& Value)
 
 void APlayerCharacter::Throw(const FInputActionValue& Value)
 {
-	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0 && !ThrowerComponent->IsOnCooldown())
+	if(ThrowableInventory->GetCurrentCount(EquippedItem) > 0 && !ThrowerComponent->IsOnCooldown())
 	{
-		ThrowerComponent->Launch();
-		ThrowableInventory->RemoveItem(ItemType::Throwable);
+		ThrowerComponent->Launch(EquippedItem);
+		ThrowableInventory->RemoveItem(EquippedItem);
 		ThrowerComponent->ResetCooldown();
+
+		if(ThrowableInventory->GetCurrentCount(EquippedItem) == 0)
+			StopPredictingTrajectory(Value);
 	}
 	else if(ThrowerComponent->IsOnCooldown())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On Cooldown."));		
 	}
-	else if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) <= 0)
+	else if(ThrowableInventory->GetCurrentCount(EquippedItem) <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Can't throw. Nothing in the inventory."));	
 	}
@@ -259,7 +343,11 @@ void APlayerCharacter::Throw(const FInputActionValue& Value)
 
 void APlayerCharacter::FirePetrifyGun(const FInputActionValue& Value)
 {
-	PetrifyGun->TryFirePetrifyGun();
+	if(bHasGun && !Magnet->IsTraversing())
+	{
+		PetrifyGun->TryFirePetrifyGun();
+	}
+
 }
 
 void APlayerCharacter::IncrementMovement(const FInputActionValue& Value)
@@ -302,23 +390,7 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 	if(Magnet->IsTraversing() || Magnet->Use())
 		return;
 	FHitResult HitResult;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-	
-	FRotator StartRotation;
-	FVector StartLocation;
-
-	GetController()->GetPlayerViewPoint(StartLocation, StartRotation);
-	FVector EndLocation = StartLocation + StartRotation.Vector() * 500.f;
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel
-	(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ECC_Visibility,
-		QueryParams
-	);
+	bool bHit = TraceInteract(HitResult); 
 
 	if(bHit)
 	{
@@ -334,40 +406,83 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 		}
 		
 	}
-	DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
+	//DrawDebugLine(GetWorld(),StartLocation, EndLocation, FColor::Red, false, 3.f, 3.f);
 }
 
-void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value)
+void APlayerCharacter::AimThrowable(const FInputActionValue& Value) {
+	if(ThrowableInventory->GetCurrentCount(ItemType::Throwable) > 0) {
+		PredictTrajectory(Value, ItemType::Throwable);
+		DeactivateMagnet();
+		
+		if(!ThrowerComponent->IsOnCooldown())
+			ThrowableStaticMesh->SetVisibility(true);
+		else
+			ThrowableStaticMesh->SetVisibility(false);
+		
+		EquippedItem = ItemType::Throwable;
+	}
+}
+
+void APlayerCharacter::AimSmokeBomb(const FInputActionValue& Value) {
+	if(ThrowableInventory->GetCurrentCount(ItemType::SmokeBomb) > 0) {
+		PredictTrajectory(Value, ItemType::SmokeBomb);
+		DeactivateMagnet();
+		
+		if(!ThrowerComponent->IsOnCooldown())
+			SmokeBombStaticMesh->SetVisibility(true);
+		else
+			SmokeBombStaticMesh->SetVisibility(false);
+		
+		EquippedItem = ItemType::SmokeBomb;
+	}
+}
+
+void APlayerCharacter::OnPause() {
+	if(AMainGameMode* const GameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		GameMode->PauseGame();
+}
+
+void APlayerCharacter::PredictTrajectory(const FInputActionValue& Value, ItemType ItemType)
 {
 	FPredictProjectilePathResult Result = ThrowerComponent->PredictTrajectory();
-	ThrowerComponent->DrawProjectilePath(Result);
+	ThrowerComponent->DrawProjectilePath(Result, ItemType);
 }
 
 void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) {
 	ThrowerComponent->HideProjectilePath();
+
+	SmokeBombStaticMesh->SetVisibility(false);
+	ThrowableStaticMesh->SetVisibility(false);
+	
+	if(bHasMagnet)
+		ActivateMagnet();
+	
+	EquippedItem = ItemType::None;
 }
 
 void APlayerCharacter::CameraShake()
 {
-	float NormalizedWalkTime = 1 - TimeSinceLastMadeNoise / MakeNoiseFrequency;
-	float NormalizedWalkTimeClamped = FMath::Clamp(NormalizedWalkTime, -1.f, 1.f);
+	float NormalizedWalkTimeZ = StepCounter;
+	float NormalizedWalkTimeY = StepCounter / 2;
+	
 	if(!bIsCrouching)
 	{
-		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI);
-		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionWalking;
+		float DeltaZ = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeZ * TWO_PI);
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeY * TWO_PI) * AmplitudeFractionWalking;
 		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 	else if(bIsCrouching)
 	{
-		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI); //add fraction
-		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeClamped * TWO_PI) * AmplitudeFractionCrouched;
+		float DeltaZ = AmplitudeCrouching * FMath::Sin(NormalizedWalkTimeZ * TWO_PI); //add fraction
+		float DeltaY = AmplitudeWalking * FMath::Sin(NormalizedWalkTimeY * TWO_PI) * AmplitudeFractionCrouched;
 		Camera->AddLocalOffset(FVector(0.f, DeltaY, DeltaZ));
 	}
 }
 
 void APlayerCharacter::ResetCameraPosition()
 {
-	Camera->SetRelativeLocation(OriginalCameraPosition);
+	FVector NewCameraPosition = FMath::Lerp(Camera->GetRelativeLocation(), OriginalCameraPosition, CameraResetLerpTime);
+	Camera->SetRelativeLocation(NewCameraPosition);
 	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
 }
 

@@ -12,6 +12,7 @@
 #include "gp4_team_01/Systems/MainGameMode.h"
 #include "ThrowableProjectile.generated.h"
 
+enum class ItemType : uint8;
 class USphereComponent;
 class UProjectileMovementComponent;
 class ANoiseSystem;
@@ -39,13 +40,21 @@ public:
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
-	UPROPERTY(EditDefaultsOnly)
-	UNoiseDataAsset* NoiseDataAsset;
+	
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location) override;	
 protected:
 	virtual void BeginPlay() override;
+
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* ThrowableMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	UNoiseDataAsset* NoiseDataAsset;
+	
 private:
 	//variables and components
 	class ANoiseSystem* NoiseSystem;

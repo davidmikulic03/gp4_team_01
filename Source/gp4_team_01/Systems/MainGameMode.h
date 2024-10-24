@@ -8,6 +8,7 @@
 
 #include "MainGameMode.generated.h"
 
+class UPickupManager;
 class AEnemyManager;
 class ANoiseSystem;
 
@@ -59,7 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ANoiseSystem* GetNoiseSystemRef() { return  NoiseSystemRef; };
 	UFUNCTION(BlueprintCallable)
-	AEnemyManager* GetEnemyManagerRef() { return EnemyManagerRef; };
+	AEnemyManager* GetEnemyManagerRef() const { return EnemyManagerRef; };
+	UFUNCTION(BlueprintCallable)
+	UPickupManager* GetPickupManagerRef() const { return PickupManagerRef; };
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
@@ -69,12 +72,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> LoseScreenClass;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> PauseScreenClass;
+
 private:
 	void LoadFromLastCheckpoint();
 	void ResetGameStateOnDeath();
 	void ShowWinScreen();
 	void ShowLoseScreen();
-	
+	void ShowPauseScreen();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Systems", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ANoiseSystem> NoiseSystemClass = nullptr;
@@ -82,10 +90,12 @@ private:
 	enum GameState CurrentGameState;
 	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
 	inline static AEnemyManager* EnemyManagerRef = nullptr;
+	inline static UPickupManager* PickupManagerRef = nullptr;
 
 private:
 	UUserWidget* WinScreenInstance;
 	UUserWidget* LoseScreenInstance;
+	UUserWidget* PauseScreenInstance;
 
 };
 

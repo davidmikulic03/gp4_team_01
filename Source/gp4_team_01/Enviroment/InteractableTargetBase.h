@@ -19,10 +19,15 @@ public:
 
 	//for some absurd reason the PURE_VIRTUAL macro doesn't seem to do its thing but we'll take it
 	UFUNCTION(BlueprintCallable)
-	virtual void OnInteract() PURE_VIRTUAL(AInteractableTargetBase::OnInteract, ;);
+	virtual void OnInteract() { OnInteractEvent(); };
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnUnInteract() PURE_VIRTUAL(AInteractableTargetBase::OnUnInteract, ;);
+	virtual void OnUnInteract() { OnUnInteractEvent(); };
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnInteractEvent();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnUnInteractEvent();
 
 	UFUNCTION(BlueprintCallable)
 	bool GetHasBeenInteractedWith() const { return bHasBeenInteractedWith; };

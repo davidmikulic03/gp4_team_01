@@ -2,6 +2,7 @@
 
 #include "DetectionModifier.h"
 #include "EnemyAIController.h"
+#include "IndexTypes.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
@@ -142,7 +143,7 @@ bool UFuzzyBrainComponent::IsResolvable(FPerceptionSignal Signal, FWeightedSigna
 }
 
 float UFuzzyBrainComponent::GetNormalizedWeight(AActor* Actor) const {
-	if(auto inMemory = Memory.FindByPredicate([this, Actor](FWeightedSignal WeightedSignal) {
+	if(auto inMemory = Memory.FindByPredicate([Actor](FWeightedSignal WeightedSignal) {
 			return WeightedSignal.Signal.Actor == Actor;
 		})) {
 		float Result = inMemory->GetWeight() / MaxInterest;
@@ -202,9 +203,11 @@ void UFuzzyBrainComponent::ForgetUnimportant() {
 }
 
 uint32 UFuzzyBrainComponent::GetSignalIdOfHighestWeight() {
-	uint32 Result = INDEX_NONE;
+	uint32 Result = 0;
+	if(Memory.IsEmpty())
+		return INDEX_NONE;
 	for (int Id = 0; Id < Memory.Num(); Id++) {
-		if(Result == INDEX_NONE || Memory[Id].GetWeight() > Memory[Result].GetWeight())
+		if(static_cast<int>(Result) < Memory.Num() && Memory[Id].Weight > Memory[Result].Weight)
 			Result = Id;
 	}
 	return Result;
@@ -235,8 +238,7 @@ void UFuzzyBrainComponent::IncrementCompoundingWeight(FWeightedSignal& WeightedS
 		}
 		float Increment = Weight * DeltaTime;
 		auto a = WeightedSignal.Signal.Actor;
-		if(a && WeightedSignal.Weight < MaxInterest) { if(auto DetectionModifier = Cast<UDetectionModifier>(a->GetComponentByClass(UDetectionModifier::StaticClass())))
-			Increment *= DetectionModifier->DefaultSignalModifier; }
+		
 		WeightedSignal.Weight += Increment * WeightedSignal.Signal.SignalStrength;
 		WeightedSignal.bPositiveSlopeSign = true;
 		if(WeightedSignal.Weight > MaxInterest) 

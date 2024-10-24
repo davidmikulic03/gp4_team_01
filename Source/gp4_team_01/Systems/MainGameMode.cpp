@@ -4,6 +4,7 @@
 #include "MainGameMode.h"
 
 #include "NoiseSystem.h"
+#include "PickupManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "gp4_team_01/Enemies/EnemyManager.h"
@@ -17,6 +18,7 @@ void AMainGameMode::InitGameState() {
 		UE_LOG(LogTemp, Error, TEXT("ERROR: Missing NoiseSystemClass, plug it in the editor!"));
 
 	EnemyManagerRef = GetWorld()->SpawnActor<AEnemyManager>();
+	PickupManagerRef = NewObject<UPickupManager>();
 
 	if(!NoiseSystemRef)
 		UE_LOG(LogTemp, Error, TEXT("ERROR: Failed to create NoiseSystem"));
@@ -39,6 +41,7 @@ void AMainGameMode::PauseGame()
 {
 	UGameplayStatics::SetGamePaused(this, true);
 	CurrentGameState = GameState::PAUSED;
+	ShowPauseScreen();
 }
 
 void AMainGameMode::UnpauseGame()
@@ -98,6 +101,18 @@ void AMainGameMode::ShowLoseScreen()
 		if (LoseScreen)
 		{
 			LoseScreen->AddToViewport();
+		}
+	}
+}
+
+void AMainGameMode::ShowPauseScreen()
+{
+	if (PauseScreenClass && !PauseScreenInstance)
+	{
+		PauseScreenInstance = CreateWidget<UUserWidget>(GetWorld(), PauseScreenClass);
+		if (PauseScreenInstance)
+		{
+			PauseScreenInstance->AddToViewport();
 		}
 	}
 }
