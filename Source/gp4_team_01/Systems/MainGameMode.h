@@ -72,12 +72,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> LoseScreenClass;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> PauseScreenClass;
+
 private:
 	void LoadFromLastCheckpoint();
 	void ResetGameStateOnDeath();
 	void ShowWinScreen();
 	void ShowLoseScreen();
-	
+	void ShowPauseScreen();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Systems", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ANoiseSystem> NoiseSystemClass = nullptr;
@@ -90,6 +95,7 @@ private:
 private:
 	UUserWidget* WinScreenInstance;
 	UUserWidget* LoseScreenInstance;
+	UUserWidget* PauseScreenInstance;
 
 };
 
