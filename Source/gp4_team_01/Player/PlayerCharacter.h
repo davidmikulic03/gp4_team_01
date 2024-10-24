@@ -267,6 +267,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Non-Modifiable")
 	float SavedSmokeBombCount;
 
+	UFUNCTION(BlueprintCallable)
+		void SavePlayerState() { SaveRockCount(); SaveGrenadeCount(); }
+	UFUNCTION(BlueprintCallable)
+		void LoadPlayerState() { LoadRockCount(); LoadGrenadeCount(); }
 	UFUNCTION()
 	void SaveRockCount();
 	UFUNCTION()
@@ -275,6 +279,10 @@ public:
 	void LoadRockCount();
 	UFUNCTION()
 	void LoadGrenadeCount();
+	UFUNCTION(BlueprintCallable)
+	bool GetCameraShakeOn();
+	UFUNCTION(BlueprintCallable)
+	void SetCameraShakeOn(bool Value);
 protected:
 	bool TraceInteract(FHitResult& HitResult);
 	bool bCanInteract = false;
@@ -282,4 +290,6 @@ protected:
 	ItemType EquippedItem = ItemType::None;
 
 	AInteractable* CurrentlyInteractableActor = nullptr;
+private:
+	bool bCameraShakeOn = true;
 };

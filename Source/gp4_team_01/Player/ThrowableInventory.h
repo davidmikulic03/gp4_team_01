@@ -55,4 +55,7 @@ public:
 
 private:
 	APlayerCharacter* PlayerRef;
+
+	int SavedThrowables = 0;
+	int SavedSmokeBombs = 0;
 };
