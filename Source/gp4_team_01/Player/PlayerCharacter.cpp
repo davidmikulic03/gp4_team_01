@@ -186,8 +186,8 @@ void APlayerCharacter::BeginPlay()
 	ThrowableInventory->AddPlayerRef(this);
 	NoiseSystem = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetNoiseSystemRef();
 	OriginalCameraPosition = Camera->GetRelativeLocation();
-	bHasGun = false;
-	bHasMagnet = false;
+	//bHasGun = false;
+	//bHasMagnet = false;
 	//crouches
 	bIsCrouching = true;
 	////bHasGun and bHasMagnet are set to true on the first frame because DeactivateGunMesh and DeactivateMagnetMesh set them to the opposite of the value and then check
