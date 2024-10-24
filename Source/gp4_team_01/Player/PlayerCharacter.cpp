@@ -453,7 +453,9 @@ void APlayerCharacter::StopPredictingTrajectory(const FInputActionValue& Value) 
 
 	SmokeBombStaticMesh->SetVisibility(false);
 	ThrowableStaticMesh->SetVisibility(false);
-	ActivateMagnet();
+	
+	if(bHasMagnet)
+		ActivateMagnet();
 	
 	EquippedItem = ItemType::None;
 }
