@@ -32,7 +32,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FWeightedSignal GetCurrentMostInterestingSignal() const {
-		if(HighestWeightId != INDEX_NONE && HighestWeightId < Memory.Num())
+		if(HighestWeightId != INDEX_NONE && static_cast<int>(HighestWeightId) < Memory.Num())
 			return Memory[HighestWeightId];
 		else
 			return FWeightedSignal();
