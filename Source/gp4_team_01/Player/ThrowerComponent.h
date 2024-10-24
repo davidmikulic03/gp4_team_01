@@ -70,6 +70,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	UNoiseDataAsset* Noise;
+	UPROPERTY(EditDefaultsOnly)
+	UMaterialInterface* PredictionMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMesh* SplineMesh;
