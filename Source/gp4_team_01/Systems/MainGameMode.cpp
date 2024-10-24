@@ -41,6 +41,7 @@ void AMainGameMode::PauseGame()
 {
 	UGameplayStatics::SetGamePaused(this, true);
 	CurrentGameState = GameState::PAUSED;
+	ShowPauseScreen();
 }
 
 void AMainGameMode::UnpauseGame()
@@ -100,6 +101,18 @@ void AMainGameMode::ShowLoseScreen()
 		if (LoseScreen)
 		{
 			LoseScreen->AddToViewport();
+		}
+	}
+}
+
+void AMainGameMode::ShowPauseScreen()
+{
+	if (PauseScreenClass && !PauseScreenInstance)
+	{
+		PauseScreenInstance = CreateWidget<UUserWidget>(GetWorld(), PauseScreenClass);
+		if (PauseScreenInstance)
+		{
+			PauseScreenInstance->AddToViewport();
 		}
 	}
 }
