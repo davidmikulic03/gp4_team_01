@@ -42,7 +42,7 @@ void UFuzzyBrainComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if(HighestWeightId < static_cast<uint32>(Memory.Num())) {
 		if(GetSeverity(Memory[HighestWeightId]) != LastRecordedSeverity) {
-			if(Controller && Body && NewHighestId != INDEX_NONE && NewHighestId < Memory.Num()) {
+			if(Controller && Body && NewHighestId != INDEX_NONE && static_cast<int>(NewHighestId) < Memory.Num()) {
 				Controller->OnSignalSeverityChanged(Memory[NewHighestId]);
 				Body->GetEnemyManager()->RegisterSeverityChange(GetSeverity(Memory[HighestWeightId]));
 			}
