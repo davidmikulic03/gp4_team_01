@@ -17,7 +17,10 @@ void UPickupManager::SavePickupStates() {
 }
 
 void UPickupManager::LoadPickupStates() {
+	
 	for(int i = 0; i < Pickups.Num(); i++) {
+		if(!Pickups.IsValidIndex(i))
+			return;
 		if(i < PickupStates.Num()) {
 			if(Pickups[i] && Pickups[i]->IsValidLowLevel())
 				Pickups[i]->SetEnabled(PickupStates[i]);

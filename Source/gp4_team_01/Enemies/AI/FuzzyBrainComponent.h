@@ -31,7 +31,12 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FWeightedSignal GetCurrentMostInterestingSignal() const { return Memory[HighestWeightId]; };
+		FWeightedSignal GetCurrentMostInterestingSignal() const {
+		if(HighestWeightId != INDEX_NONE && static_cast<int>(HighestWeightId) < Memory.Num())
+			return Memory[HighestWeightId];
+		else
+			return FWeightedSignal();
+	};
 	
 	UFUNCTION(BlueprintCallable)
 		ESignalSeverity GetSeverity(FWeightedSignal WeightedSignal) const noexcept;
