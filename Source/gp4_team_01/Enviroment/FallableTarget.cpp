@@ -33,7 +33,7 @@ void AFallableTarget::Tick(float DeltaTime) {
 
 void AFallableTarget::OnBreak() {
 	UE_LOG(LogTemp, Warning, TEXT("Fallable broke!"));
-
+	
 	bIsOpening = false;
 
 	if(bKillsEnemyOnFall)
