@@ -109,8 +109,8 @@ void AEnemyBase::SaveState() {
 void AEnemyBase::LoadState() {
 	//SetActorTransform(Save.Transform);
 	SetCurrentState(Save.State);
-	SetActorTransform(Save.Transform);
-	GetNextWaypointLocation();
+	//SetActorTransform(Save.Transform);
+	//GetNextWaypointLocation();
 
 	if(EnemyController->GetBlackboardComponent()) {
 		EnemyController->GetBlackboardComponent()->Deactivate();
