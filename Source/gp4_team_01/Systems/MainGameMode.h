@@ -88,9 +88,15 @@ private:
 	TSubclassOf<ANoiseSystem> NoiseSystemClass = nullptr;
 	
 	enum GameState CurrentGameState;
-	inline static TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
-	inline static AEnemyManager* EnemyManagerRef = nullptr;
-	inline static UPickupManager* PickupManagerRef = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<ANoiseSystem> NoiseSystemRef = nullptr;
+
+	UPROPERTY()
+	AEnemyManager* EnemyManagerRef = nullptr;
+
+	UPROPERTY()
+	UPickupManager* PickupManagerRef = nullptr;
 
 private:
 	UUserWidget* WinScreenInstance;
