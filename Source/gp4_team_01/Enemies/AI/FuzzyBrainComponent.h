@@ -95,9 +95,13 @@ protected:
 	
 
 	uint32 HighestWeightId = INDEX_NONE;
+
+	UPROPERTY()
 	TArray<FWeightedSignal> Memory;
 
+	UPROPERTY()
 	AEnemyAIController* Controller;
+	UPROPERTY()
 	AEnemyBase* Body;
 
 	UPROPERTY()

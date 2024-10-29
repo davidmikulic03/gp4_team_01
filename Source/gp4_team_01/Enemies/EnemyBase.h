@@ -149,8 +149,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 		TEnumAsByte<EEnemyState> CurrentState;
 
+	UPROPERTY()
 	AEnemyAIController* EnemyController;
 	//AMainGameMode* GameMode;
+	
+	UPROPERTY()
 	AEnemyManager* EnemyManager;
 
 	float BaseSpeed;

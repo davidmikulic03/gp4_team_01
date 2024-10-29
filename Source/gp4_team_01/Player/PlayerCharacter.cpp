@@ -97,7 +97,7 @@ void APlayerCharacter::TryGenerateNoise()
 void APlayerCharacter::GenerateNoise(UNoiseDataAsset* NoiseDataAsset, FVector Location)
 {
 	NoiseSystem->RegisterNoiseEvent(NoiseDataAsset, Location);
-	UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
+	//UE_LOG(LogTemp, Warning, TEXT("Generating Noise"));
 }
 
 void APlayerCharacter::ActivateGun()
@@ -482,7 +482,7 @@ void APlayerCharacter::ResetCameraPosition()
 {
 	FVector NewCameraPosition = FMath::Lerp(Camera->GetRelativeLocation(), OriginalCameraPosition, CameraResetLerpTime);
 	Camera->SetRelativeLocation(NewCameraPosition);
-	UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
+	//UE_LOG(LogTemp, Warning, TEXT("Returned the camera to start location"));
 }
 
 void APlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)

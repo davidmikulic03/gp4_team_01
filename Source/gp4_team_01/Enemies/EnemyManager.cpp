@@ -35,7 +35,7 @@ void AEnemyManager::Tick(float DeltaSeconds) {
 
 void AEnemyManager::LoadEnemyStates() {
 	for(int i = 0; i < Enemies.Num(); i++) {
-		if(Brains[i])
+		if(Brains[i] && Brains[i]->IsValidLowLevel())
 			Brains[i]->Reset();
 		if(Enemies[i])
 			Enemies[i]->LoadState();
@@ -74,8 +74,10 @@ void AEnemyManager::RegisterSeverityChange(ESignalSeverity Severity) {
 ESignalSeverity AEnemyManager::GetHighestSeverity() {
 	ESignalSeverity Result = ESignalSeverity::Nonperceptible;
 	for (auto Brain : Brains) {
-		if(static_cast<int>(Brain->GetLastSeverity()) > static_cast<int>(Result))
-			Result = Brain->GetLastSeverity();
+		if(Brain) {
+			if(static_cast<int>(Brain->GetLastSeverity()) > static_cast<int>(Result))
+				Result = Brain->GetLastSeverity();
+		}
 	}
 	return Result;
 }

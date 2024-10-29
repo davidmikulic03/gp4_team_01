@@ -29,9 +29,14 @@ public:
 		AFMODAmbientSound* MusicActor;
 private:
 	ESignalSeverity GetHighestSeverity();
-	
+
+	UPROPERTY()
 	TArray<AEnemyBase*> Enemies;
+	
+	UPROPERTY()
 	TArray<UFuzzyBrainComponent*> Brains;
+	
+	UPROPERTY()
 	TArray<FTransform> EnemyTransforms;
 
 	ESignalSeverity LastHighestSeverity;
