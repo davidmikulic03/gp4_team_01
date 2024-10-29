@@ -154,10 +154,15 @@ void AEnemyBase::OnDeath_Implementation() { Destroy(); }
 
 FVector AEnemyBase::GetNextWaypointLocation()
 {
-	if(CurrentState == EEnemyState::Idle)
-		return IdleWaypointHolder->GetNextWaypoint();
-	else if(CurrentState == EEnemyState::Suspicious)
-		return SuspiciousWaypointHolder->GetNextWaypoint();
+	
+	if(CurrentState == EEnemyState::Idle) {
+		if(NumberOfIdleWaypoints > 0)
+			return IdleWaypointHolder->GetNextWaypoint();
+	}
+	else if(CurrentState == EEnemyState::Suspicious) {
+		if(NumberOfSuspiciousWaypoints > 0)
+			return SuspiciousWaypointHolder->GetNextWaypoint();
+	}
 
 	return FVector::Zero();
 }

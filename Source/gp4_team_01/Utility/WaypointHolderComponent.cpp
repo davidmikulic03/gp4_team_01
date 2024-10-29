@@ -35,7 +35,7 @@ FVector UWaypointHolderComponent::GetNextWaypoint() {
 	if(Waypoints.Num() > 0)
 		return Waypoints[CurrentWaypointIndex]->GetComponentLocation();
 	else {
-		UE_LOG(LogTemp, Error, TEXT("YOUR WAYPOINT ARRAY IS EMPTY! PLEASE FIX IT!"))
+		UE_LOG(LogTemp, Warning, TEXT("%s 's  WAYPOINT ARRAY IS EMPTY! IF THIS IS NOT INTENTIONAL, PLEASE FIX IT!"), *GetOwner()->GetName());
 		return FVector::Zero();
 	}
 }
