@@ -17,7 +17,7 @@ void UPickupManager::SavePickupStates() {
 }
 
 void UPickupManager::LoadPickupStates() {
-	if(Pickups || Pickups.IsEmpty())
+	if(Pickups.IsEmpty())
 		return;
 	
 	for(int i = 0; i < Pickups.Num(); i++) {
